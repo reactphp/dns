@@ -38,7 +38,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->executor
             ->expects($this->once())
             ->method('createConnection')
-            ->with('8.8.8.8:53', 'udp')
+            ->with('udp://8.8.8.8:53')
             ->will($this->returnNewConnectionMock());
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
@@ -54,7 +54,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->executor
             ->expects($this->once())
             ->method('createConnection')
-            ->with('8.8.8.8:53', 'tcp')
+            ->with('tcp://8.8.8.8:53')
             ->will($this->returnNewConnectionMock());
 
         $query = new Query(str_repeat('a', 512).'.igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
@@ -88,12 +88,12 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->executor
             ->expects($this->at(0))
             ->method('createConnection')
-            ->with('8.8.8.8:53', 'udp')
+            ->with('udp://8.8.8.8:53')
             ->will($this->returnNewConnectionMock());
         $this->executor
             ->expects($this->at(1))
             ->method('createConnection')
-            ->with('8.8.8.8:53', 'tcp')
+            ->with('tcp://8.8.8.8:53')
             ->will($this->returnNewConnectionMock());
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
@@ -120,7 +120,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->executor
             ->expects($this->once())
             ->method('createConnection')
-            ->with('8.8.8.8:53', 'tcp')
+            ->with('tcp://8.8.8.8:53')
             ->will($this->returnNewConnectionMock());
 
         $mock = $this->createCallableMock();
@@ -152,7 +152,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->executor
             ->expects($this->at(0))
             ->method('createConnection')
-            ->with('8.8.8.8:53', 'udp')
+            ->with('udp://8.8.8.8:53')
             ->will($this->returnNewConnectionMock());
 
 
@@ -178,7 +178,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->executor
             ->expects($this->at(0))
             ->method('createConnection')
-            ->with('8.8.8.8:53', 'udp')
+            ->with('udp://8.8.8.8:53')
             ->will($this->returnNewConnectionMock());
 
         $this->loop

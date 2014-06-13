@@ -15,7 +15,7 @@ class Factory
 {
     public function create($nameserver, LoopInterface $loop)
     {
-        $nameserver = $this->addPortToServerIfMissing($nameserver);
+        $nameserver = $this->sanitizeAddress($nameserver);
         $executor = $this->createRetryExecutor($loop);
 
         return new Resolver($nameserver, $executor);
@@ -23,7 +23,7 @@ class Factory
 
     public function createCached($nameserver, LoopInterface $loop)
     {
-        $nameserver = $this->addPortToServerIfMissing($nameserver);
+        $nameserver = $this->sanitizeAddress($nameserver);
         $executor = $this->createCachedExecutor($loop);
 
         return new Resolver($nameserver, $executor);
@@ -44,12 +44,13 @@ class Factory
         return new CachedExecutor($this->createRetryExecutor($loop), new RecordCache(new ArrayCache()));
     }
 
-    protected function addPortToServerIfMissing($nameserver)
+    protected function sanitizeAddress($nameserver)
     {
+        // several colons, but not enclosed in square brackets => enclose IPv6 address in square brackets
         if (strpos($nameserver, '[') === false && substr_count($nameserver, ':') >= 2) {
-            // several colons, but not enclosed in square brackets => enclose IPv6 address in square brackets
             $nameserver = '[' . $nameserver . ']';
         }
+
         // assume a dummy scheme when checking for the port, otherwise parse_url() fails
         if (parse_url('dummy://' . $nameserver, PHP_URL_PORT) === null) {
             $nameserver .= ':53';
