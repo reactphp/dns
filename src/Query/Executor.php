@@ -36,9 +36,15 @@ class Executor implements ExecutorInterface
             $scheme = strlen($queryData) > 512 ? 'tcp' : 'udp';
             $nameserver = str_replace('dummy://', null, $nameserver);
             $nameserver = "{$scheme}://{$nameserver}";
+            $keepScheme = false;
         }
 
-        return $this->doQuery($nameserver, $queryData, $query->name);
+        // Do not allow scheme changes:
+        else {
+            $keepScheme = true;
+        }
+
+        return $this->doQuery($nameserver, $keepScheme, $queryData, $query->name);
     }
 
     public function prepareRequest(Query $query)
@@ -52,7 +58,7 @@ class Executor implements ExecutorInterface
         return $request;
     }
 
-    public function doQuery($nameserver, $queryData, $name)
+    public function doQuery($nameserver, $keepScheme, $queryData, $name)
     {
         $parser = $this->parser;
         $loop = $this->loop;
@@ -60,10 +66,22 @@ class Executor implements ExecutorInterface
         $response = new Message();
         $deferred = new Deferred();
 
-        $retryWithTcp = function () use ($nameserver, $queryData, $name) {
-            $nameserver = 'tcp' . substr($nameserver, strpos($nameserver, '://'));
+        $handleTruncated = function() use ($nameserver, $keepScheme, $queryData, $name, $deferred) {
+            // Cannot change the scheme to TCP:
+            if ($keepScheme && 0 === strpos($nameserver, 'udp://')) {
+                $deferred->reject(new BadServerException('The server set the truncated bit but we could not retry using TCP because UDP was specified'));
+            }
 
-            return $this->doQuery($nameserver, $queryData, $name);
+            // Scheme is already TCP:
+            else if (0 === strpos($nameserver, 'tcp://')) {
+                $deferred->reject(new BadServerException('The server set the truncated bit although we issued a TCP request'));
+            }
+
+            // Try using TCP:
+            else {
+                $nameserver = 'tcp' . substr($nameserver, strpos($nameserver, '://'));
+                $deferred->resolve($this->doQuery($nameserver, true, $queryData, $name));
+            }
         };
 
         $timer = $this->loop->addTimer($this->timeout, function () use (&$conn, $name, $deferred) {
@@ -72,7 +90,7 @@ class Executor implements ExecutorInterface
         });
 
         $conn = $this->createConnection($nameserver);
-        $conn->on('data', function ($data) use ($retryWithTcp, $nameserver, $conn, $parser, $response, $deferred, $timer) {
+        $conn->on('data', function ($data) use ($handleTruncated, $conn, $parser, $response, $deferred, $timer) {
             $responseReady = $parser->parseChunk($data, $response);
 
             if (!$responseReady) {
@@ -80,19 +98,14 @@ class Executor implements ExecutorInterface
             }
 
             $timer->cancel();
+            $conn->end();
 
             if ($response->header->isTruncated()) {
-                if (0 === strpos($nameserver, 'tcp://')) {
-                    $deferred->reject(new BadServerException('The server set the truncated bit although we issued a TCP request'));
-                } else {
-                    $conn->end();
-                    $deferred->resolve($retryWithTcp());
-                }
+                $handleTruncated($conn);
 
                 return;
             }
 
-            $conn->end();
             $deferred->resolve($response);
         });
         $conn->write($queryData);
