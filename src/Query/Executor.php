@@ -100,6 +100,7 @@ class Executor implements ExecutorInterface
     protected function createConnection($nameserver, $transport)
     {
         $fd = stream_socket_client("$transport://$nameserver");
+        stream_set_blocking($fd, 0);
         $conn = new Connection($fd, $this->loop);
 
         return $conn;
