@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2 (2014-xx-xx)
+
+* Bug fix: Non-blocking socket client connection
+
 ## 0.4.1 (2014-04-13)
 
 * Bug fix: Fixed PSR-4 autoload path (@marcj/WyriHaximus)
