@@ -24,6 +24,40 @@ names, baby!
     });
 ```
 
+## Advanced Usage
+
+To get more detailed response (in a `dig` like fashion) about DNS
+
+```php
+    $loop = React\EventLoop\Factory::create();
+    $factory = new React\Dns\Resolver\Factory();
+    $dns = $factory->create('8.8.8.8', $loop);
+
+    $dns->lookup('igor.io')->then(function ($response) {
+        echo $response->explain();
+
+    });
+```
+
+## Reverse IP Lookup
+
+To resolve an IP to a hostname
+
+```php
+    $loop = React\EventLoop\Factory::create();
+    $factory = new React\Dns\Resolver\Factory();
+    $dns = $factory->create('8.8.8.8', $loop);
+
+    $dns->reverse('8.8.8.8')->then(function ($response) {
+        if (count($response->answers))
+        {
+            $hostname =  $response->answers[0]->data;
+            echo $response->explain();
+        }
+
+    });
+```
+
 But there's more.
 
 ## Caching
@@ -51,7 +85,7 @@ The second result will be served from cache.
 
 ## Todo
 
-* Implement message body parsing for types other than A and CNAME: NS, SOA, PTR, MX, TXT, AAAA
+* Implement message body parsing for types other than A, CNAME, NS, SOA, PTR, MX, ANY and TXT: AAAA
 * Implement `authority` and `additional` message parts
 * Respect /etc/hosts
 
