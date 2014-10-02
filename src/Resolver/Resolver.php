@@ -29,6 +29,56 @@ class Resolver
             });
     }
 
+    /**
+     * Look up dns record
+     *
+     * @param $domain
+     * @param $type of record A, NS, MX, SOA, PTR, CNAME etc..
+     */
+    public function lookup($domain, $type = Message::TYPE_ANY)
+    {
+        $query = new Query($domain, $type, Message::CLASS_IN, time());
+
+        return $this->executor
+            ->query($this->nameserver, $query)
+            ->then(function (Message $response) use ($query)
+            {
+                return $response;
+            });
+    }
+
+    /**
+     * Reverse IP lookup
+     *
+     * @param string $ip 8.8.8.8
+     */
+    public function reverse($ip)
+    {
+        $that = $this;
+
+        if (strpos($ip, '.') !== false)
+            $arpa = strrev($ip) . '.in-addr.arpa';
+        /* @TODO: ipv6 implementation
+        else
+        {
+            // Alnitak @ http://stackoverflow.com/a/6621473/394870
+            $addr = inet_pton($ip);
+            $unpack = unpack('H*hex', $addr);
+            $hex = $unpack['hex'];
+            $arpa = implode('.', array_reverse(str_split($hex))) . '.ip6.arpa';
+        }*/
+
+        #$arpa .= '.';
+        $query = new Query($arpa, Message::TYPE_PTR, Message::CLASS_IN, time());
+
+        return $this->executor
+            ->query($this->nameserver, $query )
+            ->then(function (Message $response) use ($that)
+            {
+                return $response;
+            });
+    }
+
     public function extractAddress(Query $query, Message $response)
     {
         $answers = $response->answers;

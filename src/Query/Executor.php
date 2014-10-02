@@ -40,7 +40,7 @@ class Executor implements ExecutorInterface
         $request = new Message();
         $request->header->set('id', $this->generateId());
         $request->header->set('rd', 1);
-        $request->questions[] = (array) $query;
+        $request->questions[] = $query;
         $request->prepare();
 
         return $request;

@@ -48,13 +48,13 @@ class BinaryDumper
         $data = '';
 
         foreach ($questions as $question) {
-            $labels = explode('.', $question['name']);
+            $labels = explode('.', $question->name);
             foreach ($labels as $label) {
                 $data .= chr(strlen($label)).$label;
             }
             $data .= "\x00";
 
-            $data .= pack('n*', $question['type'], $question['class']);
+            $data .= pack('n*', $question->type, $question->class);
         }
 
         return $data;

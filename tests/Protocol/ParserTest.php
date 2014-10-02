@@ -55,9 +55,9 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(Message::RCODE_OK, $header->get('rcode'));
 
         $this->assertCount(1, $request->questions);
-        $this->assertSame('igor.io', $request->questions[0]['name']);
-        $this->assertSame(Message::TYPE_A, $request->questions[0]['type']);
-        $this->assertSame(Message::CLASS_IN, $request->questions[0]['class']);
+        $this->assertSame('igor.io', $request->questions[0]->name);
+        $this->assertSame(Message::TYPE_A, $request->questions[0]->type);
+        $this->assertSame(Message::CLASS_IN, $request->questions[0]->class);
     }
 
     public function testParseResponse()
@@ -95,9 +95,9 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(Message::RCODE_OK, $header->get('rcode'));
 
         $this->assertCount(1, $response->questions);
-        $this->assertSame('igor.io', $response->questions[0]['name']);
-        $this->assertSame(Message::TYPE_A, $response->questions[0]['type']);
-        $this->assertSame(Message::CLASS_IN, $response->questions[0]['class']);
+        $this->assertSame('igor.io', $response->questions[0]->name);
+        $this->assertSame(Message::TYPE_A, $response->questions[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->questions[0]->class);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('igor.io', $response->answers[0]->name);
@@ -125,12 +125,12 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $parser->parseQuestion($request);
 
         $this->assertCount(2, $request->questions);
-        $this->assertSame('igor.io', $request->questions[0]['name']);
-        $this->assertSame(Message::TYPE_A, $request->questions[0]['type']);
-        $this->assertSame(Message::CLASS_IN, $request->questions[0]['class']);
-        $this->assertSame('www.igor.io', $request->questions[1]['name']);
-        $this->assertSame(Message::TYPE_A, $request->questions[1]['type']);
-        $this->assertSame(Message::CLASS_IN, $request->questions[1]['class']);
+        $this->assertSame('igor.io', $request->questions[0]->name);
+        $this->assertSame(Message::TYPE_A, $request->questions[0]->type);
+        $this->assertSame(Message::CLASS_IN, $request->questions[0]->class);
+        $this->assertSame('www.igor.io', $request->questions[1]->name);
+        $this->assertSame(Message::TYPE_A, $request->questions[1]->type);
+        $this->assertSame(Message::CLASS_IN, $request->questions[1]->class);
     }
 
     public function testParseAnswerWithInlineData()
@@ -180,9 +180,9 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $parser->parseChunk($data, $response);
 
         $this->assertCount(1, $response->questions);
-        $this->assertSame('mail.google.com', $response->questions[0]['name']);
-        $this->assertSame(Message::TYPE_CNAME, $response->questions[0]['type']);
-        $this->assertSame(Message::CLASS_IN, $response->questions[0]['class']);
+        $this->assertSame('mail.google.com', $response->questions[0]->name);
+        $this->assertSame(Message::TYPE_CNAME, $response->questions[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->questions[0]->class);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('mail.google.com', $response->answers[0]->name);
@@ -218,9 +218,9 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $parser->parseChunk($data, $response);
 
         $this->assertCount(1, $response->questions);
-        $this->assertSame('io.whois-servers.net', $response->questions[0]['name']);
-        $this->assertSame(Message::TYPE_A, $response->questions[0]['type']);
-        $this->assertSame(Message::CLASS_IN, $response->questions[0]['class']);
+        $this->assertSame('io.whois-servers.net', $response->questions[0]->name);
+        $this->assertSame(Message::TYPE_A, $response->questions[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->questions[0]->class);
 
         $this->assertCount(2, $response->answers);
 

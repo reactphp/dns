@@ -2,6 +2,8 @@
 
 namespace React\Dns\Model;
 
+use React\Dns\Protocol\HumanParser;
+
 class Message
 {
     const TYPE_A = 1;
@@ -11,6 +13,7 @@ class Message
     const TYPE_PTR = 12;
     const TYPE_MX = 15;
     const TYPE_TXT = 16;
+    const TYPE_ANY = 255;
 
     const CLASS_IN = 1;
 
@@ -43,5 +46,10 @@ class Message
     public function prepare()
     {
         $this->header->populateCounts($this);
+    }
+
+    public function explain()
+    {
+        return HumanParser::explainMessage($this);
     }
 }

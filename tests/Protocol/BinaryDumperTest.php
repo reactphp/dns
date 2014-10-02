@@ -4,6 +4,7 @@ namespace React\Tests\Dns\Protocol;
 
 use React\Dns\Protocol\BinaryDumper;
 use React\Dns\Model\Message;
+use React\Dns\Query\Query;
 
 class BinaryDumperTest extends \PHPUnit_Framework_TestCase
 {
@@ -20,10 +21,11 @@ class BinaryDumperTest extends \PHPUnit_Framework_TestCase
         $request->header->set('id', 0x7262);
         $request->header->set('rd', 1);
 
-        $request->questions[] = array(
-            'name'  => 'igor.io',
-            'type'  => Message::TYPE_A,
-            'class' => Message::CLASS_IN,
+        $request->questions[] = new Query(
+            'igor.io',
+            Message::TYPE_A,
+            Message::CLASS_IN,
+            NULL
         );
 
         $request->prepare();
