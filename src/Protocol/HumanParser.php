@@ -206,7 +206,7 @@ class HumanParser
         if ($record->type == Message::TYPE_TXT)
             $data = '"'. $data . '"';
 
-        return sprintf('%-25s %-10s %-10s %-8s %s %s' . "\n",
+        return sprintf('%-25s %-10s %-10s %-8s %-2s %s' . "\n",
                        $record->name . '.',
                        $record->ttl,
                        self::class2Human($record->class),
