@@ -212,6 +212,10 @@ class Parser
 
                 $rdata = "$mname $rname $serial $refresh $retry $expire $minimum";
                 break;
+
+                
+            default:
+                $consumed += $rdLength;
         }
 
         $message->consumed = $consumed;
