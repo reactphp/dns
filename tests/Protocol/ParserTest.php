@@ -133,7 +133,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(Message::CLASS_IN, $request->questions[1]->class);
     }
 
-    public function testParseAnswerWithInlineData()
+    public function testParseRecordWithInlineData()
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -149,7 +149,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $response->data = $data;
 
         $parser = new Parser();
-        $parser->parseAnswer($response);
+        $parser->parseRecord($response, 'answer');
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('igor.io', $response->answers[0]->name);

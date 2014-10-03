@@ -86,7 +86,6 @@ The second result will be served from cache.
 ## Todo
 
 * Implement message body parsing for types other than A, CNAME, NS, SOA, PTR, MX, ANY and TXT: AAAA
-* Implement `authority` and `additional` message parts
 * Respect /etc/hosts
 
 # References

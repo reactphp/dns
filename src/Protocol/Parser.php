@@ -30,7 +30,18 @@ class Parser
         }
 
         if ($message->header->get('anCount') != count($message->answers)) {
-            if (!$this->parseAnswer($message)) {
+            if (!$this->parseRecord($message, 'answer')) {
+                return;
+            }
+        }
+        if ($message->header->get('nsCount') != count($message->authority)) {
+            if (!$this->parseRecord($message, 'authority')) {
+                return;
+            }
+        }
+
+        if ($message->header->get('arCount') != count($message->additional)) {
+            if (!$this->parseRecord($message, 'additional')) {
                 return;
             }
         }
@@ -105,13 +116,13 @@ class Parser
         return $message;
     }
 
-    public function parseAnswer(Message $message)
+    public function parseRecord(Message $message, $parseType = 'answer')
     {
         if (strlen($message->data) < 2) {
             return;
         }
 
-        $priority = null;
+        $priority = $countItems = $messageHeaderKey = null;
         $consumed = $message->consumed;
 
         list($labels, $consumed) = $this->readLabels($message->data, $consumed);
@@ -209,13 +220,39 @@ class Parser
         $ttl = $this->signedLongToUnsignedLong($ttl);
         $record = new Record($name, $type, $class, $ttl, $rdata, $priority);
 
-        $message->answers[] = $record;
+        if ($parseType == 'answer')
+        {
+            $message->answers[] = $record;
+            $countItems = count($message->answers);
+            $messageHeaderKey = 'anCount';
+        }
+        else if ($parseType == 'authority')
+        {
+            $message->authority[] = $record;
+            $countItems = count($message->authority);
+            $messageHeaderKey = 'nsCount';
+        }
+        else if ($parseType == 'additional')
+        {
+            $message->additional[] = $record;
+            $countItems = count($message->additional);
+            $messageHeaderKey = 'arCount';
+        }
 
-        if ($message->header->get('anCount') != count($message->answers)) {
-            return $this->parseAnswer($message);
+        if ($message->header->get($messageHeaderKey) != $countItems) {
+            return $this->parseRecord($message, $parseType);
         }
 
         return $message;
+    }
+
+    /**
+     * backward compatible
+     * @deprecated
+     */
+    public function parseAnswer(Message $message)
+    {
+        return $this->parseRecord($message, 'answer');
     }
 
     private function readLabels($data, $consumed)
