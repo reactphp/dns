@@ -146,6 +146,8 @@ class HumanParser
             $output .= ' rd';
         if ($message->header->attributes['ra'] === 1)
             $output .= ' ra';
+        if ($message->header->attributes['aa'] === 1)
+            $output .= ' aa';
         $output .= '; QUERY: %d, ANSWER: %d, AUTHORITY: %d, ADDITIONAL: %d' . "\n\n";
 
         $output .= 'QUESTION SECTION: ' . "\n" . '%s' ."\n";
@@ -174,13 +176,19 @@ class HumanParser
 
         if ($message->header->attributes['arCount'])
         {
-            $answersOutput = '';
+            $additionalOutput = '';
             foreach($message->additional as $record)
             {
-                $answersOutput .= "\t" . self::explainRecord($record);
+                $additionalOutput .= "\t" . self::explainRecord($record);
             }
-            $output .= 'ADDITIONAL SECTION: ' . "\n" . $answersOutput ."\n";
+            $output .= 'ADDITIONAL SECTION: ' . "\n" . $additionalOutput ."\n";
         }
+
+        $output .= "\n" .
+                   'Query time: %s ms' . "\n" .
+                   'Name Server: %s' . "\n" .
+                   'Transport: %s'  . "\n" .
+                   'Message Size: %d' . "\n";
 
         return sprintf($output,
                         self::opcode2Human($message->header->get('opcode')),
@@ -191,7 +199,11 @@ class HumanParser
                         $message->header->attributes['nsCount'],
                         $message->header->attributes['arCount'],
                         $questionsOutput,
-                        $answersOutput);
+                        $answersOutput,
+                        $message->execTime,
+                        $message->nameserver,
+                        $message->transport,
+                        (($message->transport == 'tcp' ? 2 : 0) + strlen($message->data)));
 
     }
 
@@ -216,14 +228,14 @@ class HumanParser
     }
 
     /**
-     * Debugs header binary
+     * Debugs header binary octets 3-4
+     * i.e. the  part which has QR|   Opcode  |AA|TC|RD|RA|   Z    |   RCODE
      *
      * @param string $fields the unpack value (hex value)
      * @return string
      */
     public static function explainHeaderFlagsBinary($fields)
     {
-        #$fields = 0x2301;
         // string representation of binary value
         $bin = sprintf('%016b', $fields);
         $output = sprintf("Flags Value: %x\n".
@@ -238,7 +250,7 @@ class HumanParser
         $output .= sprintf($mask, 'TC', substr($bin, 6, 1), '[1 = Message truncated]');
         $output .= sprintf($mask, 'RD', substr($bin, 7, 1), '[1 = Recursion Desired]');
         $output .= sprintf($mask, 'RA', substr($bin, 8, 1), '[1 = Recursion Available]');
-        $output .= sprintf($mask, 'Z', substr($bin, 9, 4), '[Future use]');
+        $output .= sprintf($mask, 'Z', substr($bin, 9, 3), '[Future use]');
         $output .= sprintf($mask, 'RCODE', substr($bin, 12, 4), '[Human value = '. self::rcode2Human(bindec(substr($bin, 12, 4))) .']');
 
         return $output;
@@ -276,5 +288,15 @@ class HumanParser
             echo sprintf('%6X',$offset).' : '.implode(' ', str_split($line,2)) . ' [' . $chars[$i] . ']' . $newline;
             $offset += $width;
         }
+    }
+
+    public static function convertBinaryToHexDump($input)
+    {
+        return self::formatHexDump(implode('', unpack('H*', $input)));
+    }
+
+    public static function formatHexDump($input)
+    {
+        return implode(' ', str_split($input, 2));
     }
 }

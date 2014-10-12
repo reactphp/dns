@@ -15,6 +15,11 @@ class Parser
 {
     public function parseChunk($data, Message $message)
     {
+        // when message was received over TCP then first two octets are length of data
+        if ($message->transport == 'tcp' && !$message->data) {
+            $data = substr($data, 2, strlen($data) - 2);
+        }
+
         $message->data .= $data;
 
         if (!$message->header->get('id')) {
@@ -103,11 +108,7 @@ class Parser
 
         $message->consumed = $consumed;
 
-        $message->questions[] = new Query(
-            implode('.', $labels),
-            $type,
-            $class,
-            NULL);
+        $message->questions[] = new Query(implode('.', $labels), $type, $class, time());
 
         if ($message->header->get('qdCount') != count($message->questions)) {
             return $this->parseQuestion($message);
@@ -155,6 +156,13 @@ class Parser
                 $rdata = inet_ntop($ip);
                 break;
 
+            case Message::TYPE_AAAA:
+                $ip = substr($message->data, $consumed, $rdLength);
+                $consumed += $rdLength;
+
+                $rdata = inet_ntop($ip);
+                break;
+
             case Message::TYPE_CNAME:
                 list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed);
 
@@ -174,7 +182,8 @@ class Parser
                 break;
 
             case Message::TYPE_TXT:
-                $rdata = substr($message->data, $consumed + 1, $rdLength);
+                // for TXT first octet after rdLength is length of rdata again
+                $rdata = substr($message->data, $consumed + 1, ($rdLength -1));
                 $consumed += $rdLength;
                 break;
 
@@ -193,7 +202,7 @@ class Parser
                 $mname = implode('.', $bodyLabels) . '.';
 
                 list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed);
-                $rname = implode('.', $bodyLabels);
+                $rname = implode('.', $bodyLabels) . '.';
 
                 list($serial) = array_values(unpack('N', substr($message->data, $consumed, 4)));
                 $consumed += 4;

@@ -2,6 +2,7 @@
 
 namespace React\Dns\Resolver;
 
+use React\Dns\Protocol\IPParser;
 use React\Dns\Query\ExecutorInterface;
 use React\Dns\Query\Query;
 use React\Dns\RecordNotFoundException;
@@ -55,20 +56,13 @@ class Resolver
     public function reverse($ip)
     {
         $that = $this;
+        $IPParser = new IPParser();
 
-        if (strpos($ip, '.') !== false)
-            $arpa = strrev($ip) . '.in-addr.arpa';
-        /* @TODO: ipv6 implementation
+        if ($IPParser->isIPv4($ip))
+            $arpa = $IPParser->getIPv4ToARPA($ip);
         else
-        {
-            // Alnitak @ http://stackoverflow.com/a/6621473/394870
-            $addr = inet_pton($ip);
-            $unpack = unpack('H*hex', $addr);
-            $hex = $unpack['hex'];
-            $arpa = implode('.', array_reverse(str_split($hex))) . '.ip6.arpa';
-        }*/
+            $arpa = $IPParser->getIPv6ToARPA($ip);
 
-        #$arpa .= '.';
         $query = new Query($arpa, Message::TYPE_PTR, Message::CLASS_IN, time());
 
         return $this->executor

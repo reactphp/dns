@@ -21,6 +21,7 @@ class HumansParserTest extends \PHPUnit_Framework_TestCase
             Message::TYPE_NS => 'Ns',
             Message::TYPE_SOA => 'sOa',
             Message::TYPE_PTR => 'PTr',
+            Message::TYPE_AAAA => 'AAAA',
             Message::TYPE_TXT => 'TXT'
         );
 
@@ -41,7 +42,8 @@ class HumansParserTest extends \PHPUnit_Framework_TestCase
             Message::TYPE_NS => 'NS',
             Message::TYPE_SOA => 'SOA',
             Message::TYPE_PTR => 'PTR',
-            Message::TYPE_TXT => 'TXT'
+            Message::TYPE_TXT => 'TXT',
+            Message::TYPE_AAAA => 'AAAA'
         );
 
         foreach($arrCases as $case => $expected)
@@ -113,7 +115,7 @@ class HumansParserTest extends \PHPUnit_Framework_TestCase
                      TC:\s(\d).+
                      RD:\s(\d).+
                      RA:\s(\d).+
-                     Z:\s(\d{4}).+
+                     Z:\s(\d{3}).+
                      RCODE:\s(\d{4})/xms', $explain, $arrMatches);
 
         $this->assertEquals($request->header->attributes['qr'], $arrMatches[1]);
@@ -148,7 +150,7 @@ class HumansParserTest extends \PHPUnit_Framework_TestCase
                      TC:\s(\d).+
                      RD:\s(\d).+
                      RA:\s(\d).+
-                     Z:\s(\d{4}).+
+                     Z:\s(\d{3}).+
                      RCODE:\s(\d{4})/xms', $explain, $arrMatches);
 
         $this->assertEquals($request->header->attributes['qr'], $arrMatches[1]);

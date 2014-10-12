@@ -10,6 +10,9 @@ class Query
     public $type;
     public $class;
     public $currentTime;
+    public $attempts = 0;            // number of tries UDP + TCP
+    public $transport = 'udp';       // this is switched to TCP when UDP size exceeds
+    public $nameserver = '';         // server from which message was resolved
 
     public function __construct($name, $type, $class, $currentTime)
     {

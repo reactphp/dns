@@ -41,14 +41,14 @@ To get more detailed response (in a `dig` like fashion) about DNS
 
 ## Reverse IP Lookup
 
-To resolve an IP to a hostname
+To resolve an IPv4/IPv4 to a hostname
 
 ```php
     $loop = React\EventLoop\Factory::create();
     $factory = new React\Dns\Resolver\Factory();
     $dns = $factory->create('8.8.8.8', $loop);
-
-    $dns->reverse('8.8.8.8')->then(function ($response) {
+    $ipAddress = ''; // IPv4/IPv6
+    $dns->reverse($ipAddress)->then(function ($response) {
         if (count($response->answers))
         {
             $hostname =  $response->answers[0]->data;
@@ -83,12 +83,25 @@ You can cache results by configuring the resolver to use a `CachedExecutor`:
 If the first call returns before the second, only one query will be executed.
 The second result will be served from cache.
 
+## Supported RRs
+
+* A
+* AAAA
+* ANY
+* CNAME
+* MX
+* NS
+* PTR
+* TXT
+* SOA
+
 ## Todo
 
-* Implement message body parsing for types other than A, CNAME, NS, SOA, PTR, MX, ANY and TXT: AAAA
+
 * Respect /etc/hosts
 
 # References
 
 * [RFC1034](http://tools.ietf.org/html/rfc1034) Domain Names - Concepts and Facilities
 * [RFC1035](http://tools.ietf.org/html/rfc1035) Domain Names - Implementation and Specification
+* [RFC1035](http://tools.ietf.org/html/rfc3596) DNS Extensions to Support IP Version 6

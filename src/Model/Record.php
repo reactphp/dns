@@ -13,6 +13,12 @@ class Record
     public $data;
     public $priority;
 
+    /**
+     * Type code e.g. A, CNAME etc..
+     * @var string
+     */
+    public $code;
+
     public function __construct($name, $type, $class, $ttl = 0, $data = null, $priority = null)
     {
         $this->name     = $name;
@@ -21,6 +27,7 @@ class Record
         $this->ttl      = $ttl;
         $this->data     = $data;
         $this->priority = $priority;
+        $this->code     = HumanParser::type2Human($type);
     }
 
     public function explain()
