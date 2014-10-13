@@ -2,7 +2,7 @@
 
 [![Build Status](https://secure.travis-ci.org/reactphp/dns.png?branch=master)](http://travis-ci.org/reactphp/dns)
 
-Async DNS resolver.
+Async DNS resolver and name server.
 
 The main point of the DNS component is to provide async DNS resolution.
 However, it is really a toolkit for working with DNS messages, and could
@@ -99,6 +99,62 @@ The second result will be served from cache.
 
 
 * Respect /etc/hosts
+
+# DNS Name Server
+
+Want to write your own DNS server? No problem.
+
+```php
+
+    $loop = React\EventLoop\Factory::create();
+    $server = new React\Dns\Server\Server($loop);
+    $server->listen(53, '0.0.0.0');
+    $server->ready();
+
+    $server->on('query', function($request, $clientIP, $deferred)
+    {
+        /*
+            @var $request React\Dns\Model\Message
+            @var $deferred React\Promise\Deferred
+        */
+
+        // following demonstrates a simple echo DNS server
+        $response = new React\Dns\Model\Message();
+        $response->transport = $request->transport;
+        $response->header->set('id', $request->header->attributes['id']);
+        $response->header->set('qr', 1);                                         // 0 = Query, 1 = Response
+        $response->header->set('aa', 1);                                         // 1 = Authoritative response
+        $response->header->set('rd', $request->header->attributes['rd']);        // Recursion desired, copied from request
+        $response->header->set('ra', 0);                                         // 0 = Server is non-recursive
+        $response->header->set('opcode', $request->header->attributes['opcode']);
+        $response->header->set('rcode', React\Dns\Model\Message::RCODE_OK);
+
+        // throw in random TCP truncations to force DNS over TCP
+        if ($request->transport == 'udp' && rand(1,5) == 2)
+            $response->header->set('tc', 1);
+
+        $question = $request->questions[0];
+        $response->questions[] = $question;
+
+        //$response->answers[] = new \React\Dns\Model\Record($question->name, $question->type, $question->class, rand(1,9999),
+        //                                                   'DATA BASED ON TYPE GOES HERE');
+
+        $deferred->resolve($response);
+
+        // or reject this
+        $deferred->reject($response);
+    });
+
+
+    // print some stats as well
+    $loop->addPeriodicTimer(60, function() use($server)
+    {
+        echo "DNS Server stats:\n";
+        print_r($server->stats);
+    });
+
+    $loop->run();
+```
 
 # References
 
