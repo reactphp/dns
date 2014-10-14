@@ -179,7 +179,20 @@ class Server extends EventEmitter implements ServerInterface
         if ($request->transport == 'tcp')
             $this->stats['questions-tcp']++;
 
-        $this->emit('query', [$request, $clientIP, $successCallback]);
+        $response = new Message();
+        $response->transport = $request->transport;
+        $response->header->set('id', $request->header->attributes['id']);
+        $response->header->set('qr', 1);                                         // 0 = Query, 1 = Response
+        $response->header->set('aa', 1);                                         // 1 = Authoritative response
+        $response->header->set('rd', $request->header->attributes['rd']);        // Recursion desired, copied from request
+        $response->header->set('ra', 0);                                         // 0 = Server is non-recursive
+        $response->header->set('opcode', $request->header->attributes['opcode']);
+        $response->header->set('rcode',Message::RCODE_OK);
+
+        $question = $request->questions[0];
+        $response->questions[] = $question;
+
+        $this->emit('query', [$question, $clientIP, $request, $successCallback]);
     }
 
     /**
@@ -233,5 +246,6 @@ class Server extends EventEmitter implements ServerInterface
     public function stats()
     {
         // @todo
+        print_r($this->stats);
     }
 }
