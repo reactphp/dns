@@ -64,7 +64,7 @@ class Message
      */
     public function markEndTime()
     {
-        if (!$this->$execTime) {
+        if (!$this->execTime) {
             list($a_dec, $a_sec) = explode(" ", $this->startMTime);
             list($b_dec, $b_sec) = explode(" ", microtime());
             $this->execTime = round(($b_sec - $a_sec + $b_dec - $a_dec) * 1000, 0);
