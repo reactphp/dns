@@ -32,10 +32,10 @@ class Message
     public $data = '';
 
     public $header;
-    public $questions = array();
-    public $answers = array();
-    public $authority = array();
-    public $additional = array();
+    public $questions = [];
+    public $answers = [];
+    public $authority = [];
+    public $additional = [];
 
     public $consumed = 0;
     public $transport = 'udp';
@@ -64,9 +64,10 @@ class Message
      */
     public function markEndTime()
     {
-        list($a_dec, $a_sec) = explode(" ", $this->startMTime);
-        list($b_dec, $b_sec) = explode(" ", microtime());
-
-        $this->execTime = round(($b_sec - $a_sec + $b_dec - $a_dec) * 1000, 0);
+        if (!$this->$execTime) {
+            list($a_dec, $a_sec) = explode(" ", $this->startMTime);
+            list($b_dec, $b_sec) = explode(" ", microtime());
+            $this->execTime = round(($b_sec - $a_sec + $b_dec - $a_dec) * 1000, 0);
+        }
     }
 }
