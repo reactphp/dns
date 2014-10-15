@@ -26,4 +26,12 @@ class Query
     {
         return HumanParser::explainQuery($this);
     }
+
+    /**
+     * Returns Human code for type
+     */
+    public function getCode()
+    {
+        return HumanParser::type2Human($this->type);
+    }
 }

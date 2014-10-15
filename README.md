@@ -100,6 +100,7 @@ The second result will be served from cache.
 
 * Respect /etc/hosts
 
+
 # DNS Name Server
 
 Want to write your own DNS server? No problem.
@@ -120,8 +121,8 @@ Want to write your own DNS server? No problem.
         */
 
         // Add records to answer
-        //$response->answers[] = new \React\Dns\Model\Record($question->name, $question->type, $question->class, rand(1,9999),
-        //                                                   'DATA BASED ON TYPE GOES HERE');
+        // $response->answers[] = new \React\Dns\Model\Record($question->name, $question->type, $question->class,
+        //                                                    rand(1,9999), 'DATA BASED ON TYPE GOES HERE');
 
         // or add records to authority and additional
         // $response->authority[] = new  \React\Dns\Model\Record(....)
@@ -143,6 +144,98 @@ Want to write your own DNS server? No problem.
 
     $loop->run();
 ```
+
+# Other debugging tools
+
+If you are curious about DNS data send over the wire between client and name server then the following might be helpful.
+
+## Dumping request data
+
+```php
+
+    $dumper = new \React\Dns\Protocol\BinaryDumper();
+    $query = new \React\Dns\Query\Query('igor.io',
+                 \React\Dns\Model\Message::TYPE_A,
+                 \React\Dns\Model\Message::CLASS_IN, time());
+
+    $request = new \React\Dns\Model\Message();
+    $request->header->set('id', mt_rand(0, 0xffff));
+    $request->header->set('rd', 1);
+    $request->questions[] = $query;
+    $request->prepare();
+
+    // or view dump when querying in TCP mode
+    //$request->transport = 'tcp';
+
+    // data send over wire
+    $queryData = $dumper->toBinary($request);
+
+    \React\Dns\Protocol\HumanParser::dumpHex($queryData);
+```
+
+The output would be:
+
+     0 : b2 43 01 00 00 01 00 00 00 00 00 00 04 69 67 6f [.C...........igo]
+    10 : 72 02 69 6f 00 00 01 00 01 [r.io.....]
+
+## Dumping response
+
+```php
+    $loop = React\EventLoop\Factory::create();
+    $factory = new React\Dns\Resolver\Factory();
+    $dns = $factory->create('8.8.8.8', $loop);
+
+    $dns->lookup('ipv6.google.com', 'AAAA')->then(function($response)
+    {
+        \React\Dns\Protocol\HumanParser::dumpHex($response->data);
+    });
+
+    $loop->run();
+```
+
+The output would be something like:
+
+     0 : 9c be 81 80 00 01 00 02 00 00 00 00 04 69 70 76 [.............ipv]
+    10 : 36 06 67 6f 6f 67 6c 65 03 63 6f 6d 00 00 1c 00 [6.google.com....]
+    20 : 01 c0 0c 00 05 00 01 00 00 53 f7 00 09 04 69 70 [.........S....ip]
+    30 : 76 36 01 6c c0 11 c0 2d 00 1c 00 01 00 00 00 c3 [v6.l...-........]
+    40 : 00 10 26 07 f8 b0 40 00 08 04 00 00 00 00 00 00 [..&...@.........]
+    50 : 10 00 [..]
+
+## Debugging DNS Header flags
+
+To debug Header flags of [RFC 1035 @ 4.1.1. Header section format](http://tools.ietf.org/html/rfc1035) try the following:
+
+```php
+    $request = new \React\Dns\Model\Message();
+    $request->header->set('id', 0x7262);
+    $request->header->set('qr', 0);
+    $request->header->set('tc', 1);
+    $request->header->set('rd', 1);
+
+    $dumper = new \React\Dns\Protocol\BinaryDumper();
+    $data = $dumper->toBinary($request);
+
+    // header flags is octet 3-4
+    list($fields) = array_values(unpack('n', substr($data, 2, 2)));
+
+    echo \React\Dns\Protocol\HumanParser::explainHeaderFlagsBinary($fields);
+```
+
+The output would be:
+    Flags Value: 300
+    16 Bit Binary: 0000001100000000
+
+          Flag: Binary Value         [Explanation]
+            QR: 0                    [0 = Query, 1 = Response]
+        Opcode: 0000                 [Decimal value 0 = standard query]
+            AA: 0                    [1 = Authoritative Answer]
+            TC: 1                    [1 = Message truncated]
+            RD: 1                    [1 = Recursion Desired]
+            RA: 0                    [1 = Recursion Available]
+             Z: 000                  [Future use]
+         RCODE: 0000                 [Human value = OK]
+
 
 # References
 
