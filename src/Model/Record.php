@@ -16,12 +16,11 @@ class Record
     public function __construct($name, $type, $class, $ttl = 0, $data = null, $priority = null)
     {
         $this->name     = $name;
-        $this->type     = $type;
+        $this->type     = HumanParser::human2Type($type);
         $this->class    = $class;
         $this->ttl      = $ttl;
         $this->data     = $data;
         $this->priority = $priority;
-        $this->code     = HumanParser::type2Human($type);
     }
 
     public function explain()
