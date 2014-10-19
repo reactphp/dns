@@ -147,8 +147,7 @@ class Parser
 
         $rdata = null;
 
-        switch($type)
-        {
+        switch ($type) {
             case Message::TYPE_A:
                 $ip = substr($message->data, $consumed, $rdLength);
                 $consumed += $rdLength;
@@ -225,6 +224,7 @@ class Parser
                 
             default:
                 $consumed += $rdLength;
+                break;
         }
 
         $message->consumed = $consumed;
@@ -233,20 +233,15 @@ class Parser
         $ttl = $this->signedLongToUnsignedLong($ttl);
         $record = new Record($name, $type, $class, $ttl, $rdata, $priority);
 
-        if ($parseType == 'answer')
-        {
+        if ($parseType == 'answer') {
             $message->answers[] = $record;
             $countItems = count($message->answers);
             $messageHeaderKey = 'anCount';
-        }
-        else if ($parseType == 'authority')
-        {
+        } else if ($parseType == 'authority') {
             $message->authority[] = $record;
             $countItems = count($message->authority);
             $messageHeaderKey = 'nsCount';
-        }
-        else if ($parseType == 'additional')
-        {
+        } else if ($parseType == 'additional') {
             $message->additional[] = $record;
             $countItems = count($message->additional);
             $messageHeaderKey = 'arCount';
@@ -260,7 +255,6 @@ class Parser
     }
 
     /**
-     * backward compatible
      * @deprecated
      */
     public function parseAnswer(Message $message)

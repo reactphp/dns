@@ -8,20 +8,15 @@ use React\Dns\Query\Query;
 
 class HumanParser
 {
-    /**
-     * Stores Message objects constants
-     * @var array
-     */
     private static $arrMessageAtts = array();
 
     private static function parseMessageAttrs()
     {
         static $parsed;
-        if ($parsed)
-            return;
 
-        $messageFile = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Model'. DIRECTORY_SEPARATOR . 'Message.php';
-        include_once($messageFile);
+        if ($parsed) {
+            return;
+        }
 
         $reflMessage = new \ReflectionClass('React\Dns\Model\Message');
         $arrMessageAtts  = $reflMessage->getConstants();
@@ -59,10 +54,11 @@ class HumanParser
 
         $key = $attr . '_'. $value;
 
-        if ($human2Machine && !$numeric && isset(self::$arrMessageAtts[$key]))
+        if ($human2Machine && !$numeric && isset(self::$arrMessageAtts[$key])) {
             $value = self::$arrMessageAtts[$key];
-        else if (!$human2Machine && $numeric && isset(self::$arrMessageAtts[$key]))
+        } else if (!$human2Machine && $numeric && isset(self::$arrMessageAtts[$key])) {
             $value = self::$arrMessageAtts[$key];
+        }
 
         return $value;
     }
@@ -140,45 +136,43 @@ class HumanParser
                   "\t" . 'opcode: %s, status: %s, id: %s'. "\n";
 
         $output .= "\t" .'flags: ';
-        if ($message->header->attributes['qr'] === 1)
+        if ($message->header->attributes['qr'] === 1) {
             $output .= 'qr';
-        if ($message->header->attributes['rd'] === 1)
+        }
+        if ($message->header->attributes['rd'] === 1) {
             $output .= ' rd';
-        if ($message->header->attributes['ra'] === 1)
+        }
+        if ($message->header->attributes['ra'] === 1) {
             $output .= ' ra';
-        if ($message->header->attributes['aa'] === 1)
+        }
+        if ($message->header->attributes['aa'] === 1) {
             $output .= ' aa';
+        }
         $output .= '; QUERY: %d, ANSWER: %d, AUTHORITY: %d, ADDITIONAL: %d' . "\n\n";
 
         $output .= 'QUESTION SECTION: ' . "\n" . '%s' ."\n";
         $questionsOutput = '';
-        foreach ($message->questions as $question)
-        {
+        foreach ($message->questions as $question) {
             $questionsOutput .= "\t" . self::explainQuery($question);
         }
 
         $output .= 'ANSWER SECTION: ' . "\n" . '%s' ."\n";
         $answersOutput = '';
-        foreach ($message->answers as $record)
-        {
+        foreach ($message->answers as $record) {
             $answersOutput .= "\t" . self::explainRecord($record);
         }
 
-        if ($message->header->attributes['nsCount'])
-        {
+        if ($message->header->attributes['nsCount']) {
             $authorityOutput = '';
-            foreach ($message->authority as $record)
-            {
+            foreach ($message->authority as $record) {
                 $authorityOutput .= "\t" . self::explainRecord($record);
             }
             $output .= 'AUTHORITY SECTION: ' . "\n" . $authorityOutput ."\n";
         }
 
-        if ($message->header->attributes['arCount'])
-        {
+        if ($message->header->attributes['arCount']) {
             $additionalOutput = '';
-            foreach ($message->additional as $record)
-            {
+            foreach ($message->additional as $record) {
                 $additionalOutput .= "\t" . self::explainRecord($record);
             }
             $output .= 'ADDITIONAL SECTION: ' . "\n" . $additionalOutput ."\n";
@@ -215,8 +209,9 @@ class HumanParser
     public static function explainRecord(Record $record)
     {
         $data = $record->data;
-        if ($record->type == Message::TYPE_TXT)
+        if ($record->type == Message::TYPE_TXT) {
             $data = '"'. $data . '"';
+        }
 
         return sprintf('%-25s %-10s %-10s %-8s %-2s %s' . "\n",
                        $record->name . '.',
@@ -270,12 +265,10 @@ class HumanParser
 
         static $pad = '.'; # padding for non-visible characters
 
-        if ($from==='')
-        {
-            for ($i=0; $i<=0xFF; $i++)
-            {
+        if ($from==='') {
+            for ($i=0; $i <= 0xff; $i++) {
                 $from .= chr($i);
-                $to .= ($i >= 0x20 && $i <= 0x7E) ? chr($i) : $pad;
+                $to .= ($i >= 0x20 && $i <= 0x7e) ? chr($i) : $pad;
             }
         }
 
@@ -283,8 +276,7 @@ class HumanParser
         $chars = str_split(strtr($data, $from, $to), $width);
 
         $offset = 0;
-        foreach ($hex as $i => $line)
-        {
+        foreach ($hex as $i => $line) {
             echo sprintf('%6X',$offset).' : '.implode(' ', str_split($line,2)) . ' [' . $chars[$i] . ']' . $newline;
             $offset += $width;
         }
