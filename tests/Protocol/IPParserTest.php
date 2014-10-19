@@ -17,7 +17,7 @@ class IPParserTest extends \PHPUnit_Framework_TestCase
             '2406:2000:108:4::1006' => false
         );
 
-        foreach($arrIPs as $ip => $expected)
+        foreach ($arrIPs as $ip => $expected)
         {
             $this->assertSame($parser->isIPv4($ip), $expected);
         }
@@ -35,7 +35,7 @@ class IPParserTest extends \PHPUnit_Framework_TestCase
             '4321:0:1:2:3:4:567:89ab' => true
         );
 
-        foreach($arrIPs as $ip => $expected)
+        foreach ($arrIPs as $ip => $expected)
         {
             $this->assertSame($parser->isIPv6($ip), $expected);
         }
@@ -51,7 +51,7 @@ class IPParserTest extends \PHPUnit_Framework_TestCase
             '127.0.0.1' => '1.0.0.721.in-addr.arpa',
         );
 
-        foreach($arrIPs as $ip => $expected)
+        foreach ($arrIPs as $ip => $expected)
         {
             $this->assertSame($parser->getIPv4ToARPA($ip), $expected);
         }
@@ -65,7 +65,7 @@ class IPParserTest extends \PHPUnit_Framework_TestCase
             '4321:0:1:2:3:4:567:89ab' => 'b.a.9.8.7.6.5.0.4.0.0.0.3.0.0.0.2.0.0.0.1.0.0.0.0.0.0.0.1.2.3.4.ip6.arpa',
         );
 
-        foreach($arrIPs as $ip => $expected)
+        foreach ($arrIPs as $ip => $expected)
         {
             $this->assertSame($parser->getIPv6ToARPA($ip), $expected);
         }

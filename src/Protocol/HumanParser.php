@@ -23,10 +23,10 @@ class HumanParser
         $messageFile = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Model'. DIRECTORY_SEPARATOR . 'Message.php';
         include_once($messageFile);
 
-        $reflMessage = new \ReflectionClass('\React\Dns\Model\Message');
+        $reflMessage = new \ReflectionClass('React\Dns\Model\Message');
         $arrMessageAtts  = $reflMessage->getConstants();
 
-        foreach($arrMessageAtts as $k => $v)
+        foreach ($arrMessageAtts as $k => $v)
         {
             $humanValue = ltrim(strstr($k, '_'), '_');
             $humanKey = strstr($k, '_', true) . '_' . $v;
@@ -152,14 +152,14 @@ class HumanParser
 
         $output .= 'QUESTION SECTION: ' . "\n" . '%s' ."\n";
         $questionsOutput = '';
-        foreach($message->questions as $question)
+        foreach ($message->questions as $question)
         {
             $questionsOutput .= "\t" . self::explainQuery($question);
         }
 
         $output .= 'ANSWER SECTION: ' . "\n" . '%s' ."\n";
         $answersOutput = '';
-        foreach($message->answers as $record)
+        foreach ($message->answers as $record)
         {
             $answersOutput .= "\t" . self::explainRecord($record);
         }
@@ -167,7 +167,7 @@ class HumanParser
         if ($message->header->attributes['nsCount'])
         {
             $authorityOutput = '';
-            foreach($message->authority as $record)
+            foreach ($message->authority as $record)
             {
                 $authorityOutput .= "\t" . self::explainRecord($record);
             }
@@ -177,7 +177,7 @@ class HumanParser
         if ($message->header->attributes['arCount'])
         {
             $additionalOutput = '';
-            foreach($message->additional as $record)
+            foreach ($message->additional as $record)
             {
                 $additionalOutput .= "\t" . self::explainRecord($record);
             }

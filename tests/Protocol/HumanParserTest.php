@@ -25,7 +25,7 @@ class HumansParserTest extends \PHPUnit_Framework_TestCase
             Message::TYPE_TXT => 'TXT'
         );
 
-        foreach($arrCases as $expected => $case)
+        foreach ($arrCases as $expected => $case)
         {
             $actual = HumanParser::human2Type($case);
             $this->assertSame($expected, $actual);
@@ -46,7 +46,7 @@ class HumansParserTest extends \PHPUnit_Framework_TestCase
             Message::TYPE_AAAA => 'AAAA'
         );
 
-        foreach($arrCases as $case => $expected)
+        foreach ($arrCases as $case => $expected)
         {
             $actual = HumanParser::type2Human($case);
             $this->assertSame($expected, $actual);
@@ -64,7 +64,7 @@ class HumansParserTest extends \PHPUnit_Framework_TestCase
             Message::RCODE_SERVER_FAILURE => 'SERVER_FAILURE'
         );
 
-        foreach($arrCases as $expected => $case)
+        foreach ($arrCases as $expected => $case)
         {
             $actual = HumanParser::human2Rcode($case);
             $this->assertSame($expected, $actual);
@@ -82,7 +82,7 @@ class HumansParserTest extends \PHPUnit_Framework_TestCase
             Message::RCODE_SERVER_FAILURE => 'SERVER_FAILURE'
         );
 
-        foreach($arrCases as $case => $expected)
+        foreach ($arrCases as $case => $expected)
         {
             $actual = HumanParser::rcode2Human($case);
             $this->assertSame($expected, $actual);
@@ -107,7 +107,7 @@ class HumansParserTest extends \PHPUnit_Framework_TestCase
 
         list($fields) = array_values(unpack('n', substr($data, 2, 2)));
 
-        $explain = \React\Dns\Protocol\HumanParser::explainHeaderFlagsBinary($fields);
+        $explain = HumanParser::explainHeaderFlagsBinary($fields);
 
         preg_match('/QR:\s?(\d).+
                      Opcode:\s(\d{4}).+
@@ -142,7 +142,7 @@ class HumansParserTest extends \PHPUnit_Framework_TestCase
 
         list($fields) = array_values(unpack('n', substr($data, 2, 2)));
 
-        $explain = \React\Dns\Protocol\HumanParser::explainHeaderFlagsBinary($fields);
+        $explain = HumanParser::explainHeaderFlagsBinary($fields);
 
         preg_match('/QR:\s?(\d).+
                      Opcode:\s(\d{4}).+
