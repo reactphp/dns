@@ -7,14 +7,7 @@ use React\Dns\Model\HeaderBag;
 
 class BinaryDumper
 {
-    /**
-     * @var label registry for compression of data
-     */
     private $labelRegistry;
-
-    /**
-     * @var int keeps track of consumed data for label compression
-     */
     private $consumed;
 
     public function toBinary(Message $message)
@@ -29,8 +22,9 @@ class BinaryDumper
         $data .= $this->recordToBinary($message->additional);
 
         // when TCP then first two octets are the length of data
-        if ($message->transport == 'tcp')
-            $data = pack('n', strlen($data)) . $data;
+        if ($message->transport == 'tcp') {
+            $data = pack('n', strlen($data)).$data;
+        }
 
         return $data;
     }
@@ -67,8 +61,7 @@ class BinaryDumper
     {
         $data = '';
 
-        foreach ($questions as $question)
-        {
+        foreach ($questions as $question) {
             $data .= $this->encodeDomainName($question->name, true);
             $data .= pack('n*', $question->type, $question->class);
             $this->consumed += (2 * 2);
@@ -81,8 +74,7 @@ class BinaryDumper
     {
         $data = '';
 
-        foreach ($records as $record)
-        {
+        foreach ($records as $record) {
             $data .= $this->encodeDomainName($record->name, true);
             $data .= pack('n*', $record->type, $record->class);
             $this->consumed += (2 * 2);
@@ -92,8 +84,7 @@ class BinaryDumper
             $this->consumed += 2; // this is is for pack('n', strlen($rdata)); and need to be done here
 
             $rdata = '';
-            switch($record->type)
-            {
+            switch ($record->type) {
                 case Message::TYPE_A:
                     $rdata .= inet_pton($record->data);
                     $this->consumed += 4;
@@ -140,6 +131,7 @@ class BinaryDumper
 
                 default:
                     $rdata = '';
+                    break;
             }
 
 
@@ -156,16 +148,13 @@ class BinaryDumper
      */
     private function encodeDomainName($domainName, $compress = false)
     {
-        /**
-         * There can be empty names as well e.g.
-            ;; QUESTION SECTION:
-            ;8.8.8.8.                       IN      SOA
-
-            ;; AUTHORITY SECTION:
-            .                       0       IN      SOA     a.root-servers.net. nstld.verisign-grs.com. 2014101100 1800 900 604800 86400
-         */
-        if ($domainName == '')
-        {
+        // There can be empty names as well e.g.
+        // ;; QUESTION SECTION:
+        // ;8.8.8.8.                       IN      SOA
+        // 
+        // ;; AUTHORITY SECTION:
+        // .                       0       IN      SOA     a.root-servers.net. nstld.verisign-grs.com. 2014101100 1800 900 604800 86400
+        if ($domainName === '') {
             $this->consumed += 1;
             return "\x00";
         }
@@ -173,14 +162,11 @@ class BinaryDumper
         $data = '';
         $labels = explode('.', $domainName);
 
-        if ($compress)
-        {
-            while (!empty($labels))
-            {
+        if ($compress) {
+            while (count($labels)) {
                 $part = implode('.', $labels);
 
-                if (!isset($this->labelRegistry[$part]))
-                {
+                if (!isset($this->labelRegistry[$part])) {
                     $this->labelRegistry[$part] = $this->consumed;
 
                     $label = array_shift($labels);
@@ -188,9 +174,7 @@ class BinaryDumper
 
                     $data .= chr($length) . $label;
                     $this->consumed += $length + 1;
-                }
-                else
-                {
+                } else {
                     $x = pack('n', 0b1100000000000000 | $this->labelRegistry[$part]);
                     $data .= $x;
                     $this->consumed += 2;
@@ -198,16 +182,12 @@ class BinaryDumper
                 }
             }
 
-            if (!$labels)
-            {
+            if (!$labels) {
                 $data .= "\x00";
                 $this->consumed += 1;
             }
-        }
-        else
-        {
-            foreach ($labels as $label)
-            {
+        } else {
+            foreach ($labels as $label) {
                 $data .= chr(strlen($label)).$label;
                 $this->consumed += 1 + strlen($label);
             }

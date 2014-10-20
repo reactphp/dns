@@ -32,8 +32,7 @@ class Executor implements ExecutorInterface
         $queryData = $this->dumper->toBinary($request);
         $query->attempts++;
 
-        if ($query->transport == 'udp' && strlen($queryData) > 512)
-        {
+        if ($query->transport == 'udp' && strlen($queryData) > 512) {
             $query->transport = $request->transport = 'tcp';
             $queryData = $this->dumper->toBinary($request);
         }
@@ -85,14 +84,10 @@ class Executor implements ExecutorInterface
 
             $timer->cancel();
 
-            if ($response->header->isTruncated())
-            {
-                if ('tcp' === $response->transport)
-                {
+            if ($response->header->isTruncated()) {
+                if ('tcp' === $response->transport) {
                     $deferred->reject(new BadServerException('The server set the truncated bit although we issued a TCP request'));
-                }
-                else
-                {
+                } else {
                     $conn->end();
                     $deferred->resolve($retryWithTcp());
                 }

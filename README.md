@@ -49,8 +49,7 @@ To resolve an IPv4/IPv4 to a hostname
     $dns = $factory->create('8.8.8.8', $loop);
     $ipAddress = ''; // IPv4/IPv6
     $dns->reverse($ipAddress)->then(function ($response) {
-        if (count($response->answers))
-        {
+        if (count($response->answers)) {
             $hostname =  $response->answers[0]->data;
             echo $response->explain();
         }
@@ -108,12 +107,12 @@ If you are curious about DNS data send over the wire between client and name ser
 
 ```php
 
-    $dumper = new \React\Dns\Protocol\BinaryDumper();
-    $query = new \React\Dns\Query\Query('igor.io',
-                 \React\Dns\Model\Message::TYPE_A,
-                 \React\Dns\Model\Message::CLASS_IN, time());
+    $dumper = new React\Dns\Protocol\BinaryDumper();
+    $query = new React\Dns\Query\Query('igor.io',
+                 React\Dns\Model\Message::TYPE_A,
+                 React\Dns\Model\Message::CLASS_IN, time());
 
-    $request = new \React\Dns\Model\Message();
+    $request = new React\Dns\Model\Message();
     $request->header->set('id', mt_rand(0, 0xffff));
     $request->header->set('rd', 1);
     $request->questions[] = $query;
@@ -125,7 +124,7 @@ If you are curious about DNS data send over the wire between client and name ser
     // data send over wire
     $queryData = $dumper->toBinary($request);
 
-    \React\Dns\Protocol\HumanParser::dumpHex($queryData);
+    React\Dns\Protocol\HumanParser::dumpHex($queryData);
 ```
 
 The output would be:
@@ -140,9 +139,8 @@ The output would be:
     $factory = new React\Dns\Resolver\Factory();
     $dns = $factory->create('8.8.8.8', $loop);
 
-    $dns->lookup('ipv6.google.com', 'AAAA')->then(function($response)
-    {
-        \React\Dns\Protocol\HumanParser::dumpHex($response->data);
+    $dns->lookup('ipv6.google.com', 'AAAA')->then(function ($response) {
+        React\Dns\Protocol\HumanParser::dumpHex($response->data);
     });
 
     $loop->run();
@@ -162,19 +160,19 @@ The output would be something like:
 To debug Header flags of [RFC 1035 @ 4.1.1. Header section format](http://tools.ietf.org/html/rfc1035) try the following:
 
 ```php
-    $request = new \React\Dns\Model\Message();
+    $request = new React\Dns\Model\Message();
     $request->header->set('id', 0x7262);
     $request->header->set('qr', 0);
     $request->header->set('tc', 1);
     $request->header->set('rd', 1);
 
-    $dumper = new \React\Dns\Protocol\BinaryDumper();
+    $dumper = new React\Dns\Protocol\BinaryDumper();
     $data = $dumper->toBinary($request);
 
     // header flags is octet 3-4
     list($fields) = array_values(unpack('n', substr($data, 2, 2)));
 
-    echo \React\Dns\Protocol\HumanParser::explainHeaderFlagsBinary($fields);
+    echo React\Dns\Protocol\HumanParser::explainHeaderFlagsBinary($fields);
 ```
 
 The output would be:
