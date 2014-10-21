@@ -8,56 +8,89 @@ use React\Dns\Query\Query;
 
 class HumanParser
 {
-    private static $arrMessageAtts = array();
+    private static $arrTYPE = array('A' => 1,
+                                    'NS' => 2,
+                                    'CNAME' => 5,
+                                    'SOA' => 6,
+                                    'PTR' => 12,
+                                    'MX' => 15,
+                                    'TXT' => 16,
+                                    'AAAA' => 28,
+                                    'ANY' => 255);
 
-    private static function parseMessageAttrs()
-    {
-        static $parsed;
+    private static $arrTYPEHuman = array(1 => 'A',
+                                         2 => 'NS',
+                                         5 => 'CNAME',
+                                         6 => 'SOA',
+                                         12 => 'PTR',
+                                         15 => 'MX',
+                                         16 => 'TXT',
+                                         28 => 'AAAA',
+                                         255 => 'ANY');
 
-        if ($parsed) {
-            return;
-        }
+    private static $arrCLASS = array('IN' => 1);
 
-        $reflMessage = new \ReflectionClass('React\Dns\Model\Message');
-        $arrMessageAtts  = $reflMessage->getConstants();
+    private static $arrCLASSHuman = array(1 => 'IN');
 
-        foreach ($arrMessageAtts as $k => $v)
-        {
-            $humanValue = ltrim(strstr($k, '_'), '_');
-            $humanKey = strstr($k, '_', true) . '_' . $v;
-            $arrMessageAtts[$humanKey] = $humanValue;
-        }
+    private static $arrOPCODE = array('QUERY' => 0,
+                                      'IQUERY' => 1,
+                                      'STATUS' => 2);
 
-        self::$arrMessageAtts = $arrMessageAtts;
-        $parsed = true;
-    }
+    private static $arrOPCODEHuman = array(0 => 'QUERY',
+                                           1 => 'IQUERY',
+                                           2 => 'STATUS');
+
+    private static $arrRCODE = array('OK' => 0,
+                                     'FORMAT_ERROR' => 1,
+                                     'SERVER_FAILURE' => 2,
+                                     'NAME_ERROR' => 3,
+                                     'NOT_IMPLEMENTED' => 4,
+                                     'REFUSED' => 5);
+
+    private static $arrRCODEHuman = array(0 => 'OK',
+                                          1 => 'FORMAT_ERROR',
+                                          2 => 'SERVER_FAILURE',
+                                          3 => 'NAME_ERROR',
+                                          4 => 'NOT_IMPLEMENTED',
+                                          5 => 'REFUSED');
 
     /**
-     * Helper method for converting human values to DNS values and vice versa
-     *
-     * @param      $attr e.g. TYPE, OPCODE, RCODE, CLASS
-     * @param      $value e.g. A, 1, 255, CNAME, QUERY (depends upon the $attr value)
-     * @param bool $human2Machine
+     * @param      $kind e.g. TYPE, OPCODE, RCODE, CLASS
+     * @param      $value e.g. A, CNAME, OK, IN, 1, 255
      *
      * @return int|string
      */
-    private static function getValue($attr, $value, $human2Machine = true)
+    private static function getIntValue($kind, $value)
     {
-        self::parseMessageAttrs();
-        $numeric = true;
+        $property = 'arr'. $kind;
 
-        if (!is_numeric($value))
-        {
+        if (!is_numeric($value)) {
             $value = strtoupper($value);
-            $numeric = false;
         }
 
-        $key = $attr . '_'. $value;
+        if (($arr = static::$$property) && isset($arr[$value])) {
+            $value = $arr[$value];
+        }
 
-        if ($human2Machine && !$numeric && isset(self::$arrMessageAtts[$key])) {
-            $value = self::$arrMessageAtts[$key];
-        } else if (!$human2Machine && $numeric && isset(self::$arrMessageAtts[$key])) {
-            $value = self::$arrMessageAtts[$key];
+        return $value;
+    }
+
+    /**
+     * @param      $kind e.g. TYPE, OPCODE, RCODE, CLASS
+     * @param      $value e.g. 1, 255, A, CNAME
+     *
+     * @return int|string
+     */
+    private static function getHumanValue($kind, $value)
+    {
+        $property = 'arr'. $kind . 'Human';
+
+        if (!is_numeric($value)) {
+            $value = strtoupper($value);
+        }
+
+        if (($arr = static::$$property) && isset($arr[$value])) {
+            $value = $arr[$value];
         }
 
         return $value;
@@ -68,7 +101,7 @@ class HumanParser
      */
     public static function human2Type($v)
     {
-        return self::getValue('TYPE', $v, true);
+        return self::getIntValue('TYPE', $v);
     }
 
     /**
@@ -76,7 +109,7 @@ class HumanParser
      */
     public static function type2Human($v)
     {
-        return self::getValue('TYPE', $v, false);
+        return self::getHumanValue('TYPE', $v);
     }
 
     /**
@@ -84,7 +117,7 @@ class HumanParser
      */
     public static function human2Opcode($v)
     {
-        return self::getValue('OPCODE', $v, true);
+        return self::getIntValue('OPCODE', $v);
     }
 
     /**
@@ -92,7 +125,7 @@ class HumanParser
      */
     public static function opcode2Human($v)
     {
-        return self::getValue('OPCODE', $v, false);
+        return self::getHumanValue('OPCODE', $v);
     }
 
     /**
@@ -100,7 +133,7 @@ class HumanParser
      */
     public static function human2Rcode($v)
     {
-        return self::getValue('RCODE', $v, true);
+        return self::getIntValue('RCODE', $v);
     }
 
     /**
@@ -108,7 +141,7 @@ class HumanParser
      */
     public static function rcode2Human($v)
     {
-        return self::getValue('RCODE', $v, false);
+        return self::getHumanValue('RCODE', $v);
     }
 
     /**
@@ -116,7 +149,7 @@ class HumanParser
      */
     public static function human2Class($v)
     {
-        return self::getValue('CLASS', $v, true);
+        return self::getIntValue('CLASS', $v);
     }
 
     /**
@@ -124,7 +157,7 @@ class HumanParser
      */
     public static function class2Human($v)
     {
-        return self::getValue('CLASS', $v, false);
+        return self::getHumanValue('CLASS', $v);
     }
 
     /**
@@ -194,7 +227,7 @@ class HumanParser
                         $message->header->attributes['arCount'],
                         $questionsOutput,
                         $answersOutput,
-                        $message->execTime,
+                        $message->meta->execTime,
                         $message->nameserver,
                         $message->transport,
                         (($message->transport == 'tcp' ? 2 : 0) + strlen($message->data)));

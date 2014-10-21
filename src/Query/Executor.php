@@ -75,7 +75,7 @@ class Executor implements ExecutorInterface
 
         $conn = $this->createConnection($nameserver, $transport);
         $conn->on('data', function ($data) use ($retryWithTcp, $conn, $parser, $response, $deferred, $timer) {
-            $response->markEndTime();
+            $response->meta->markEndTime();
             $responseReady = $parser->parseChunk($data, $response);
 
             if (!$responseReady) {
