@@ -32,14 +32,14 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function queryShouldCreateUdpRequest()
     {
-        $conn = $this->createConnectionMock();
+        $conn = $this->createUdpConnectionMock();
 
         $this->executor = $this->createExecutorMock();
         $this->executor
             ->expects($this->once())
             ->method('createConnection')
             ->with('8.8.8.8:53', 'udp')
-            ->will($this->returnNewConnectionMock());
+            ->will($this->returnNewUdpConnectionMock());
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
         $this->executor->query('8.8.8.8:53', $query, function () {}, function () {});
@@ -48,14 +48,14 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function resolveShouldCreateTcpRequestIfRequestIsLargerThan512Bytes()
     {
-        $conn = $this->createConnectionMock();
+        $conn = $this->createUdpConnectionMock();
 
         $this->executor = $this->createExecutorMock();
         $this->executor
             ->expects($this->once())
             ->method('createConnection')
             ->with('8.8.8.8:53', 'tcp')
-            ->will($this->returnNewConnectionMock());
+            ->will($this->returnNewTcpConnectionMock());
 
         $query = new Query(str_repeat('a', 512).'.igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
         $this->executor->query('8.8.8.8:53', $query, function () {}, function () {});
@@ -64,7 +64,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function resolveShouldRetryWithTcpIfResponseIsTruncated()
     {
-        $conn = $this->createConnectionMock();
+        $conn = $this->createUdpConnectionMock();
 
         $timer = $this->getMock('React\EventLoop\Timer\TimerInterface');
 
@@ -89,12 +89,12 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ->expects($this->at(0))
             ->method('createConnection')
             ->with('8.8.8.8:53', 'udp')
-            ->will($this->returnNewConnectionMock());
+            ->will($this->returnNewUdpConnectionMock());
         $this->executor
             ->expects($this->at(1))
             ->method('createConnection')
             ->with('8.8.8.8:53', 'tcp')
-            ->will($this->returnNewConnectionMock());
+            ->will($this->returnNewTcpConnectionMock());
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
         $this->executor->query('8.8.8.8:53', $query, function () {}, function () {});
@@ -121,7 +121,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('createConnection')
             ->with('8.8.8.8:53', 'tcp')
-            ->will($this->returnNewConnectionMock());
+            ->will($this->returnNewTcpConnectionMock());
 
         $mock = $this->createCallableMock();
         $mock
@@ -140,7 +140,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function resolveShouldCancelTimerWhenFullResponseIsReceived()
     {
-        $conn = $this->createConnectionMock();
+        $conn = $this->createUdpConnectionMock();
 
         $this->parser
             ->expects($this->once())
@@ -153,7 +153,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ->expects($this->at(0))
             ->method('createConnection')
             ->with('8.8.8.8:53', 'udp')
-            ->will($this->returnNewConnectionMock());
+            ->will($this->returnNewUdpConnectionMock());
 
 
         $timer = $this->getMock('React\EventLoop\Timer\TimerInterface');
@@ -179,7 +179,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ->expects($this->at(0))
             ->method('createConnection')
             ->with('8.8.8.8:53', 'udp')
-            ->will($this->returnNewConnectionMock());
+            ->will($this->returnNewUdpConnectionMock());
 
         $this->loop
             ->expects($this->once())
@@ -250,9 +250,9 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         return $response;
     }
 
-    private function returnNewConnectionMock()
+    private function returnNewUdpConnectionMock()
     {
-        $conn = $this->createConnectionMock();
+        $conn = $this->createUdpConnectionMock();
 
         $callback = function () use ($conn) {
             return $conn;
@@ -261,9 +261,34 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         return $this->returnCallback($callback);
     }
 
-    private function createConnectionMock()
+    private function createUdpConnectionMock()
     {
-        $conn = $this->getMock('React\Socket\ConnectionInterface');
+        $conn = $this->getMock('React\Datagram\SocketInterface');
+        $conn
+            ->expects($this->any())
+            ->method('on')
+            ->with('data', $this->isInstanceOf('Closure'))
+            ->will($this->returnCallback(function ($name, $callback) {
+                $callback(null);
+            }));
+
+        return $conn;
+    }
+
+    private function returnNewTcpConnectionMock()
+    {
+        $conn = $this->createTcpConnectionMock();
+
+        $callback = function () use ($conn) {
+            return $conn;
+        };
+
+        return $this->returnCallback($callback);
+    }
+
+    private function createTcpConnectionMock()
+    {
+        $conn = $this->getMock('React\Stream\DuplexStreamInterface');
         $conn
             ->expects($this->any())
             ->method('on')
