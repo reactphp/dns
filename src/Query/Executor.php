@@ -8,7 +8,8 @@ use React\Dns\Protocol\Parser;
 use React\Dns\Protocol\BinaryDumper;
 use React\EventLoop\LoopInterface;
 use React\Promise\Deferred;
-use React\Socket\Connection;
+use React\SocketClient\Connector;
+use React\Datagram\Socket;
 
 class Executor implements ExecutorInterface
 {
@@ -87,7 +88,12 @@ class Executor implements ExecutorInterface
             $conn->end();
             $deferred->resolve($response);
         });
-        $conn->write($queryData);
+
+        if ('tcp' === $transport) {
+            $conn->write($queryData);
+        } else { // udp
+            $conn->send($queryData);
+        }
 
         return $deferred->promise();
     }
@@ -99,9 +105,23 @@ class Executor implements ExecutorInterface
 
     protected function createConnection($nameserver, $transport)
     {
-        $fd = stream_socket_client("$transport://$nameserver", $errno, $errstr, 0, STREAM_CLIENT_CONNECT | STREAM_CLIENT_ASYNC_CONNECT);
-        stream_set_blocking($fd, 0);
-        $conn = new Connection($fd, $this->loop);
+        if ('tcp' === $transport) {
+            $uri = parse_url("$transport://$nameserver");
+            // TCP client connector
+            $connector = new Connector($this->loop, null);
+            $conn = $connector->create($uri['host'], $uri['port']);
+        }
+        else { // udp
+            $socket = stream_socket_client("$transport://$nameserver", $errno, $errstr, 0, STREAM_CLIENT_CONNECT | STREAM_CLIENT_ASYNC_CONNECT);
+            stream_set_blocking($socket, 0);
+
+            if (!$socket) {
+                throw new Exception('Unable to create client socket: ' . $errstr, $errno);
+            }
+
+            // UDP datagram socket
+            $conn = new Socket($this->loop, $socket);
+        }
 
         return $conn;
     }
