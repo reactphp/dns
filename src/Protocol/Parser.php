@@ -16,7 +16,7 @@ class Parser
     public function parseChunk($data, Message $message)
     {
         // when message was received over TCP then first two octets are length of data
-        if ($message->transport == 'tcp' && !$message->data) {
+        if ($message->transport === 'tcp' && $message->data === '') {
             $data = substr($data, 2, strlen($data) - 2);
         }
 
@@ -123,7 +123,7 @@ class Parser
             return;
         }
 
-        $priority = $countItems = $messageHeaderKey = null;
+        $priority = $itemCount = $messageHeaderKey = null;
         $consumed = $message->consumed;
 
         list($labels, $consumed) = $this->readLabels($message->data, $consumed);
@@ -235,19 +235,19 @@ class Parser
 
         if ($parseType == 'answer') {
             $message->answers[] = $record;
-            $countItems = count($message->answers);
+            $itemCount = count($message->answers);
             $messageHeaderKey = 'anCount';
         } else if ($parseType == 'authority') {
             $message->authority[] = $record;
-            $countItems = count($message->authority);
+            $itemCount = count($message->authority);
             $messageHeaderKey = 'nsCount';
         } else if ($parseType == 'additional') {
             $message->additional[] = $record;
-            $countItems = count($message->additional);
+            $itemCount = count($message->additional);
             $messageHeaderKey = 'arCount';
         }
 
-        if ($message->header->get($messageHeaderKey) != $countItems) {
+        if ($message->header->get($messageHeaderKey) != $itemCount) {
             return $this->parseRecord($message, $parseType);
         }
 

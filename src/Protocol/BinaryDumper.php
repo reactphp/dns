@@ -130,7 +130,7 @@ class BinaryDumper
                     break;
 
                 default:
-                    $rdata = '';
+                    $rdata = 'unknown';
                     break;
             }
 
