@@ -25,16 +25,6 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
-    public function prepareRequestShouldCreateRequestWithRecursionDesired()
-    {
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
-        $request = $this->executor->prepareRequest($query);
-
-        $this->assertTrue($request->header->isQuery());
-        $this->assertSame(1, $request->header->get('rd'));
-    }
-
-    /** @test */
     public function queryShouldCreateUdpRequest()
     {
         $timer = $this->getMock('React\EventLoop\Timer\TimerInterface');

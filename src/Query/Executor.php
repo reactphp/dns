@@ -38,7 +38,7 @@ class Executor implements ExecutorInterface
 
     public function query($nameserver, Query $query)
     {
-        $request = $this->prepareRequest($query);
+        $request = Message::createRequestForQuery($query);
 
         $queryData = $this->dumper->toBinary($request);
         $transport = strlen($queryData) > 512 ? 'tcp' : 'udp';
@@ -46,15 +46,12 @@ class Executor implements ExecutorInterface
         return $this->doQuery($nameserver, $transport, $queryData, $query->name);
     }
 
+    /**
+     * @deprecated unused, exists for BC only
+     */
     public function prepareRequest(Query $query)
     {
-        $request = new Message();
-        $request->header->set('id', $this->generateId());
-        $request->header->set('rd', 1);
-        $request->questions[] = (array) $query;
-        $request->prepare();
-
-        return $request;
+        return Message::createRequestForQuery($query);
     }
 
     public function doQuery($nameserver, $transport, $queryData, $name)
@@ -139,6 +136,9 @@ class Executor implements ExecutorInterface
         return $deferred->promise();
     }
 
+    /**
+     * @deprecated unused, exists for BC only
+     */
     protected function generateId()
     {
         return mt_rand(0, 0xffff);
