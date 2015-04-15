@@ -53,7 +53,12 @@ class Executor implements ExecutorInterface
         $loop = $this->loop;
 
         $response = new Message();
-        $deferred = new Deferred();
+        $deferred = new Deferred(function ($resolve, $reject) use (&$timer, &$conn, $name) {
+            $reject(new CancellationException(sprintf('DNS query for %s has been cancelled', $name)));
+
+            $timer->cancel();
+            $conn->close();
+        });
 
         $retryWithTcp = function () use ($that, $nameserver, $queryData, $name) {
             return $that->doQuery($nameserver, 'tcp', $queryData, $name);
