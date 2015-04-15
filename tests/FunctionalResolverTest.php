@@ -32,4 +32,21 @@ class FunctionalTest extends TestCase
 
         $this->loop->run();
     }
+
+    public function testResolveCancelledRejectsImmediately()
+    {
+        if (!interface_exists('React\Promise\CancellablePromiseInterface')) {
+            $this->markTestSkipped();
+        }
+
+        $promise = $this->resolver->resolve('google.com');
+        $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
+        $promise->cancel();
+
+        $time = microtime(true);
+        $this->loop->run();
+        $time = microtime(true) - $time;
+
+        $this->assertLessThan(0.1, $time);
+    }
 }
