@@ -2,11 +2,12 @@
 
 namespace React\Tests\Dns;
 
+use React\Tests\Dns\TestCase;
 use React\EventLoop\Factory as LoopFactory;
 use React\Dns\Resolver\Resolver;
 use React\Dns\Resolver\Factory;
 
-class FunctionalTest extends \PHPUnit_Framework_TestCase
+class FunctionalTest extends TestCase
 {
     public function setUp()
     {
@@ -30,30 +31,5 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
         $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
 
         $this->loop->run();
-    }
-
-    protected function expectCallableOnce()
-    {
-        $mock = $this->createCallableMock();
-        $mock
-            ->expects($this->once())
-            ->method('__invoke');
-
-        return $mock;
-    }
-
-    protected function expectCallableNever()
-    {
-        $mock = $this->createCallableMock();
-        $mock
-            ->expects($this->never())
-            ->method('__invoke');
-
-        return $mock;
-    }
-
-    protected function createCallableMock()
-    {
-        return $this->getMock('React\Tests\Dns\CallableStub');
     }
 }
