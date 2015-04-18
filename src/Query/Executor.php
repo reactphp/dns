@@ -63,7 +63,6 @@ class Executor implements ExecutorInterface
         $parser = $this->parser;
         $loop = $this->loop;
 
-        $response = new Message();
         $deferred = new Deferred(function ($resolve, $reject) use (&$timer, &$conn, $name) {
             $reject(new CancellationException(sprintf('DNS query for %s has been cancelled', $name)));
 
@@ -108,15 +107,17 @@ class Executor implements ExecutorInterface
             return $deferred->promise();
         }
 
-        $conn->on('data', function ($data) use ($retryWithTcp, $conn, $parser, $response, $transport, $deferred, $timer) {
-            $responseReady = $parser->parseChunk($data, $response);
-
-            if (!$responseReady) {
-                return;
-            }
-
+        $conn->on('data', function ($data) use ($retryWithTcp, $conn, $parser, $transport, $deferred, $timer) {
             if ($timer !== null) {
                 $timer->cancel();
+            }
+
+            try {
+                $response = $parser->parseMessage($data);
+            } catch (\Exception $e) {
+                $conn->end();
+                $deferred->reject($e);
+                return;
             }
 
             if ($response->header->isTruncated()) {
