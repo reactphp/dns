@@ -1,6 +1,6 @@
 # Dns Component
 
-[![Build Status](https://secure.travis-ci.org/reactphp/dns.png?branch=master)](http://travis-ci.org/reactphp/dns)
+[![Build Status](https://secure.travis-ci.org/reactphp/dns.png?branch=master)](http://travis-ci.org/reactphp/dns) [![Code Climate](https://codeclimate.com/github/reactphp/dns/badges/gpa.svg)](https://codeclimate.com/github/reactphp/dns)
 
 Async DNS resolver.
 
