@@ -22,6 +22,8 @@ names, baby!
     $dns->resolve('igor.io')->then(function ($ip) {
         echo "Host: $ip\n";
     });
+    
+    $loop->run();
 ```
 
 But there's more.
@@ -44,6 +46,8 @@ You can cache results by configuring the resolver to use a `CachedExecutor`:
     $dns->resolve('igor.io')->then(function ($ip) {
         echo "Host: $ip\n";
     });
+    
+    $loop->run();
 ```
 
 If the first call returns before the second, only one query will be executed.
