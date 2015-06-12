@@ -2,8 +2,6 @@
 
 namespace React\Tests\Dns;
 
-use React\Promise\Deferred;
-
 abstract class TestCase extends \PHPUnit_Framework_TestCase
 {
     protected function expectCallableOnce()
@@ -40,19 +38,5 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
     protected function createCallableMock()
     {
         return $this->getMock('React\Tests\Dns\CallableStub');
-    }
-
-    protected function createPromiseResolved($value = null)
-    {
-        $deferred = new Deferred();
-        $deferred->resolve($value);
-        return $deferred->promise();
-    }
-
-    protected function createPromiseRejected($value = null)
-    {
-        $deferred = new Deferred();
-        $deferred->reject($value);
-        return $deferred->promise();
     }
 }
