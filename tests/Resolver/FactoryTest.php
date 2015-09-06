@@ -3,8 +3,9 @@
 namespace React\Tests\Dns\Resolver;
 
 use React\Dns\Resolver\Factory;
+use React\Tests\Dns\TestCase;
 
-class FactoryTest extends \PHPUnit_Framework_TestCase
+class FactoryTest extends TestCase
 {
     /** @test */
     public function createShouldCreateResolver()

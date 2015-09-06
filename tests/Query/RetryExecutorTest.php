@@ -2,6 +2,7 @@
 
 namespace React\Tests\Dns\Query;
 
+use React\Tests\Dns\TestCase;
 use React\Dns\Query\RetryExecutor;
 use React\Dns\Query\Query;
 use React\Dns\Model\Message;
@@ -9,7 +10,7 @@ use React\Dns\Query\TimeoutException;
 use React\Dns\Model\Record;
 use React\Promise;
 
-class RetryExecutorTest extends \PHPUnit_Framework_TestCase
+class RetryExecutorTest extends TestCase
 {
     /**
     * @covers React\Dns\Query\RetryExecutor

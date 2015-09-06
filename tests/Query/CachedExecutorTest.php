@@ -2,13 +2,14 @@
 
 namespace React\Tests\Dns\Query;
 
+use React\Tests\Dns\TestCase;
 use React\Dns\Query\CachedExecutor;
 use React\Dns\Query\Query;
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
 use React\Promise;
 
-class CachedExecutorTest extends \PHPUnit_Framework_TestCase
+class CachedExecutorTest extends TestCase
 {
     /**
      * @covers React\Dns\Query\CachedExecutor
@@ -85,21 +86,6 @@ class CachedExecutorTest extends \PHPUnit_Framework_TestCase
 
             return Promise\resolve($response);
         });
-    }
-
-    protected function expectCallableOnce()
-    {
-        $mock = $this->createCallableMock();
-        $mock
-            ->expects($this->once())
-            ->method('__invoke');
-
-        return $mock;
-    }
-
-    protected function createCallableMock()
-    {
-        return $this->getMock('React\Tests\Socket\Stub\CallableStub');
     }
 
     private function createExecutorMock()
