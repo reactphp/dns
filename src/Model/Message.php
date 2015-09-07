@@ -2,6 +2,8 @@
 
 namespace React\Dns\Model;
 
+use React\Dns\Protocol\HumanParser;
+
 class Message
 {
     const TYPE_A = 1;
@@ -11,6 +13,8 @@ class Message
     const TYPE_PTR = 12;
     const TYPE_MX = 15;
     const TYPE_TXT = 16;
+    const TYPE_AAAA = 28;
+    const TYPE_ANY = 255;
 
     const CLASS_IN = 1;
 
@@ -28,20 +32,42 @@ class Message
     public $data = '';
 
     public $header;
-    public $questions = array();
-    public $answers = array();
-    public $authority = array();
-    public $additional = array();
+    public $questions = [];
+    public $answers = [];
+    public $authority = [];
+    public $additional = [];
 
     public $consumed = 0;
+    public $transport = 'udp';
+    public $nameserver = '';                // server from which message was resolved
+    private $startMTime = 0;                // microtime at the time of query
+    public $execTime = 0;                   // execution time in milliseconds
 
     public function __construct()
     {
         $this->header = new HeaderBag();
+        $this->startMTime = microtime();
     }
 
     public function prepare()
     {
         $this->header->populateCounts($this);
+    }
+
+    public function explain()
+    {
+        return HumanParser::explainMessage($this);
+    }
+
+    /**
+     * Sets exectime
+     */
+    public function markEndTime()
+    {
+        if (!$this->execTime) {
+            list($a_dec, $a_sec) = explode(" ", $this->startMTime);
+            list($b_dec, $b_sec) = explode(" ", microtime());
+            $this->execTime = round(($b_sec - $a_sec + $b_dec - $a_dec) * 1000, 0);
+        }
     }
 }

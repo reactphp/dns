@@ -2,6 +2,7 @@
 
 namespace React\Dns\Resolver;
 
+use React\Dns\Protocol\IPParser;
 use React\Dns\Query\ExecutorInterface;
 use React\Dns\Query\Query;
 use React\Dns\RecordNotFoundException;
@@ -26,6 +27,49 @@ class Resolver
             ->query($this->nameserver, $query)
             ->then(function (Message $response) use ($query) {
                 return $this->extractAddress($query, $response);
+            });
+    }
+
+    /**
+     * Look up dns record
+     *
+     * @param $domain
+     * @param $type of record A, NS, MX, SOA, PTR, CNAME etc..
+     */
+    public function lookup($domain, $type = Message::TYPE_ANY)
+    {
+        $query = new Query($domain, $type, Message::CLASS_IN, time());
+
+        return $this->executor
+            ->query($this->nameserver, $query)
+            ->then(function (Message $response) use ($query)
+            {
+                return $response;
+            });
+    }
+
+    /**
+     * Reverse IP lookup
+     *
+     * @param string $ip 8.8.8.8
+     */
+    public function reverse($ip)
+    {
+        $that = $this;
+        $IPParser = new IPParser();
+
+        if ($IPParser->isIPv4($ip))
+            $arpa = $IPParser->getIPv4ToARPA($ip);
+        else
+            $arpa = $IPParser->getIPv6ToARPA($ip);
+
+        $query = new Query($arpa, Message::TYPE_PTR, Message::CLASS_IN, time());
+
+        return $this->executor
+            ->query($this->nameserver, $query )
+            ->then(function (Message $response) use ($that)
+            {
+                return $response;
             });
     }
 

@@ -4,6 +4,7 @@ namespace React\Dns\Protocol;
 
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
+use React\Dns\Query\Query;
 
 /**
  * DNS protocol parser
@@ -14,6 +15,11 @@ class Parser
 {
     public function parseChunk($data, Message $message)
     {
+        // when message was received over TCP then first two octets are length of data
+        if ($message->transport == 'tcp' && !$message->data) {
+            $data = substr($data, 2, strlen($data) - 2);
+        }
+
         $message->data .= $data;
 
         if (!$message->header->get('id')) {
@@ -29,7 +35,18 @@ class Parser
         }
 
         if ($message->header->get('anCount') != count($message->answers)) {
-            if (!$this->parseAnswer($message)) {
+            if (!$this->parseRecord($message, 'answer')) {
+                return;
+            }
+        }
+        if ($message->header->get('nsCount') != count($message->authority)) {
+            if (!$this->parseRecord($message, 'authority')) {
+                return;
+            }
+        }
+
+        if ($message->header->get('arCount') != count($message->additional)) {
+            if (!$this->parseRecord($message, 'additional')) {
                 return;
             }
         }
@@ -91,11 +108,7 @@ class Parser
 
         $message->consumed = $consumed;
 
-        $message->questions[] = array(
-            'name' => implode('.', $labels),
-            'type' => $type,
-            'class' => $class,
-        );
+        $message->questions[] = new Query(implode('.', $labels), $type, $class, time());
 
         if ($message->header->get('qdCount') != count($message->questions)) {
             return $this->parseQuestion($message);
@@ -104,12 +117,13 @@ class Parser
         return $message;
     }
 
-    public function parseAnswer(Message $message)
+    public function parseRecord(Message $message, $parseType = 'answer')
     {
         if (strlen($message->data) < 2) {
             return;
         }
 
+        $priority = $countItems = $messageHeaderKey = null;
         $consumed = $message->consumed;
 
         list($labels, $consumed) = $this->readLabels($message->data, $consumed);
@@ -133,32 +147,125 @@ class Parser
 
         $rdata = null;
 
-        if (Message::TYPE_A === $type) {
-            $ip = substr($message->data, $consumed, $rdLength);
-            $consumed += $rdLength;
+        switch($type)
+        {
+            case Message::TYPE_A:
+                $ip = substr($message->data, $consumed, $rdLength);
+                $consumed += $rdLength;
 
-            $rdata = inet_ntop($ip);
-        }
+                $rdata = inet_ntop($ip);
+                break;
 
-        if (Message::TYPE_CNAME === $type) {
-            list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed);
+            case Message::TYPE_AAAA:
+                $ip = substr($message->data, $consumed, $rdLength);
+                $consumed += $rdLength;
 
-            $rdata = implode('.', $bodyLabels);
+                $rdata = inet_ntop($ip);
+                break;
+
+            case Message::TYPE_CNAME:
+                list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed);
+
+                $rdata = implode('.', $bodyLabels);
+                break;
+
+            case Message::TYPE_NS:
+                list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed);
+
+                $rdata = implode('.', $bodyLabels);
+                break;
+
+            case Message::TYPE_PTR:
+                list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed);
+
+                $rdata = implode('.', $bodyLabels);
+                break;
+
+            case Message::TYPE_TXT:
+                // for TXT first octet after rdLength is length of rdata again
+                $rdata = substr($message->data, $consumed + 1, ($rdLength -1));
+                $consumed += $rdLength;
+                break;
+
+            case Message::TYPE_MX:
+                list($priority) = array_values(unpack('n', substr($message->data, $consumed, 2)));
+                $consumed += 2;
+
+                list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed);
+                $rdata = implode('.', $bodyLabels);
+                break;
+
+            case Message::TYPE_SOA:
+                // SOA RDATA FORMAT: mname rname serial(32bit) refresh(32bit) retry(32bit) expire(32bit) minimum(32bit)
+
+                list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed);
+                $mname = implode('.', $bodyLabels) . '.';
+
+                list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed);
+                $rname = implode('.', $bodyLabels) . '.';
+
+                list($serial) = array_values(unpack('N', substr($message->data, $consumed, 4)));
+                $consumed += 4;
+
+                list($refresh) = array_values(unpack('N', substr($message->data, $consumed, 4)));
+                $consumed += 4;
+
+                list($retry) = array_values(unpack('N', substr($message->data, $consumed, 4)));
+                $consumed += 4;
+
+                list($expire) = array_values(unpack('N', substr($message->data, $consumed, 4)));
+                $consumed += 4;
+
+                list($minimum) = array_values(unpack('N', substr($message->data, $consumed, 4)));
+                $consumed += 4;
+
+                $rdata = "$mname $rname $serial $refresh $retry $expire $minimum";
+                break;
+
+                
+            default:
+                $consumed += $rdLength;
         }
 
         $message->consumed = $consumed;
 
         $name = implode('.', $labels);
         $ttl = $this->signedLongToUnsignedLong($ttl);
-        $record = new Record($name, $type, $class, $ttl, $rdata);
+        $record = new Record($name, $type, $class, $ttl, $rdata, $priority);
 
-        $message->answers[] = $record;
+        if ($parseType == 'answer')
+        {
+            $message->answers[] = $record;
+            $countItems = count($message->answers);
+            $messageHeaderKey = 'anCount';
+        }
+        else if ($parseType == 'authority')
+        {
+            $message->authority[] = $record;
+            $countItems = count($message->authority);
+            $messageHeaderKey = 'nsCount';
+        }
+        else if ($parseType == 'additional')
+        {
+            $message->additional[] = $record;
+            $countItems = count($message->additional);
+            $messageHeaderKey = 'arCount';
+        }
 
-        if ($message->header->get('anCount') != count($message->answers)) {
-            return $this->parseAnswer($message);
+        if ($message->header->get($messageHeaderKey) != $countItems) {
+            return $this->parseRecord($message, $parseType);
         }
 
         return $message;
+    }
+
+    /**
+     * backward compatible
+     * @deprecated
+     */
+    public function parseAnswer(Message $message)
+    {
+        return $this->parseRecord($message, 'answer');
     }
 
     private function readLabels($data, $consumed)
