@@ -27,35 +27,45 @@ class Executor implements ExecutorInterface
 
     public function query($nameserver, Query $query)
     {
+        $query->nameserver = $nameserver;
         $request = $this->prepareRequest($query);
-
         $queryData = $this->dumper->toBinary($request);
-        $transport = strlen($queryData) > 512 ? 'tcp' : 'udp';
+        $query->attempts++;
 
-        return $this->doQuery($nameserver, $transport, $queryData, $query->name);
+        if ($query->transport == 'udp' && strlen($queryData) > 512) {
+            $query->transport = $request->transport = 'tcp';
+            $queryData = $this->dumper->toBinary($request);
+        }
+
+        return $this->doQuery($nameserver, $query, $queryData);
     }
 
     public function prepareRequest(Query $query)
     {
         $request = new Message();
+        $request->transport = $query->transport;
+        $request->nameserver = $query->nameserver;
         $request->header->set('id', $this->generateId());
         $request->header->set('rd', 1);
-        $request->questions[] = (array) $query;
+        $request->questions[] = $query;
         $request->prepare();
 
         return $request;
     }
 
-    public function doQuery($nameserver, $transport, $queryData, $name)
+    public function doQuery($nameserver, Query $query, $queryData)
     {
+        $transport = $query->transport;
+        $name = $query->name;
         $parser = $this->parser;
-        $loop = $this->loop;
-
-        $response = new Message();
         $deferred = new Deferred();
+        $response = new Message();
+        $response->transport = $transport;
+        $response->nameserver = $query->nameserver;
 
-        $retryWithTcp = function () use ($nameserver, $queryData, $name) {
-            return $this->doQuery($nameserver, 'tcp', $queryData, $name);
+        $retryWithTcp = function () use ($nameserver, $query, $queryData) {
+            $query->transport = 'tcp';
+            return $this->doQuery($nameserver, $query, $queryData);
         };
 
         $timer = $this->loop->addTimer($this->timeout, function () use (&$conn, $name, $deferred) {
@@ -64,7 +74,8 @@ class Executor implements ExecutorInterface
         });
 
         $conn = $this->createConnection($nameserver, $transport);
-        $conn->on('data', function ($data) use ($retryWithTcp, $conn, $parser, $response, $transport, $deferred, $timer) {
+        $conn->on('data', function ($data) use ($retryWithTcp, $conn, $parser, $response, $deferred, $timer) {
+            $response->meta->markEndTime();
             $responseReady = $parser->parseChunk($data, $response);
 
             if (!$responseReady) {
@@ -74,7 +85,7 @@ class Executor implements ExecutorInterface
             $timer->cancel();
 
             if ($response->header->isTruncated()) {
-                if ('tcp' === $transport) {
+                if ('tcp' === $response->transport) {
                     $deferred->reject(new BadServerException('The server set the truncated bit although we issued a TCP request'));
                 } else {
                     $conn->end();

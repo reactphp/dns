@@ -127,7 +127,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $mock
             ->expects($this->once())
             ->method('__invoke')
-            ->with($this->callback(function($e) {
+            ->with($this->callback(function ($e) {
                 return $e instanceof \React\Dns\BadServerException &&
                        'The server set the truncated bit although we issued a TCP request' === $e->getMessage();
             }));

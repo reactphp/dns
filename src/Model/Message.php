@@ -2,6 +2,8 @@
 
 namespace React\Dns\Model;
 
+use React\Dns\Protocol\HumanParser;
+
 class Message
 {
     const TYPE_A = 1;
@@ -11,6 +13,8 @@ class Message
     const TYPE_PTR = 12;
     const TYPE_MX = 15;
     const TYPE_TXT = 16;
+    const TYPE_AAAA = 28;
+    const TYPE_ANY = 255;
 
     const CLASS_IN = 1;
 
@@ -28,20 +32,29 @@ class Message
     public $data = '';
 
     public $header;
+    public $meta;
     public $questions = array();
     public $answers = array();
     public $authority = array();
     public $additional = array();
 
     public $consumed = 0;
+    public $transport = 'udp';
+    public $nameserver = '';                // server from which message was resolved
 
     public function __construct()
     {
         $this->header = new HeaderBag();
+        $this->meta = new MessageMeta();
     }
 
     public function prepare()
     {
         $this->header->populateCounts($this);
+    }
+
+    public function explain()
+    {
+        return HumanParser::explainMessage($this);
     }
 }
