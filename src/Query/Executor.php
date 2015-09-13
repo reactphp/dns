@@ -48,11 +48,15 @@ class Executor implements ExecutorInterface
 
     public function doQuery($nameserver, $transport, $queryData, $name)
     {
-        $parser = $this->parser;
-        $loop = $this->loop;
+		try {
+			$conn = $this->createConnection($nameserver, $transport);
+		} catch (\Exception $e) {
+			return \React\Promise\reject($e);
+		}
 
-        $response = new Message();
-        $deferred = new Deferred();
+		$parser = $this->parser;
+		$response = new Message();
+		$deferred = new Deferred();
 
         $retryWithTcp = function () use ($nameserver, $queryData, $name) {
             return $this->doQuery($nameserver, 'tcp', $queryData, $name);
@@ -63,8 +67,7 @@ class Executor implements ExecutorInterface
             $deferred->reject(new TimeoutException(sprintf("DNS query for %s timed out", $name)));
         });
 
-        $conn = $this->createConnection($nameserver, $transport);
-        $conn->on('data', function ($data) use ($retryWithTcp, $conn, $parser, $response, $transport, $deferred, $timer) {
+		$conn->on('data', function ($data) use ($retryWithTcp, $conn, $parser, $response, $transport, $deferred, $timer) {
             $responseReady = $parser->parseChunk($data, $response);
 
             if (!$responseReady) {
@@ -100,6 +103,7 @@ class Executor implements ExecutorInterface
     protected function createConnection($nameserver, $transport)
     {
         $fd = stream_socket_client("$transport://$nameserver", $errno, $errstr, 0, STREAM_CLIENT_CONNECT | STREAM_CLIENT_ASYNC_CONNECT);
+		if (!$fd) throw new \Exception($errstr, $errno);
         stream_set_blocking($fd, 0);
         $conn = new Connection($fd, $this->loop);
 
