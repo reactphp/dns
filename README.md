@@ -61,5 +61,5 @@ The second result will be served from cache.
 
 # References
 
-* [RFC1034](http://tools.ietf.org/html/rfc1034) Domain Names - Concepts and Facilities
-* [RFC1035](http://tools.ietf.org/html/rfc1035) Domain Names - Implementation and Specification
+* [RFC 1034](http://tools.ietf.org/html/rfc1034) Domain Names - Concepts and Facilities
+* [RFC 1035](http://tools.ietf.org/html/rfc1035) Domain Names - Implementation and Specification
