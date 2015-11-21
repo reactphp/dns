@@ -15,15 +15,15 @@ factory. All you need to give it is a nameserver, then you can start resolving
 names, baby!
 
 ```php
-    $loop = React\EventLoop\Factory::create();
-    $factory = new React\Dns\Resolver\Factory();
-    $dns = $factory->create('8.8.8.8', $loop);
+$loop = React\EventLoop\Factory::create();
+$factory = new React\Dns\Resolver\Factory();
+$dns = $factory->create('8.8.8.8', $loop);
 
-    $dns->resolve('igor.io')->then(function ($ip) {
-        echo "Host: $ip\n";
-    });
-    
-    $loop->run();
+$dns->resolve('igor.io')->then(function ($ip) {
+    echo "Host: $ip\n";
+});
+
+$loop->run();
 ```
 
 But there's more.
@@ -33,21 +33,21 @@ But there's more.
 You can cache results by configuring the resolver to use a `CachedExecutor`:
 
 ```php
-    $loop = React\EventLoop\Factory::create();
-    $factory = new React\Dns\Resolver\Factory();
-    $dns = $factory->createCached('8.8.8.8', $loop);
+$loop = React\EventLoop\Factory::create();
+$factory = new React\Dns\Resolver\Factory();
+$dns = $factory->createCached('8.8.8.8', $loop);
 
-    $dns->resolve('igor.io')->then(function ($ip) {
-        echo "Host: $ip\n";
-    });
+$dns->resolve('igor.io')->then(function ($ip) {
+    echo "Host: $ip\n";
+});
 
-    ...
+...
 
-    $dns->resolve('igor.io')->then(function ($ip) {
-        echo "Host: $ip\n";
-    });
-    
-    $loop->run();
+$dns->resolve('igor.io')->then(function ($ip) {
+    echo "Host: $ip\n";
+});
+
+$loop->run();
 ```
 
 If the first call returns before the second, only one query will be executed.
