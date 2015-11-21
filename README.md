@@ -53,13 +53,7 @@ $loop->run();
 If the first call returns before the second, only one query will be executed.
 The second result will be served from cache.
 
-## Todo
-
-* Implement message body parsing for types other than A and CNAME: NS, SOA, PTR, MX, TXT, AAAA
-* Implement `authority` and `additional` message parts
-* Respect /etc/hosts
-
-# References
+## References
 
 * [RFC 1034](http://tools.ietf.org/html/rfc1034) Domain Names - Concepts and Facilities
 * [RFC 1035](http://tools.ietf.org/html/rfc1035) Domain Names - Implementation and Specification
