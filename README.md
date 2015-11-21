@@ -53,6 +53,29 @@ $loop->run();
 If the first call returns before the second, only one query will be executed.
 The second result will be served from cache.
 
+## Install
+
+The recommended way to install this library is [through Composer](http://getcomposer.org).
+[New to Composer?](http://getcomposer.org/doc/00-intro.md)
+
+This will install the latest supported version:
+
+```bash
+$ composer require react/dns:~0.4.0
+```
+
+If you care a lot about BC, you may also want to look into supporting legacy versions:
+
+```bash
+$ composer require "react/dns:~0.4.0|~0.3.0"
+```
+
+More details and upgrade guides can be found in the [CHANGELOG](CHANGELOG.md).
+
+## License
+
+MIT, see [LICENSE file](LICENSE).
+
 ## References
 
 * [RFC 1034](http://tools.ietf.org/html/rfc1034) Domain Names - Concepts and Facilities
