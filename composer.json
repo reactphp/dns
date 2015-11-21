@@ -4,10 +4,10 @@
     "keywords": ["dns", "dns-resolver"],
     "license": "MIT",
     "require": {
-        "php": ">=5.4.0",
-        "react/cache": "0.4.*",
-        "react/socket": "0.4.*",
-        "react/promise": "~2.0"
+        "php": ">=5.3.0",
+        "react/cache": "~0.4.0|~0.3.0",
+        "react/socket": "~0.4.0|~0.3.0",
+        "react/promise": "~2.0|~1.1"
     },
     "autoload": {
         "psr-4": { "React\\Dns\\": "src" }

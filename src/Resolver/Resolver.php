@@ -21,11 +21,12 @@ class Resolver
     public function resolve($domain)
     {
         $query = new Query($domain, Message::TYPE_A, Message::CLASS_IN, time());
+        $that = $this;
 
         return $this->executor
             ->query($this->nameserver, $query)
-            ->then(function (Message $response) use ($query) {
-                return $this->extractAddress($query, $response);
+            ->then(function (Message $response) use ($query, $that) {
+                return $that->extractAddress($query, $response);
             });
     }
 

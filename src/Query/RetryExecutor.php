@@ -26,7 +26,8 @@ class RetryExecutor implements ExecutorInterface
 
     public function tryQuery($nameserver, Query $query, $retries, $deferred)
     {
-        $errorback = function ($error) use ($nameserver, $query, $retries, $deferred) {
+        $that = $this;
+        $errorback = function ($error) use ($nameserver, $query, $retries, $deferred, $that) {
             if (!$error instanceof TimeoutException) {
                 $deferred->reject($error);
                 return;
@@ -40,7 +41,7 @@ class RetryExecutor implements ExecutorInterface
                 $deferred->reject($error);
                 return;
             }
-            $this->tryQuery($nameserver, $query, $retries-1, $deferred);
+            $that->tryQuery($nameserver, $query, $retries-1, $deferred);
         };
 
         $this->executor
