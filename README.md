@@ -15,15 +15,15 @@ factory. All you need to give it is a nameserver, then you can start resolving
 names, baby!
 
 ```php
-    $loop = React\EventLoop\Factory::create();
-    $factory = new React\Dns\Resolver\Factory();
-    $dns = $factory->create('8.8.8.8', $loop);
+$loop = React\EventLoop\Factory::create();
+$factory = new React\Dns\Resolver\Factory();
+$dns = $factory->create('8.8.8.8', $loop);
 
-    $dns->resolve('igor.io')->then(function ($ip) {
-        echo "Host: $ip\n";
-    });
-    
-    $loop->run();
+$dns->resolve('igor.io')->then(function ($ip) {
+    echo "Host: $ip\n";
+});
+
+$loop->run();
 ```
 
 But there's more.
@@ -33,33 +33,50 @@ But there's more.
 You can cache results by configuring the resolver to use a `CachedExecutor`:
 
 ```php
-    $loop = React\EventLoop\Factory::create();
-    $factory = new React\Dns\Resolver\Factory();
-    $dns = $factory->createCached('8.8.8.8', $loop);
+$loop = React\EventLoop\Factory::create();
+$factory = new React\Dns\Resolver\Factory();
+$dns = $factory->createCached('8.8.8.8', $loop);
 
-    $dns->resolve('igor.io')->then(function ($ip) {
-        echo "Host: $ip\n";
-    });
+$dns->resolve('igor.io')->then(function ($ip) {
+    echo "Host: $ip\n";
+});
 
-    ...
+...
 
-    $dns->resolve('igor.io')->then(function ($ip) {
-        echo "Host: $ip\n";
-    });
-    
-    $loop->run();
+$dns->resolve('igor.io')->then(function ($ip) {
+    echo "Host: $ip\n";
+});
+
+$loop->run();
 ```
 
 If the first call returns before the second, only one query will be executed.
 The second result will be served from cache.
 
-## Todo
+## Install
 
-* Implement message body parsing for types other than A and CNAME: NS, SOA, PTR, MX, TXT, AAAA
-* Implement `authority` and `additional` message parts
-* Respect /etc/hosts
+The recommended way to install this library is [through Composer](http://getcomposer.org).
+[New to Composer?](http://getcomposer.org/doc/00-intro.md)
 
-# References
+This will install the latest supported version:
 
-* [RFC1034](http://tools.ietf.org/html/rfc1034) Domain Names - Concepts and Facilities
-* [RFC1035](http://tools.ietf.org/html/rfc1035) Domain Names - Implementation and Specification
+```bash
+$ composer require react/dns:~0.4.0
+```
+
+If you care a lot about BC, you may also want to look into supporting legacy versions:
+
+```bash
+$ composer require "react/dns:~0.4.0|~0.3.0"
+```
+
+More details and upgrade guides can be found in the [CHANGELOG](CHANGELOG.md).
+
+## License
+
+MIT, see [LICENSE file](LICENSE).
+
+## References
+
+* [RFC 1034](http://tools.ietf.org/html/rfc1034) Domain Names - Concepts and Facilities
+* [RFC 1035](http://tools.ietf.org/html/rfc1035) Domain Names - Implementation and Specification
