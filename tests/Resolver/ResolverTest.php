@@ -100,22 +100,6 @@ class ResolverTest extends \PHPUnit_Framework_TestCase
         $resolver->resolve('igor.io')->then($this->expectCallableNever(), $errback);
     }
 
-    /** @test */
-    public function resolveSouldProvideDefaultErrorbackToExecutor()
-    {
-        $executor = $this->createExecutorMock();
-        $executor
-            ->expects($this->once())
-            ->method('query')
-            ->with($this->anything(), $this->isInstanceOf('React\Dns\Query\Query'))
-            ->will($this->returnCallback(function ($nameserver, $query) {
-                return Promise\resolve();
-            }));;
-
-        $resolver = new Resolver('8.8.8.8:53', $executor);
-        $resolver->resolve('igor.io')->then($this->expectCallableNever());
-    }
-
     protected function expectCallableOnceWith($with)
     {
         $mock = $this->createCallableMock();
