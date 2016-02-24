@@ -1,8 +1,10 @@
 # Changelog
 
-## 0.4.2 (2014-xx-xx)
+## 0.4.2 (2016-02-24)
 
-* Bug fix: Non-blocking socket client connection
+* Repository maintenance, split off from main repo, improve test suite and documentation
+* First class support for PHP7 and HHVM (#34 by @clue)
+* Adjust compatibility to 5.3 (#30 by @clue)
 
 ## 0.4.1 (2014-04-13)
 
