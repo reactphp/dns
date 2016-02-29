@@ -64,10 +64,6 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function resolveShouldCloseConnectionWhenCancelled()
     {
-        if (!interface_exists('React\Promise\CancellablePromiseInterface')) {
-            $this->markTestSkipped('Skipped missing CancellablePromiseInterface');
-        }
-
         $conn = $this->createConnectionMock();
         $conn->expects($this->once())->method('close');
 

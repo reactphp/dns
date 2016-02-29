@@ -133,10 +133,6 @@ class RetryExecutorTest extends TestCase
      */
     public function queryShouldCancelQueryOnCancel()
     {
-        if (!interface_exists('React\Promise\CancellablePromiseInterface')) {
-            $this->markTestSkipped('Skipped missing CancellablePromiseInterface');
-        }
-
         $cancelled = 0;
 
         $executor = $this->createExecutorMock();

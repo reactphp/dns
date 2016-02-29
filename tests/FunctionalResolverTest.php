@@ -35,10 +35,6 @@ class FunctionalTest extends TestCase
 
     public function testResolveCancelledRejectsImmediately()
     {
-        if (!interface_exists('React\Promise\CancellablePromiseInterface')) {
-            $this->markTestSkipped();
-        }
-
         $promise = $this->resolver->resolve('google.com');
         $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
         $promise->cancel();
