@@ -24,6 +24,7 @@ class HostsFileExecutor implements ExecutorInterface
         $this->loop = $loop;
         $this->executor = $executor;
         $this->path = $path;
+        $this->hosts = $this->loadHosts();
     }
 
     public function query($nameserver, Query $query)
@@ -32,7 +33,7 @@ class HostsFileExecutor implements ExecutorInterface
         $executor = $this->executor;
 
         return $this
-            ->loadHosts()
+            ->hosts
             ->then(function () use ($that, $query) {
                 return $that->doQuery($query);
             })
