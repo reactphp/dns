@@ -18,9 +18,9 @@ class Resolver
         $this->executor = $executor;
     }
 
-    public function resolve($domain)
+    public function resolve($domain, $type = Message::TYPE_A)
     {
-        $query = new Query($domain, Message::TYPE_A, Message::CLASS_IN, time());
+        $query = new Query($domain, $type, Message::CLASS_IN, time());
         $that = $this;
 
         return $this->executor
@@ -40,9 +40,8 @@ class Resolver
             $message = 'DNS Request did not return valid answer.';
             throw new RecordNotFoundException($message);
         }
-
-        $address = $addresses[array_rand($addresses)];
-        return $address;
+        if ($query->type == Message::TYPE_A) return reset($addresses);
+        return $addresses;
     }
 
     public function resolveAliases(array $answers, $name)
@@ -50,7 +49,8 @@ class Resolver
         $named = $this->filterByName($answers, $name);
         $aRecords = $this->filterByType($named, Message::TYPE_A);
         $cnameRecords = $this->filterByType($named, Message::TYPE_CNAME);
-
+        $mxAnswers = $this->filterByType($named, Message::TYPE_MX);
+        $nsAnswers = $this->filterByType($named, Message::TYPE_NS);
         if ($aRecords) {
             return $this->mapRecordData($aRecords);
         }
@@ -69,7 +69,18 @@ class Resolver
 
             return $aRecords;
         }
+        if($mxAnswers){
 
+            $mxRecords = $this->mapRecordData($mxAnswers);
+
+            return $mxRecords;
+        }
+        if($nsAnswers){
+
+            $nsRecords = $this->mapRecordData($nsAnswers);
+
+            return $nsRecords;
+        }
         return array();
     }
 
