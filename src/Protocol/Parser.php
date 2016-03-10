@@ -106,7 +106,6 @@ class Parser
 
     public function parseAnswer(Message $message)
     {
-//        var_dump($message->data);die;
         if (strlen($message->data) < 2) {
             return;
         }
