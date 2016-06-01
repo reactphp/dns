@@ -3,6 +3,7 @@
 namespace React\Dns\Resolver;
 
 use React\Cache\ArrayCache;
+use React\Cache\CacheInterface;
 use React\Dns\Query\Executor;
 use React\Dns\Query\CachedExecutor;
 use React\Dns\Query\RecordCache;
@@ -21,10 +22,14 @@ class Factory
         return new Resolver($nameserver, $executor);
     }
 
-    public function createCached($nameserver, LoopInterface $loop)
+    public function createCached($nameserver, LoopInterface $loop, CacheInterface $cache = null)
     {
+        if (!($cache instanceof CacheInterface)) {
+            $cache = new ArrayCache();
+        }
+
         $nameserver = $this->addPortToServerIfMissing($nameserver);
-        $executor = $this->createCachedExecutor($loop);
+        $executor = $this->createCachedExecutor($loop, $cache);
 
         return new Resolver($nameserver, $executor);
     }
@@ -39,9 +44,9 @@ class Factory
         return new RetryExecutor($this->createExecutor($loop));
     }
 
-    protected function createCachedExecutor(LoopInterface $loop)
+    protected function createCachedExecutor(LoopInterface $loop, CacheInterface $cache)
     {
-        return new CachedExecutor($this->createRetryExecutor($loop), new RecordCache(new ArrayCache()));
+        return new CachedExecutor($this->createRetryExecutor($loop), new RecordCache($cache));
     }
 
     protected function addPortToServerIfMissing($nameserver)
