@@ -55,7 +55,7 @@ The second result will be served from cache.
 
 ### Custom cache adapter
 
-You can also specify a cache that [implements](https://github.com/reactphp/react/wiki/Users#cache-implmentations) [`CacheInterface`](https://github.com/reactphp/cache) to handle the record cache instead of the default in memory cache. 
+You can also specify a cache that [implements](https://github.com/reactphp/react/wiki/Users#cache-implementations) [`CacheInterface`](https://github.com/reactphp/cache) to handle the record cache instead of the default in memory cache. 
 
 ```php
 $cache = new React\Cache\ArrayCache();
