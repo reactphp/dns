@@ -42,8 +42,9 @@ class FactoryTest extends TestCase
         $executor = $this->getResolverPrivateMemberValue($resolver, 'executor');
         $this->assertInstanceOf('React\Dns\Query\CachedExecutor', $executor);
         $recordCache = $this->getCachedExecutorPrivateMemberValue($executor, 'cache');
-        $this->assertInstanceOf('React\Cache\CacheInterface', $this->getRecordCachePrivateMemberValue($recordCache, 'cache'));
-        $this->assertInstanceOf('React\Cache\ArrayCache', $this->getRecordCachePrivateMemberValue($recordCache, 'cache'));
+        $recordCacheCache = $this->getRecordCachePrivateMemberValue($recordCache, 'cache');
+        $this->assertInstanceOf('React\Cache\CacheInterface', $recordCacheCache);
+        $this->assertInstanceOf('React\Cache\ArrayCache', $recordCacheCache);
     }
 
     /** @test */
@@ -59,8 +60,9 @@ class FactoryTest extends TestCase
         $executor = $this->getResolverPrivateMemberValue($resolver, 'executor');
         $this->assertInstanceOf('React\Dns\Query\CachedExecutor', $executor);
         $recordCache = $this->getCachedExecutorPrivateMemberValue($executor, 'cache');
-        $this->assertInstanceOf('React\Cache\CacheInterface', $this->getRecordCachePrivateMemberValue($recordCache, 'cache'));
-        $this->assertSame($cache, $this->getRecordCachePrivateMemberValue($recordCache, 'cache'));
+        $recordCacheCache = $this->getRecordCachePrivateMemberValue($recordCache, 'cache');
+        $this->assertInstanceOf('React\Cache\CacheInterface', $recordCacheCache);
+        $this->assertSame($cache, $recordCacheCache);
     }
 
     /**
