@@ -55,7 +55,9 @@ The second result will be served from cache.
 
 ### Custom cache adapter
 
-You can also specify a cache that [implements](https://github.com/reactphp/react/wiki/Users#cache-implementations) [`CacheInterface`](https://github.com/reactphp/cache) to handle the record cache instead of the default in memory cache. 
+By default, the above will use an in memory cache.
+
+You can also specify a custom cache implementing [`CacheInterface`](https://github.com/reactphp/cache) to handle the record cache instead:
 
 ```php
 $cache = new React\Cache\ArrayCache();
@@ -63,6 +65,8 @@ $loop = React\EventLoop\Factory::create();
 $factory = new React\Dns\Resolver\Factory();
 $dns = $factory->createCached('8.8.8.8', $loop, $cache);
 ```
+
+See also the wiki for possible [cache implementations](https://github.com/reactphp/react/wiki/Users#cache-implementations).
 
 ## Install
 
