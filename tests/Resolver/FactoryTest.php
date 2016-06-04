@@ -39,7 +39,11 @@ class FactoryTest extends TestCase
         $resolver = $factory->createCached('8.8.8.8:53', $loop);
 
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
-        $this->assertInstanceOf('React\Dns\Query\CachedExecutor', $this->getResolverPrivateMemberValue($resolver, 'executor'));
+        $executor = $this->getResolverPrivateMemberValue($resolver, 'executor');
+        $this->assertInstanceOf('React\Dns\Query\CachedExecutor', $executor);
+        $recordCache = $this->getCachedExecutorPrivateMemberValue($executor, 'cache');
+        $this->assertInstanceOf('React\Cache\CacheInterface', $this->getRecordCachePrivateMemberValue($recordCache, 'cache'));
+        $this->assertInstanceOf('React\Cache\ArrayCache', $this->getRecordCachePrivateMemberValue($recordCache, 'cache'));
     }
 
     /** @test */
