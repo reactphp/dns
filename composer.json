@@ -14,10 +14,5 @@
     },
     "autoload-dev": {
         "psr-4": { "React\\Tests\\Dns\\": "tests" }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "0.4-dev"
-        }
     }
 }
