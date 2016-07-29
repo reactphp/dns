@@ -39,7 +39,30 @@ class FactoryTest extends TestCase
         $resolver = $factory->createCached('8.8.8.8:53', $loop);
 
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
-        $this->assertInstanceOf('React\Dns\Query\CachedExecutor', $this->getResolverPrivateMemberValue($resolver, 'executor'));
+        $executor = $this->getResolverPrivateMemberValue($resolver, 'executor');
+        $this->assertInstanceOf('React\Dns\Query\CachedExecutor', $executor);
+        $recordCache = $this->getCachedExecutorPrivateMemberValue($executor, 'cache');
+        $recordCacheCache = $this->getRecordCachePrivateMemberValue($recordCache, 'cache');
+        $this->assertInstanceOf('React\Cache\CacheInterface', $recordCacheCache);
+        $this->assertInstanceOf('React\Cache\ArrayCache', $recordCacheCache);
+    }
+
+    /** @test */
+    public function createCachedShouldCreateResolverWithCachedExecutorWithCustomCache()
+    {
+        $cache = $this->getMock('React\Cache\CacheInterface');
+        $loop = $this->getMock('React\EventLoop\LoopInterface');
+
+        $factory = new Factory();
+        $resolver = $factory->createCached('8.8.8.8:53', $loop, $cache);
+
+        $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
+        $executor = $this->getResolverPrivateMemberValue($resolver, 'executor');
+        $this->assertInstanceOf('React\Dns\Query\CachedExecutor', $executor);
+        $recordCache = $this->getCachedExecutorPrivateMemberValue($executor, 'cache');
+        $recordCacheCache = $this->getRecordCachePrivateMemberValue($recordCache, 'cache');
+        $this->assertInstanceOf('React\Cache\CacheInterface', $recordCacheCache);
+        $this->assertSame($cache, $recordCacheCache);
     }
 
     /**
@@ -72,6 +95,20 @@ class FactoryTest extends TestCase
     private function getResolverPrivateMemberValue($resolver, $field)
     {
         $reflector = new \ReflectionProperty('React\Dns\Resolver\Resolver', $field);
+        $reflector->setAccessible(true);
+        return $reflector->getValue($resolver);
+    }
+
+    private function getCachedExecutorPrivateMemberValue($resolver, $field)
+    {
+        $reflector = new \ReflectionProperty('React\Dns\Query\CachedExecutor', $field);
+        $reflector->setAccessible(true);
+        return $reflector->getValue($resolver);
+    }
+
+    private function getRecordCachePrivateMemberValue($resolver, $field)
+    {
+        $reflector = new \ReflectionProperty('React\Dns\Query\RecordCache', $field);
         $reflector->setAccessible(true);
         return $reflector->getValue($resolver);
     }

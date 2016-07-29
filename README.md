@@ -53,6 +53,21 @@ $loop->run();
 If the first call returns before the second, only one query will be executed.
 The second result will be served from cache.
 
+### Custom cache adapter
+
+By default, the above will use an in memory cache.
+
+You can also specify a custom cache implementing [`CacheInterface`](https://github.com/reactphp/cache) to handle the record cache instead:
+
+```php
+$cache = new React\Cache\ArrayCache();
+$loop = React\EventLoop\Factory::create();
+$factory = new React\Dns\Resolver\Factory();
+$dns = $factory->createCached('8.8.8.8', $loop, $cache);
+```
+
+See also the wiki for possible [cache implementations](https://github.com/reactphp/react/wiki/Users#cache-implementations).
+
 ## Install
 
 The recommended way to install this library is [through Composer](http://getcomposer.org).
