@@ -9,6 +9,8 @@ use React\Dns\Model\Message;
 use React\Dns\Query\TimeoutException;
 use React\Dns\Model\Record;
 use React\Promise;
+use React\Promise\Deferred;
+use React\Dns\Query\CancellationException;
 
 class RetryExecutorTest extends TestCase
 {
@@ -123,6 +125,41 @@ class RetryExecutorTest extends TestCase
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
         $retryExecutor->query('8.8.8.8', $query)->then($callback, $errorback);
+    }
+
+    /**
+     * @covers React\Dns\Query\RetryExecutor
+     * @test
+     */
+    public function queryShouldCancelQueryOnCancel()
+    {
+        $cancelled = 0;
+
+        $executor = $this->createExecutorMock();
+        $executor
+            ->expects($this->once())
+            ->method('query')
+            ->with('8.8.8.8', $this->isInstanceOf('React\Dns\Query\Query'))
+            ->will($this->returnCallback(function ($domain, $query) use (&$cancelled) {
+                $deferred = new Deferred(function ($resolve, $reject) use (&$cancelled) {
+                    ++$cancelled;
+                    $reject(new CancellationException('Cancelled'));
+                });
+
+                return $deferred->promise();
+            })
+        );
+
+        $retryExecutor = new RetryExecutor($executor, 2);
+
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $promise = $retryExecutor->query('8.8.8.8', $query);
+
+        $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
+
+        $this->assertEquals(0, $cancelled);
+        $promise->cancel();
+        $this->assertEquals(1, $cancelled);
     }
 
     protected function expectCallableOnce()
