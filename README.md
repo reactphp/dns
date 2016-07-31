@@ -26,6 +26,14 @@ $dns->resolve('igor.io')->then(function ($ip) {
 $loop->run();
 ```
 
+Pending DNS queries can be cancelled by cancelling its pending promise like so:
+
+```php
+$promise = $resolver->resolve('reactphp.org');
+
+$promise->cancel();
+```
+
 But there's more.
 
 ## Caching

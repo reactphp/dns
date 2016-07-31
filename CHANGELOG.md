@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.4.3 (2016-07-31)
+
+* Feature: Allow for cache adapter injection (#38 by @WyriHaximus)
+
+  ```php
+  $factory = new React\Dns\Resolver\Factory();
+
+  $cache = new MyCustomCacheInstance();
+  $resolver = $factory->createCached('8.8.8.8', $loop, $cache);
+  ```
+
+* Feature: Support Promise cancellation (#35 by @clue)
+
+  ```php
+  $promise = $resolver->resolve('reactphp.org');
+
+  $promise->cancel();
+  ```
+
 ## 0.4.2 (2016-02-24)
 
 * Repository maintenance, split off from main repo, improve test suite and documentation
