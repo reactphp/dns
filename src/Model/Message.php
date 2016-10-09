@@ -3,6 +3,7 @@
 namespace React\Dns\Model;
 
 use React\Dns\Query\Query;
+use React\Dns\Model\Record;
 
 class Message
 {
@@ -42,6 +43,33 @@ class Message
         $request->prepare();
 
         return $request;
+    }
+
+    /**
+     * Creates a new response message for the given query with the given answer records
+     *
+     * @param Query    $query
+     * @param Record[] $answers
+     * @return self
+     */
+    public static function createResponseWithAnswersForQuery(Query $query, array $answers)
+    {
+        $response = new Message();
+        $response->header->set('id', self::generateId());
+        $response->header->set('qr', 1);
+        $response->header->set('opcode', Message::OPCODE_QUERY);
+        $response->header->set('rd', 1);
+        $response->header->set('rcode', Message::RCODE_OK);
+
+        $response->questions[] = (array) $query;
+
+        foreach ($answers as $record) {
+            $response->answers[] = $record;
+        }
+
+        $response->prepare();
+
+        return $response;
     }
 
     private static function generateId()
