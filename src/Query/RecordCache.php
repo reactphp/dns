@@ -59,7 +59,7 @@ class RecordCache
                     return new RecordBag();
                 }
             )
-            ->then(function ($recordBag) use ($id, $currentTime, $record, $cache) {
+            ->done(function ($recordBag) use ($id, $currentTime, $record, $cache) {
                 $recordBag->set($currentTime, $record);
                 $cache->set($id, serialize($recordBag));
             });
