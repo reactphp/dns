@@ -19,10 +19,14 @@ class Executor implements ExecutorInterface
 
     /**
      *
+     * Note that albeit supported, the $timeout parameter is deprecated!
+     * You should pass a `null` value here instead. If you need timeout handling,
+     * use the `TimeoutConnector` instead.
+     *
      * @param LoopInterface $loop
      * @param Parser $parser
      * @param BinaryDumper $dumper
-     * @param float|null $timeout timeout for DNS query or NULL=no timeout
+     * @param null|float $timeout DEPRECATED: timeout for DNS query or NULL=no timeout
      */
     public function __construct(LoopInterface $loop, Parser $parser, BinaryDumper $dumper, $timeout = 5)
     {
