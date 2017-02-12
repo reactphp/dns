@@ -10,6 +10,11 @@ use React\Dns\Protocol\BinaryDumper;
 
 class ExecutorTest extends \PHPUnit_Framework_TestCase
 {
+    private $loop;
+    private $parser;
+    private $dumper;
+    private $executor;
+
     public function setUp()
     {
         $this->loop = $this->getMock('React\EventLoop\LoopInterface');
@@ -94,6 +99,32 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                 $this->attribute($this->equalTo('DNS query for igor.io has been cancelled'), 'message')
             )
         );
+
+        $promise->then($this->expectCallableNever(), $errorback);
+    }
+
+    /** @test */
+    public function resolveShouldNotStartOrCancelTimerWhenCancelledWithTimeoutIsNull()
+    {
+        $this->loop
+            ->expects($this->never())
+            ->method('addTimer');
+
+        $this->executor = new Executor($this->loop, $this->parser, $this->dumper, null);
+
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $promise = $this->executor->query('8.8.8.8:53', $query);
+
+        $promise->cancel();
+
+        $errorback = $this->createCallableMock();
+        $errorback
+            ->expects($this->once())
+            ->method('__invoke')
+            ->with($this->logicalAnd(
+                $this->isInstanceOf('React\Dns\Query\CancellationException'),
+                $this->attribute($this->equalTo('DNS query for igor.io has been cancelled'), 'message')
+            ));
 
         $promise->then($this->expectCallableNever(), $errorback);
     }

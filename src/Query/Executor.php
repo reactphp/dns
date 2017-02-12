@@ -17,6 +17,13 @@ class Executor implements ExecutorInterface
     private $dumper;
     private $timeout;
 
+    /**
+     *
+     * @param LoopInterface $loop
+     * @param Parser $parser
+     * @param BinaryDumper $dumper
+     * @param float|null $timeout timeout for DNS query or NULL=no timeout
+     */
     public function __construct(LoopInterface $loop, Parser $parser, BinaryDumper $dumper, $timeout = 5)
     {
         $this->loop = $loop;
@@ -56,7 +63,9 @@ class Executor implements ExecutorInterface
         $deferred = new Deferred(function ($resolve, $reject) use (&$timer, &$conn, $name) {
             $reject(new CancellationException(sprintf('DNS query for %s has been cancelled', $name)));
 
-            $timer->cancel();
+            if ($timer !== null) {
+                $timer->cancel();
+            }
             $conn->close();
         });
 
@@ -64,10 +73,13 @@ class Executor implements ExecutorInterface
             return $that->doQuery($nameserver, 'tcp', $queryData, $name);
         };
 
-        $timer = $this->loop->addTimer($this->timeout, function () use (&$conn, $name, $deferred) {
-            $conn->close();
-            $deferred->reject(new TimeoutException(sprintf("DNS query for %s timed out", $name)));
-        });
+        $timer = null;
+        if ($this->timeout !== null) {
+            $timer = $this->loop->addTimer($this->timeout, function () use (&$conn, $name, $deferred) {
+                $conn->close();
+                $deferred->reject(new TimeoutException(sprintf("DNS query for %s timed out", $name)));
+            });
+        }
 
         try {
             try {
@@ -84,7 +96,9 @@ class Executor implements ExecutorInterface
             }
         } catch (\Exception $e) {
             // both UDP and TCP failed => reject
-            $timer->cancel();
+            if ($timer !== null) {
+                $timer->cancel();
+            }
             $deferred->reject(new \RuntimeException('Unable to connect to DNS server: ' . $e->getMessage(), 0, $e));
 
             return $deferred->promise();
@@ -97,7 +111,9 @@ class Executor implements ExecutorInterface
                 return;
             }
 
-            $timer->cancel();
+            if ($timer !== null) {
+                $timer->cancel();
+            }
 
             if ($response->header->isTruncated()) {
                 if ('tcp' === $transport) {
