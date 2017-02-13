@@ -2,6 +2,8 @@
 
 namespace React\Dns\Query;
 
+use React\Dns\Model\Message;
+
 class Query
 {
     public $name;

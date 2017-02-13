@@ -146,6 +146,22 @@ class Parser
             $rdata = implode('.', $bodyLabels);
         }
 
+        if (Message::TYPE_MX === $type) {
+
+            $consumed += 2;
+            list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed);
+
+            $rdata = implode('.', $bodyLabels);
+
+        }
+
+        if (Message::TYPE_NS === $type) {
+            list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed);
+
+            $rdata = implode('.', $bodyLabels);
+
+        }
+
         $message->consumed = $consumed;
 
         $name = implode('.', $labels);

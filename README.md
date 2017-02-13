@@ -23,6 +23,15 @@ $dns->resolve('igor.io')->then(function ($ip) {
     echo "Host: $ip\n";
 });
 
+$dns->resolve('igor.io',\React\Dns\Model\Message::TYPE_MX)->then(function ($record) {
+    var_dump($record);//returns array of MX Records.
+});
+
+$dns->resolve('igor.io',\React\Dns\Model\Message::TYPE_NS)->then(function ($record) {
+    var_dump($record);//returns array of NS Records.
+});
+
+
 $loop->run();
 ```
 
