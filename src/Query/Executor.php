@@ -69,7 +69,27 @@ class Executor implements ExecutorInterface
             $deferred->reject(new TimeoutException(sprintf("DNS query for %s timed out", $name)));
         });
 
-        $conn = $this->createConnection($nameserver, $transport);
+        try {
+            try {
+                $conn = $this->createConnection($nameserver, $transport);
+            } catch (\Exception $e) {
+                if ($transport === 'udp') {
+                    // UDP failed => retry with TCP
+                    $transport = 'tcp';
+                    $conn = $this->createConnection($nameserver, $transport);
+                } else {
+                    // TCP failed (UDP must already have been checked before)
+                    throw $e;
+                }
+            }
+        } catch (\Exception $e) {
+            // both UDP and TCP failed => reject
+            $timer->cancel();
+            $deferred->reject(new \RuntimeException('Unable to connect to DNS server: ' . $e->getMessage(), 0, $e));
+
+            return $deferred->promise();
+        }
+
         $conn->on('data', function ($data) use ($retryWithTcp, $conn, $parser, $response, $transport, $deferred, $timer) {
             $responseReady = $parser->parseChunk($data, $response);
 
@@ -105,8 +125,7 @@ class Executor implements ExecutorInterface
 
     protected function createConnection($nameserver, $transport)
     {
-        $fd = stream_socket_client("$transport://$nameserver", $errno, $errstr, 0, STREAM_CLIENT_CONNECT | STREAM_CLIENT_ASYNC_CONNECT);
-        stream_set_blocking($fd, 0);
+        $fd = @stream_socket_client("$transport://$nameserver", $errno, $errstr, 0, STREAM_CLIENT_CONNECT | STREAM_CLIENT_ASYNC_CONNECT);
         $conn = new Connection($fd, $this->loop);
 
         return $conn;
