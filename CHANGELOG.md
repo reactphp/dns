@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.4 (2017-02-13)
+
+* Fix: Fix handling connection and stream errors
+  (#45 by @clue)
+
+* Feature: Add examples and forward compatibility with upcoming Socket v0.5 component
+  (#46 and #47 by @clue)
+
 ## 0.4.3 (2016-07-31)
 
 * Feature: Allow for cache adapter injection (#38 by @WyriHaximus)
