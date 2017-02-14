@@ -148,6 +148,7 @@ class Executor implements ExecutorInterface
     {
         $fd = @stream_socket_client("$transport://$nameserver", $errno, $errstr, 0, STREAM_CLIENT_CONNECT | STREAM_CLIENT_ASYNC_CONNECT);
         $conn = new Connection($fd, $this->loop);
+        $conn->bufferSize = null; // Temporary fix for Windows 10 users
 
         return $conn;
     }
