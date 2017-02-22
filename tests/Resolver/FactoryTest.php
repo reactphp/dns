@@ -91,6 +91,30 @@ class FactoryTest extends TestCase
             array('[::1]:53',       '[::1]:53')
         );
     }
+    /** @test */
+    public function createShouldCreateSystemDefaultResolver()
+    {
+        $loop = $this->getMock('React\EventLoop\LoopInterface');
+
+        $factory = new Factory();
+        $resolver = $factory->createSystemDefault($loop);
+
+        $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
+    }
+
+    /** @test */
+    public function createWithoutPortShouldCreateSystemDefaultResolverWithDefaultPort()
+    {
+        $loop = $this->getMock('React\EventLoop\LoopInterface');
+
+        $factory = new Factory();
+        $resolver = $factory->createSystemDefault($loop);
+
+        $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
+        $value = $this->getResolverPrivateMemberValue($resolver, 'nameserver');
+        $this->assertSame(':53', substr($value, -3));
+        $this->assertTrue(filter_var(substr($value, 0, -3), FILTER_VALIDATE_IP) !== false);
+    }
 
     private function getResolverPrivateMemberValue($resolver, $field)
     {
