@@ -86,7 +86,7 @@ class Resolver
     private function filterByField(array $answers, $field, $value)
     {
         return array_filter($answers, function ($answer) use ($field, $value) {
-            return $value === $answer->$field;
+            return strtolower($value) === strtolower($answer->$field);
         });
     }
 
