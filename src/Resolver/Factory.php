@@ -77,7 +77,7 @@ class Factory
 
     protected function determineSystemDefaultServer()
     {
-        $nameservers = [];
+        $nameservers = array();
 
         if (stripos(PHP_OS, 'win') === false) {
             $lines = file(self::UNIX_RESOLVE_CONF);
