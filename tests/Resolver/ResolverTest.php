@@ -32,6 +32,27 @@ class ResolverTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function resolveShouldQueryARecordsAndIgnoreCase()
+    {
+        $executor = $this->createExecutorMock();
+        $executor
+            ->expects($this->once())
+            ->method('query')
+            ->with($this->anything(), $this->isInstanceOf('React\Dns\Query\Query'))
+            ->will($this->returnCallback(function ($nameserver, $query) {
+                $response = new Message();
+                $response->header->set('qr', 1);
+                $response->questions[] = new Record('Blog.wyrihaximus.net', $query->type, $query->class);
+                $response->answers[] = new Record('Blog.wyrihaximus.net', $query->type, $query->class, 3600, '178.79.169.131');
+
+                return Promise\resolve($response);
+            }));
+
+        $resolver = new Resolver('8.8.8.8:53', $executor);
+        $resolver->resolve('blog.wyrihaximus.net')->then($this->expectCallableOnceWith('178.79.169.131'));
+    }
+
+    /** @test */
     public function resolveShouldFilterByName()
     {
         $executor = $this->createExecutorMock();
