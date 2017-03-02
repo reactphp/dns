@@ -1,6 +1,6 @@
 {
     "name": "react/dns",
-    "description": "Async DNS resolver.",
+    "description": "Async DNS resolver for ReactPHP",
     "keywords": ["dns", "dns-resolver"],
     "license": "MIT",
     "require": {
