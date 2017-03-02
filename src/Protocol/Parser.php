@@ -4,6 +4,7 @@ namespace React\Dns\Protocol;
 
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
+use InvalidArgumentException;
 
 /**
  * DNS protocol parser
@@ -12,7 +13,32 @@ use React\Dns\Model\Record;
  */
 class Parser
 {
+    /**
+     * Parses the given raw binary message into a Message object
+     *
+     * @param string $data
+     * @throws InvalidArgumentException
+     * @return Message
+     */
+    public function parseMessage($data)
+    {
+        $message = new Message();
+        if ($this->parse($data, $message) !== $message) {
+            throw new InvalidArgumentException('Unable to parse binary message');
+        }
+
+        return $message;
+    }
+
+    /**
+     * @deprecated unused, exists for BC only
+     */
     public function parseChunk($data, Message $message)
+    {
+        return $this->parse($data, $message);
+    }
+
+    private function parse($data, Message $message)
     {
         $message->data .= $data;
 
