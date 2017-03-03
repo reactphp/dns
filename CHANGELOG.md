@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.5 (2017-03-02)
+
+* Fix: Ensure we ignore the case of the answer
+  (#51 by @WyriHaximus)
+
+* Feature: Add `TimeoutExecutor` and simplify internal APIs to allow internal
+  code re-use for upcoming versions.
+  (#48 and #49 by @clue)
+
 ## 0.4.4 (2017-02-13)
 
 * Fix: Fix handling connection and stream errors

@@ -3,7 +3,6 @@
 namespace React\Dns\Query;
 
 use React\Dns\Model\Message;
-use React\Dns\Model\Record;
 
 class CachedExecutor implements ExecutorInterface
 {
@@ -18,15 +17,14 @@ class CachedExecutor implements ExecutorInterface
 
     public function query($nameserver, Query $query)
     {
-        $that = $this;
         $executor = $this->executor;
         $cache = $this->cache;
 
         return $this->cache
             ->lookup($query)
             ->then(
-                function ($cachedRecords) use ($that, $query) {
-                    return $that->buildResponse($query, $cachedRecords);
+                function ($cachedRecords) use ($query) {
+                    return Message::createResponseWithAnswersForQuery($query, $cachedRecords);
                 },
                 function () use ($executor, $cache, $nameserver, $query) {
                     return $executor
@@ -39,27 +37,17 @@ class CachedExecutor implements ExecutorInterface
             );
     }
 
+    /**
+     * @deprecated unused, exists for BC only
+     */
     public function buildResponse(Query $query, array $cachedRecords)
     {
-        $response = new Message();
-
-        $response->header->set('id', $this->generateId());
-        $response->header->set('qr', 1);
-        $response->header->set('opcode', Message::OPCODE_QUERY);
-        $response->header->set('rd', 1);
-        $response->header->set('rcode', Message::RCODE_OK);
-
-        $response->questions[] = new Record($query->name, $query->type, $query->class);
-
-        foreach ($cachedRecords as $record) {
-            $response->answers[] = $record;
-        }
-
-        $response->prepare();
-
-        return $response;
+        return Message::createResponseWithAnswersForQuery($query, $cachedRecords);
     }
 
+    /**
+     * @deprecated unused, exists for BC only
+     */
     protected function generateId()
     {
         return mt_rand(0, 0xffff);

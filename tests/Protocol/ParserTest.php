@@ -7,6 +7,11 @@ use React\Dns\Model\Message;
 
 class ParserTest extends \PHPUnit_Framework_TestCase
 {
+    public function setUp()
+    {
+        $this->parser = new Parser();
+    }
+
     /**
      * @dataProvider provideConvertTcpDumpToBinary
      */
@@ -34,10 +39,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
         $data = $this->convertTcpDumpToBinary($data);
 
-        $request = new Message();
-
-        $parser = new Parser();
-        $parser->parseChunk($data, $request);
+        $request = $this->parser->parseMessage($data);
 
         $header = $request->header;
         $this->assertSame(0x7262, $header->get('id'));
@@ -74,10 +76,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
         $data = $this->convertTcpDumpToBinary($data);
 
-        $response = new Message();
-
-        $parser = new Parser();
-        $parser->parseChunk($data, $response);
+        $response = $this->parser->parseMessage($data);
 
         $header = $response->header;
         $this->assertSame(0x7262, $header->get('id'));
@@ -121,8 +120,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $request->header->set('qdCount', 2);
         $request->data = $data;
 
-        $parser = new Parser();
-        $parser->parseQuestion($request);
+        $this->parser->parseQuestion($request);
 
         $this->assertCount(2, $request->questions);
         $this->assertSame('igor.io', $request->questions[0]['name']);
@@ -148,8 +146,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $response->header->set('anCount', 1);
         $response->data = $data;
 
-        $parser = new Parser();
-        $parser->parseAnswer($response);
+        $this->parser->parseAnswer($response);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('igor.io', $response->answers[0]->name);
@@ -174,10 +171,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
         $data = $this->convertTcpDumpToBinary($data);
 
-        $response = new Message();
-
-        $parser = new Parser();
-        $parser->parseChunk($data, $response);
+        $response = $this->parser->parseMessage($data);
 
         $this->assertCount(1, $response->questions);
         $this->assertSame('mail.google.com', $response->questions[0]['name']);
@@ -212,10 +206,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
         $data = $this->convertTcpDumpToBinary($data);
 
-        $response = new Message();
-
-        $parser = new Parser();
-        $parser->parseChunk($data, $response);
+        $response = $this->parser->parseMessage($data);
 
         $this->assertCount(1, $response->questions);
         $this->assertSame('io.whois-servers.net', $response->questions[0]['name']);
@@ -235,6 +226,21 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(Message::CLASS_IN, $response->answers[1]->class);
         $this->assertSame(3575, $response->answers[1]->ttl);
         $this->assertSame('193.223.78.152', $response->answers[1]->data);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseIncomplete()
+    {
+        $data = "";
+        $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // question: igor.io
+        //$data .= "00 01 00 01";                         // question: type A, class IN
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $this->parser->parseMessage($data);
     }
 
     private function convertTcpDumpToBinary($input)

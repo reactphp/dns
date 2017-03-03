@@ -2,11 +2,20 @@
 
 [![Build Status](https://secure.travis-ci.org/reactphp/dns.png?branch=master)](http://travis-ci.org/reactphp/dns) [![Code Climate](https://codeclimate.com/github/reactphp/dns/badges/gpa.svg)](https://codeclimate.com/github/reactphp/dns)
 
-Async DNS resolver.
+Async DNS resolver for [ReactPHP](https://reactphp.org/)
 
 The main point of the DNS component is to provide async DNS resolution.
 However, it is really a toolkit for working with DNS messages, and could
 easily be used to create a DNS server.
+
+**Table of contents**
+
+* [Basic usage](#basic-usage)
+* [Caching](#caching)
+  * [Custom cache adapter](#custom-cache-adapter)
+* [Install](#install)
+* [License](#license)
+* [References](#references)
 
 ## Basic usage
 
@@ -90,7 +99,7 @@ The recommended way to install this library is [through Composer](http://getcomp
 This will install the latest supported version:
 
 ```bash
-$ composer require react/dns:^0.4.4
+$ composer require react/dns:^0.4.5
 ```
 
 More details about version upgrades can be found in the [CHANGELOG](CHANGELOG.md).
