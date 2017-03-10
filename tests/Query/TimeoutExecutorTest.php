@@ -17,7 +17,7 @@ class TimeoutExecutorTest extends TestCase
     {
         $this->loop = Factory::create();
 
-        $this->wrapped = $this->getMock('React\Dns\Query\ExecutorInterface');
+        $this->wrapped = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
 
         $this->executor = new TimeoutExecutor($this->wrapped, 5.0, $this->loop);
     }
