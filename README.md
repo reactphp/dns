@@ -14,6 +14,7 @@ easily be used to create a DNS server.
 * [Caching](#caching)
   * [Custom cache adapter](#custom-cache-adapter)
 * [Install](#install)
+* [Tests](#tests)
 * [License](#license)
 * [References](#references)
 
@@ -103,6 +104,21 @@ $ composer require react/dns:^0.4.5
 ```
 
 More details about version upgrades can be found in the [CHANGELOG](CHANGELOG.md).
+
+## Tests
+
+To run the test suite, you first need to clone this repo and then install all
+dependencies [through Composer](http://getcomposer.org):
+
+```bash
+$ composer install
+```
+
+To run the test suite, go to the project root and run:
+
+```bash
+$ php vendor/bin/phpunit
+```
 
 ## License
 

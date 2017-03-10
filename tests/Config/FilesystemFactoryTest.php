@@ -39,6 +39,8 @@ nameserver 8.8.8.8
     /** @test */
     public function createShouldLoadStuffFromFilesystem()
     {
+        $this->markTestIncomplete('Filesystem API is incomplete');
+
         $expected = array('8.8.8.8');
 
         $triggerListener = null;
