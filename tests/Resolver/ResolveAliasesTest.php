@@ -94,6 +94,6 @@ class ResolveAliasesTest extends \PHPUnit_Framework_TestCase
 
     private function createExecutorMock()
     {
-        return $this->getMock('React\Dns\Query\ExecutorInterface');
+        return $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
     }
 }

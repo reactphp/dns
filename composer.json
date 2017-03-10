@@ -11,6 +11,9 @@
         "react/promise": "~2.1|~1.2",
         "react/promise-timer": "~1.1"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^5.0 || ^4.8.10"
+    },
     "autoload": {
         "psr-4": { "React\\Dns\\": "src" }
     },

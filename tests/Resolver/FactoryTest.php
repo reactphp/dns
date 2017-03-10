@@ -10,7 +10,7 @@ class FactoryTest extends TestCase
     /** @test */
     public function createShouldCreateResolver()
     {
-        $loop = $this->getMock('React\EventLoop\LoopInterface');
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
         $factory = new Factory();
         $resolver = $factory->create('8.8.8.8:53', $loop);
@@ -21,7 +21,7 @@ class FactoryTest extends TestCase
     /** @test */
     public function createWithoutPortShouldCreateResolverWithDefaultPort()
     {
-        $loop = $this->getMock('React\EventLoop\LoopInterface');
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
         $factory = new Factory();
         $resolver = $factory->create('8.8.8.8', $loop);
@@ -33,7 +33,7 @@ class FactoryTest extends TestCase
     /** @test */
     public function createCachedShouldCreateResolverWithCachedExecutor()
     {
-        $loop = $this->getMock('React\EventLoop\LoopInterface');
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
         $factory = new Factory();
         $resolver = $factory->createCached('8.8.8.8:53', $loop);
@@ -50,8 +50,8 @@ class FactoryTest extends TestCase
     /** @test */
     public function createCachedShouldCreateResolverWithCachedExecutorWithCustomCache()
     {
-        $cache = $this->getMock('React\Cache\CacheInterface');
-        $loop = $this->getMock('React\EventLoop\LoopInterface');
+        $cache = $this->getMockBuilder('React\Cache\CacheInterface')->getMock();
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
         $factory = new Factory();
         $resolver = $factory->createCached('8.8.8.8:53', $loop, $cache);
@@ -71,7 +71,7 @@ class FactoryTest extends TestCase
      */
     public function factoryShouldAddDefaultPort($input, $expected)
     {
-        $loop = $this->getMock('React\EventLoop\LoopInterface');
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
         $factory = new Factory();
         $resolver = $factory->create($input, $loop);

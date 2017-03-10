@@ -90,11 +90,11 @@ class CachedExecutorTest extends TestCase
 
     private function createExecutorMock()
     {
-        return $this->getMock('React\Dns\Query\ExecutorInterface');
+        return $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
     }
 
     private function createPromiseMock()
     {
-        return $this->getMock('React\Promise\PromiseInterface');
+        return $this->getMockBuilder('React\Promise\PromiseInterface')->getMock();
     }
 }

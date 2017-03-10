@@ -7,8 +7,9 @@ use React\Dns\Query\Query;
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
 use React\Promise;
+use React\Tests\Dns\TestCase;
 
-class ResolverTest extends \PHPUnit_Framework_TestCase
+class ResolverTest extends TestCase
 {
     /** @test */
     public function resolveShouldQueryARecords()
@@ -121,44 +122,8 @@ class ResolverTest extends \PHPUnit_Framework_TestCase
         $resolver->resolve('igor.io')->then($this->expectCallableNever(), $errback);
     }
 
-    protected function expectCallableOnceWith($with)
-    {
-        $mock = $this->createCallableMock();
-        $mock
-            ->expects($this->once())
-            ->method('__invoke')
-            ->with($with);
-
-        return $mock;
-    }
-
-    protected function expectCallableOnce()
-    {
-        $mock = $this->createCallableMock();
-        $mock
-            ->expects($this->once())
-            ->method('__invoke');
-
-        return $mock;
-    }
-
-    protected function expectCallableNever()
-    {
-        $mock = $this->createCallableMock();
-        $mock
-            ->expects($this->never())
-            ->method('__invoke');
-
-        return $mock;
-    }
-
-    protected function createCallableMock()
-    {
-        return $this->getMock('React\Tests\Dns\CallableStub');
-    }
-
     private function createExecutorMock()
     {
-        return $this->getMock('React\Dns\Query\ExecutorInterface');
+        return $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
     }
 }
