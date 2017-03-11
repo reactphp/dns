@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.6 (2017-03-11)
+
+* Fix: Fix DNS timeout issues for Windows users and add forward compatibility
+  with Stream v0.5 and upcoming v0.6
+  (#53 by @clue)
+
+* Improve test suite by adding PHPUnit to `require-dev`
+  (#54 by @clue)
+
 ## 0.4.5 (2017-03-02)
 
 * Fix: Ensure we ignore the case of the answer
