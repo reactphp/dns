@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.7 (2017-03-31)
+
+* Feature: Forward compatibility with upcoming Socket v0.6 and v0.7 component
+  (#57 by @clue)
+
 ## 0.4.6 (2017-03-11)
 
 * Fix: Fix DNS timeout issues for Windows users and add forward compatibility
