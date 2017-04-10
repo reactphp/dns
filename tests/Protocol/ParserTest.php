@@ -186,6 +186,50 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('googlemail.l.google.com', $response->answers[0]->data);
     }
 
+    public function testParseAAAAResponse()
+    {
+        $data = "";
+        $data .= "cd 72 81 80 00 01 00 01 00 00 00 00 06";          // header
+        $data .= "67 6f 6f 67 6c 65 03 63 6f 6d 00";                // question: google.com
+        $data .= "00 1c 00 01";                                     // question: type AAAA, class IN
+        $data .= "c0 0c";                                           // answer: offset pointer to google.com
+        $data .= "00 1c 00 01";                                     // answer: type AAAA, class IN
+        $data .= "00 00 01 2b";                                     // answer: ttl 299
+        $data .= "00 10";                                           // answer: rdlength 16
+        $data .= "2a 00 14 50 40 09 08 09 00 00 00 00 00 00 20 0e"; // answer: 2a00:1450:4009:809::200e
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = $this->parser->parseMessage($data);
+
+        $header = $response->header;
+        $this->assertSame(0xcd72, $header->get('id'));
+        $this->assertSame(1, $header->get('qdCount'));
+        $this->assertSame(1, $header->get('anCount'));
+        $this->assertSame(0, $header->get('nsCount'));
+        $this->assertSame(0, $header->get('arCount'));
+        $this->assertSame(1, $header->get('qr'));
+        $this->assertSame(Message::OPCODE_QUERY, $header->get('opcode'));
+        $this->assertSame(0, $header->get('aa'));
+        $this->assertSame(0, $header->get('tc'));
+        $this->assertSame(1, $header->get('rd'));
+        $this->assertSame(1, $header->get('ra'));
+        $this->assertSame(0, $header->get('z'));
+        $this->assertSame(Message::RCODE_OK, $header->get('rcode'));
+
+        $this->assertCount(1, $response->questions);
+        $this->assertSame('google.com', $response->questions[0]['name']);
+        $this->assertSame(Message::TYPE_AAAA, $response->questions[0]['type']);
+        $this->assertSame(Message::CLASS_IN, $response->questions[0]['class']);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('google.com', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_AAAA, $response->answers[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
+        $this->assertSame(299, $response->answers[0]->ttl);
+        $this->assertSame('2a00:1450:4009:809::200e', $response->answers[0]->data);
+    }
+
     public function testParseResponseWithTwoAnswers()
     {
         $data = "";
