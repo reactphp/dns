@@ -228,6 +228,52 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('193.223.78.152', $response->answers[1]->data);
     }
 
+    public function testParsePTRResponse()
+    {
+        $data = "";
+        $data .= "5d d8 81 80 00 01 00 01 00 00 00 00";             // header
+        $data .= "01 34 01 34 01 38 01 38 07 69 6e";                // question: 4.4.8.8.in-addr.arpa
+        $data .= "2d 61 64 64 72 04 61 72 70 61 00";                // question (continued)
+        $data .= "00 0c 00 01";                                     // question: type PTR, class IN
+        $data .= "c0 0c";                                           // answer: offset pointer to rdata
+        $data .= "00 0c 00 01";                                     // answer: type PTR, class IN
+        $data .= "00 01 51 7f";                                     // answer: ttl 86399
+        $data .= "00 20";                                           // answer: rdlength 32
+        $data .= "13 67 6f 6f 67 6c 65 2d 70 75 62 6c 69 63 2d 64"; // answer: rdata google-public-dns-b.google.com.
+        $data .= "6e 73 2d 62 06 67 6f 6f 67 6c 65 03 63 6f 6d 00";
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = $this->parser->parseMessage($data);
+
+        $header = $response->header;
+        $this->assertSame(0x5dd8, $header->get('id'));
+        $this->assertSame(1, $header->get('qdCount'));
+        $this->assertSame(1, $header->get('anCount'));
+        $this->assertSame(0, $header->get('nsCount'));
+        $this->assertSame(0, $header->get('arCount'));
+        $this->assertSame(1, $header->get('qr'));
+        $this->assertSame(Message::OPCODE_QUERY, $header->get('opcode'));
+        $this->assertSame(0, $header->get('aa'));
+        $this->assertSame(0, $header->get('tc'));
+        $this->assertSame(1, $header->get('rd'));
+        $this->assertSame(1, $header->get('ra'));
+        $this->assertSame(0, $header->get('z'));
+        $this->assertSame(Message::RCODE_OK, $header->get('rcode'));
+
+        $this->assertCount(1, $response->questions);
+        $this->assertSame('4.4.8.8.in-addr.arpa', $response->questions[0]['name']);
+        $this->assertSame(Message::TYPE_PTR, $response->questions[0]['type']);
+        $this->assertSame(Message::CLASS_IN, $response->questions[0]['class']);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('4.4.8.8.in-addr.arpa', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_PTR, $response->answers[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
+        $this->assertSame(86399, $response->answers[0]->ttl);
+        $this->assertSame('google-public-dns-b.google.com', $response->answers[0]->data);
+    }
+
     /**
      * @expectedException InvalidArgumentException
      */
