@@ -14,6 +14,7 @@ class Message
     const TYPE_PTR = 12;
     const TYPE_MX = 15;
     const TYPE_TXT = 16;
+    const TYPE_AAAA = 28;
 
     const CLASS_IN = 1;
 

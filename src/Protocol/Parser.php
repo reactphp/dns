@@ -159,7 +159,7 @@ class Parser
 
         $rdata = null;
 
-        if (Message::TYPE_A === $type) {
+        if (Message::TYPE_A === $type || Message::TYPE_AAAA === $type) {
             $ip = substr($message->data, $consumed, $rdLength);
             $consumed += $rdLength;
 
