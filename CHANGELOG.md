@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.8 (2017-04-16)
+
+* Feature: Add support for the AAAA record type to the protocol parser
+  (#58 by @othillo)
+* Feature: Add support for the PTR record type to the protocol parser
+  (#59 by @othillo)
+
 ## 0.4.7 (2017-03-31)
 
 * Feature: Forward compatibility with upcoming Socket v0.6 and v0.7 component
