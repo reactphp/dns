@@ -50,6 +50,6 @@ class CachedExecutor implements ExecutorInterface
      */
     protected function generateId()
     {
-        return mt_rand(0, 0xffff);
+        return random_int(0, 0xffff);
     }
 }

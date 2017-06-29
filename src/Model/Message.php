@@ -75,7 +75,7 @@ class Message
 
     private static function generateId()
     {
-        return mt_rand(0, 0xffff);
+        return random_int(0, 0xffff);
     }
 
     public $data = '';
