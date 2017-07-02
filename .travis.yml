@@ -8,6 +8,10 @@ php:
   - 7
   - hhvm
 
+matrix:
+  allow_failures:
+    - php: hhvm
+
 sudo: false
 
 install:
