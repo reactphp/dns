@@ -95,7 +95,7 @@ See also the wiki for possible [cache implementations](https://github.com/reactp
 
 ## Advanced Usage
 
-For more advanced usages one can utilize the `Executor` directly.
+For more advanced usages one can utilize the `React\Dns\Query\Executor` directly.
 The following example looks up the `IPv6` address for `igor.io`.
 
 ```php
