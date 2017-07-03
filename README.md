@@ -13,7 +13,7 @@ easily be used to create a DNS server.
 * [Basic usage](#basic-usage)
 * [Caching](#caching)
   * [Custom cache adapter](#custom-cache-adapter)
-* [Advanced usage](#advance-usage)
+* [Advanced usage](#advanced-usage)
 * [Install](#install)
 * [Tests](#tests)
 * [License](#license)
