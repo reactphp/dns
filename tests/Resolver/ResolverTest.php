@@ -141,7 +141,7 @@ class ResolverTest extends TestCase
             }));
 
         $resolver = new Resolver('8.8.8.8:53', $executor);
-        $resolver->resolveAll('igor.io')->then($this->expectCallableOnceWith(['178.79.169.131', '178.79.169.132']));
+        $resolver->resolveAll('igor.io')->then($this->expectCallableOnceWith(array('178.79.169.131', '178.79.169.132')));
     }
 
     private function createExecutorMock()
