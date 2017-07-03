@@ -37,6 +37,12 @@ class Resolver
             });
     }
 
+    public function extractAddress(Query $query, Message $response)
+    {
+        $addresses = $this->extractAddresses($query, $response);
+        return $addresses[array_rand($addresses)];
+    }
+
     public function extractAddresses(Query $query, Message $response)
     {
         $answers = $response->answers;
