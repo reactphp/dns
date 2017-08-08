@@ -60,11 +60,11 @@ class Executor implements ExecutorInterface
         $parser = $this->parser;
         $loop = $this->loop;
 
-        $deferred = new Deferred(function ($resolve, $reject) use (&$timer, &$conn, $name) {
+        $deferred = new Deferred(function ($resolve, $reject) use (&$timer, $loop, &$conn, $name) {
             $reject(new CancellationException(sprintf('DNS query for %s has been cancelled', $name)));
 
             if ($timer !== null) {
-                $timer->cancel();
+                $loop->cancelTimer($timer);
             }
             $conn->close();
         });
@@ -97,16 +97,16 @@ class Executor implements ExecutorInterface
         } catch (\Exception $e) {
             // both UDP and TCP failed => reject
             if ($timer !== null) {
-                $timer->cancel();
+                $loop->cancelTimer($timer);
             }
             $deferred->reject(new \RuntimeException('Unable to connect to DNS server: ' . $e->getMessage(), 0, $e));
 
             return $deferred->promise();
         }
 
-        $conn->on('data', function ($data) use ($retryWithTcp, $conn, $parser, $transport, $deferred, $timer) {
+        $conn->on('data', function ($data) use ($retryWithTcp, $conn, $parser, $transport, $deferred, $timer, $loop) {
             if ($timer !== null) {
-                $timer->cancel();
+                $loop->cancelTimer($timer);
             }
 
             try {
