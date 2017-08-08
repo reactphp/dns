@@ -21,7 +21,7 @@ matrix:
 sudo: false
 
 install:
-  - composer install --no-interaction
-  
+  - COMPOSER_ROOT_VERSION=`git describe --abbrev=0` composer install --no-interaction
+
 script:
   - vendor/bin/phpunit --coverage-text
