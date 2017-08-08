@@ -290,15 +290,17 @@ class ExecutorTest extends TestCase
 
 
         $timer = $this->getMockBuilder('React\EventLoop\Timer\TimerInterface')->getMock();
-        $timer
-            ->expects($this->once())
-            ->method('cancel');
 
         $this->loop
             ->expects($this->once())
             ->method('addTimer')
             ->with(5, $this->isInstanceOf('Closure'))
             ->will($this->returnValue($timer));
+
+        $this->loop
+            ->expects($this->once())
+            ->method('cancelTimer')
+            ->with($timer);
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
         $this->executor->query('8.8.8.8:53', $query, function () {}, function () {});
