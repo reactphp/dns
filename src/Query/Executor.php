@@ -2,13 +2,13 @@
 
 namespace React\Dns\Query;
 
-use React\Dns\BadServerException;
 use React\Dns\Model\Message;
 use React\Dns\Protocol\Parser;
 use React\Dns\Protocol\BinaryDumper;
 use React\EventLoop\LoopInterface;
 use React\Promise\Deferred;
 use React\Socket\Connection;
+use React\Promise;
 
 class Executor implements ExecutorInterface
 {
@@ -56,9 +56,23 @@ class Executor implements ExecutorInterface
 
     public function doQuery($nameserver, $transport, $queryData, $name)
     {
+        // we only support UDP right now
+        if ($transport !== 'udp') {
+            return Promise\reject(new \RuntimeException(
+                'Only UDP transport supported in this version'
+            ));
+        }
+
         $that = $this;
         $parser = $this->parser;
         $loop = $this->loop;
+
+        // UDP connections are instant, so try this without a timer
+        try {
+            $conn = $this->createConnection($nameserver, $transport);
+        } catch (\Exception $e) {
+            return Promise\reject(new \RuntimeException('Unable to connect to DNS server: ' . $e->getMessage(), 0, $e));
+        }
 
         $deferred = new Deferred(function ($resolve, $reject) use (&$timer, $loop, &$conn, $name) {
             $reject(new CancellationException(sprintf('DNS query for %s has been cancelled', $name)));
@@ -69,10 +83,6 @@ class Executor implements ExecutorInterface
             $conn->close();
         });
 
-        $retryWithTcp = function () use ($that, $nameserver, $queryData, $name) {
-            return $that->doQuery($nameserver, 'tcp', $queryData, $name);
-        };
-
         $timer = null;
         if ($this->timeout !== null) {
             $timer = $this->loop->addTimer($this->timeout, function () use (&$conn, $name, $deferred) {
@@ -81,30 +91,8 @@ class Executor implements ExecutorInterface
             });
         }
 
-        try {
-            try {
-                $conn = $this->createConnection($nameserver, $transport);
-            } catch (\Exception $e) {
-                if ($transport === 'udp') {
-                    // UDP failed => retry with TCP
-                    $transport = 'tcp';
-                    $conn = $this->createConnection($nameserver, $transport);
-                } else {
-                    // TCP failed (UDP must already have been checked before)
-                    throw $e;
-                }
-            }
-        } catch (\Exception $e) {
-            // both UDP and TCP failed => reject
-            if ($timer !== null) {
-                $loop->cancelTimer($timer);
-            }
-            $deferred->reject(new \RuntimeException('Unable to connect to DNS server: ' . $e->getMessage(), 0, $e));
-
-            return $deferred->promise();
-        }
-
-        $conn->on('data', function ($data) use ($retryWithTcp, $conn, $parser, $transport, $deferred, $timer, $loop) {
+        $conn->on('data', function ($data) use ($conn, $parser, $deferred, $timer, $loop) {
+            $conn->end();
             if ($timer !== null) {
                 $loop->cancelTimer($timer);
             }
@@ -112,23 +100,15 @@ class Executor implements ExecutorInterface
             try {
                 $response = $parser->parseMessage($data);
             } catch (\Exception $e) {
-                $conn->end();
                 $deferred->reject($e);
                 return;
             }
 
             if ($response->header->isTruncated()) {
-                if ('tcp' === $transport) {
-                    $deferred->reject(new BadServerException('The server set the truncated bit although we issued a TCP request'));
-                } else {
-                    $conn->end();
-                    $deferred->resolve($retryWithTcp());
-                }
-
+                $deferred->reject(new \RuntimeException('The server returned a truncated result for the UDP query, retrying via TCP is currently not supported'));
                 return;
             }
 
-            $conn->end();
             $deferred->resolve($response);
         });
         $conn->write($queryData);
