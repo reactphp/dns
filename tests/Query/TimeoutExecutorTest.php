@@ -76,7 +76,7 @@ class TimeoutExecutorTest extends TestCase
 
     public function testWrappedWillBeCancelledOnTimeout()
     {
-        $this->executor = new TimeoutExecutor($this->wrapped, 0.001, $this->loop);
+        $this->executor = new TimeoutExecutor($this->wrapped, 0, $this->loop);
 
         $cancelled = 0;
 
