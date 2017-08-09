@@ -7,8 +7,9 @@ use React\Dns\Protocol\Parser;
 use React\Dns\Protocol\BinaryDumper;
 use React\EventLoop\LoopInterface;
 use React\Promise\Deferred;
-use React\Socket\Connection;
 use React\Promise;
+use React\Stream\DuplexResourceStream;
+use React\Stream\Stream;
 
 class Executor implements ExecutorInterface
 {
@@ -71,7 +72,7 @@ class Executor implements ExecutorInterface
         try {
             $conn = $this->createConnection($nameserver, $transport);
         } catch (\Exception $e) {
-            return Promise\reject(new \RuntimeException('DNS query for ' . $name . ' failed: Unable to connect to DNS server: ' . $e->getMessage(), 0, $e));
+            return Promise\reject(new \RuntimeException('DNS query for ' . $name . ' failed: ' . $e->getMessage(), 0, $e));
         }
 
         $deferred = new Deferred(function ($resolve, $reject) use (&$timer, $loop, &$conn, $name) {
@@ -124,11 +125,31 @@ class Executor implements ExecutorInterface
         return mt_rand(0, 0xffff);
     }
 
+    /**
+     * @param string $nameserver
+     * @param string $transport
+     * @return \React\Stream\DuplexStreamInterface
+     */
     protected function createConnection($nameserver, $transport)
     {
         $fd = @stream_socket_client("$transport://$nameserver", $errno, $errstr, 0, STREAM_CLIENT_CONNECT | STREAM_CLIENT_ASYNC_CONNECT);
-        $conn = new Connection($fd, $this->loop);
-        $conn->bufferSize = null; // Temporary fix for Windows 10 users
+        if ($fd === false) {
+            throw new \RuntimeException('Unable to connect to DNS server: ' . $errstr, $errno);
+        }
+
+        // Instantiate stream instance around this stream resource.
+        // This ought to be replaced with a datagram socket in the future.
+        // Temporary work around for Windows 10: buffer whole UDP response
+        // @coverageIgnoreStart
+        if (!class_exists('React\Stream\Stream')) {
+            // prefer DuplexResourceStream as of react/stream v0.7.0
+            $conn = new DuplexResourceStream($fd, $this->loop, -1);
+        } else {
+            // use legacy Stream class for react/stream < v0.7.0
+            $conn = new Stream($fd, $this->loop);
+            $conn->bufferSize = null;
+        }
+        // @coverageIgnoreEnd
 
         return $conn;
     }

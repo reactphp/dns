@@ -149,7 +149,7 @@ class ExecutorTest extends TestCase
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
         $promise = $this->executor->query('8.8.8.8:53', $query);
 
-        $this->setExpectedException('RuntimeException', 'DNS query for igor.io failed: Unable to connect to DNS server: Nope');
+        $this->setExpectedException('RuntimeException', 'DNS query for igor.io failed: Nope');
         Block\await($promise, $this->loop);
     }
 
