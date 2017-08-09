@@ -13,6 +13,7 @@ easily be used to create a DNS server.
 * [Basic usage](#basic-usage)
 * [Caching](#caching)
   * [Custom cache adapter](#custom-cache-adapter)
+* [Advanced usage](#advanced-usage)
 * [Install](#install)
 * [Tests](#tests)
 * [License](#license)
@@ -91,6 +92,31 @@ $dns = $factory->createCached('8.8.8.8', $loop, $cache);
 ```
 
 See also the wiki for possible [cache implementations](https://github.com/reactphp/react/wiki/Users#cache-implementations).
+
+## Advanced Usage
+
+For more advanced usages one can utilize the `React\Dns\Query\Executor` directly.
+The following example looks up the `IPv6` address for `igor.io`.
+
+```php
+$loop = Factory::create();
+
+$executor = new Executor($loop, new Parser(), new BinaryDumper(), null);
+
+$executor->query(
+    '8.8.8.8:53', 
+    new Query($name, Message::TYPE_AAAA, Message::CLASS_IN, time())
+)->done(function (Message $message) {
+    foreach ($message->answers as $answer) {
+        echo 'IPv6: ' . $answer->data . PHP_EOL;
+    }
+}, 'printf');
+
+$loop->run();
+
+```
+
+See also the [fourth example](examples).
 
 ## Install
 
