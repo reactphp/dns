@@ -37,6 +37,17 @@ class Record
      *   IPv6 address string, for example "::1".
      * - CNAME / PTR / NS:
      *   The hostname without trailing dot, for example "reactphp.org".
+     * - TXT:
+     *   List of string values, for example `["v=spf1 include:example.com"]`.
+     *   This is commonly a list with only a single string value, but this
+     *   technically allows multiple strings (0-255 bytes each) in a single
+     *   record. This is rarely used and depending on application you may want
+     *   to join these together or handle them separately. Each string can
+     *   transport any binary data, its character encoding is not defined (often
+     *   ASCII/UTF-8 in practice). [RFC 1464](https://tools.ietf.org/html/rfc1464)
+     *   suggests using key-value pairs such as `["name=test","version=1"]`, but
+     *   interpretation of this is not enforced and left up to consumers of this
+     *   library (used for DNS-SD/Zeroconf and others).
      * - Any other unknown type:
      *   An opaque binary string containing the RDATA as transported in the DNS
      *   record. For forwards compatibility, you should not rely on this format
@@ -45,7 +56,7 @@ class Record
      *   considered a BC break. See the format definition of known types above
      *   for more details.
      *
-     * @var string
+     * @var string|string[]
      */
     public $data;
 

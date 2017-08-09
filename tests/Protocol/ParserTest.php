@@ -256,6 +256,56 @@ class ParserTest extends TestCase
         $this->assertSame('2a00:1450:4009:809::200e', $response->answers[0]->data);
     }
 
+    public function testParseTXTResponse()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 10 00 01";                         // answer: type TXT, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 06";                               // answer: rdlength 6
+        $data .= "05 68 65 6c 6c 6f";                   // answer: rdata length 5: hello
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('igor.io', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_TXT, $response->answers[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
+        $this->assertSame(86400, $response->answers[0]->ttl);
+        $this->assertSame(array('hello'), $response->answers[0]->data);
+    }
+
+    public function testParseTXTResponseMultiple()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 10 00 01";                         // answer: type TXT, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 0C";                               // answer: rdlength 12
+        $data .= "05 68 65 6c 6c 6f 05 77 6f 72 6c 64"; // answer: rdata length 5: hello, length 5: world
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('igor.io', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_TXT, $response->answers[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
+        $this->assertSame(86400, $response->answers[0]->ttl);
+        $this->assertSame(array('hello', 'world'), $response->answers[0]->data);
+    }
+
     public function testParseResponseWithTwoAnswers()
     {
         $data = "";
