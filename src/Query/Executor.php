@@ -59,7 +59,7 @@ class Executor implements ExecutorInterface
         // we only support UDP right now
         if ($transport !== 'udp') {
             return Promise\reject(new \RuntimeException(
-                'Only UDP transport supported in this version'
+                'DNS query for ' . $name . ' failed: Requested transport "' . $transport . '" not available, only UDP is supported in this version'
             ));
         }
 
@@ -71,7 +71,7 @@ class Executor implements ExecutorInterface
         try {
             $conn = $this->createConnection($nameserver, $transport);
         } catch (\Exception $e) {
-            return Promise\reject(new \RuntimeException('Unable to connect to DNS server: ' . $e->getMessage(), 0, $e));
+            return Promise\reject(new \RuntimeException('DNS query for ' . $name . ' failed: Unable to connect to DNS server: ' . $e->getMessage(), 0, $e));
         }
 
         $deferred = new Deferred(function ($resolve, $reject) use (&$timer, $loop, &$conn, $name) {
@@ -91,7 +91,7 @@ class Executor implements ExecutorInterface
             });
         }
 
-        $conn->on('data', function ($data) use ($conn, $parser, $deferred, $timer, $loop) {
+        $conn->on('data', function ($data) use ($conn, $parser, $deferred, $timer, $loop, $name) {
             $conn->end();
             if ($timer !== null) {
                 $loop->cancelTimer($timer);
@@ -105,7 +105,7 @@ class Executor implements ExecutorInterface
             }
 
             if ($response->header->isTruncated()) {
-                $deferred->reject(new \RuntimeException('The server returned a truncated result for the UDP query, retrying via TCP is currently not supported'));
+                $deferred->reject(new \RuntimeException('DNS query for ' . $name . ' failed: The server returned a truncated result for a UDP query, but retrying via TCP is currently not supported'));
                 return;
             }
 
