@@ -42,7 +42,7 @@ class ExecutorTest extends TestCase
             ->will($this->returnNewConnectionMock(false));
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
-        $this->executor->query('8.8.8.8:53', $query, function () {}, function () {});
+        $this->executor->query('8.8.8.8:53', $query);
     }
 
     /** @test */
@@ -62,7 +62,7 @@ class ExecutorTest extends TestCase
             ->will($this->returnNewConnectionMock(false));
 
         $query = new Query(str_repeat('a', 512).'.igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
-        $this->executor->query('8.8.8.8:53', $query, function () {}, function () {});
+        $this->executor->query('8.8.8.8:53', $query);
     }
 
     /** @test */
@@ -160,7 +160,7 @@ class ExecutorTest extends TestCase
             ->will($this->returnNewConnectionMock());
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
-        $this->executor->query('8.8.8.8:53', $query, function () {}, function () {});
+        $this->executor->query('8.8.8.8:53', $query);
     }
 
     /** @test */
@@ -191,7 +191,7 @@ class ExecutorTest extends TestCase
             ->will($this->returnNewConnectionMock());
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
-        $this->executor->query('8.8.8.8:53', $query, function () {}, function () {});
+        $this->executor->query('8.8.8.8:53', $query);
     }
 
     /** @test */
@@ -221,7 +221,7 @@ class ExecutorTest extends TestCase
             ->will($this->throwException(new \Exception()));
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
-        $promise = $this->executor->query('8.8.8.8:53', $query, function () {}, function () {});
+        $promise = $this->executor->query('8.8.8.8:53', $query);
 
         $mock = $this->createCallableMock();
         $mock
@@ -303,7 +303,7 @@ class ExecutorTest extends TestCase
             ->with($timer);
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
-        $this->executor->query('8.8.8.8:53', $query, function () {}, function () {});
+        $this->executor->query('8.8.8.8:53', $query);
     }
 
     /** @test */
@@ -351,7 +351,8 @@ class ExecutorTest extends TestCase
     private function returnStandardResponse()
     {
         $that = $this;
-        $callback = function ($data, $response) use ($that) {
+        $callback = function ($data) use ($that) {
+            $response = new Message();
             $that->convertMessageToStandardResponse($response);
             return $response;
         };
