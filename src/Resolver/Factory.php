@@ -15,6 +15,8 @@ use React\Dns\Query\TimeoutExecutor;
 
 class Factory
 {
+    const UNIX_RESOLVE_CONF = '/etc/resolv.conf';
+
     public function create($nameserver, LoopInterface $loop)
     {
         $nameserver = $this->addPortToServerIfMissing($nameserver);
@@ -33,6 +35,16 @@ class Factory
         $executor = $this->createCachedExecutor($loop, $cache);
 
         return new Resolver($nameserver, $executor);
+    }
+
+    public function createSystemDefault(LoopInterface $loop)
+    {
+        return $this->create($this->determineSystemDefaultServer(), $loop);
+    }
+
+    public function createSystemDefaultCached(LoopInterface $loop, CacheInterface $cache = null)
+    {
+        return $this->createCached($this->determineSystemDefaultServer(), $loop, $cache);
     }
 
     protected function createExecutor(LoopInterface $loop)
@@ -66,5 +78,28 @@ class Factory
         }
 
         return $nameserver;
+    }
+
+    protected function determineSystemDefaultServer()
+    {
+        $nameservers = array();
+
+        if (stripos(PHP_OS, 'win') === false) {
+            $lines = file(self::UNIX_RESOLVE_CONF);
+            foreach ($lines as $line) {
+                $nameserverPosition = stripos($line, 'nameserver');
+                if ($nameserverPosition !== false) {
+                    $nameserverLine = trim(substr($line, $nameserverPosition + 11));
+                    list ($nameservers[]) = explode(' ', $nameserverLine);
+                }
+            }
+        }
+
+        if (count($nameservers) > 0) {
+            shuffle($nameservers);
+            return array_pop($nameservers);
+        }
+
+        throw new \Exception('Nameserver configuration missing');
     }
 }
