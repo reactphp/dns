@@ -126,10 +126,15 @@ The recommended way to install this library is [through Composer](http://getcomp
 This will install the latest supported version:
 
 ```bash
-$ composer require react/dns:^0.4.9
+$ composer require react/dns:^0.4.10
 ```
 
-More details about version upgrades can be found in the [CHANGELOG](CHANGELOG.md).
+See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
+
+This project aims to run on any platform and thus does not require any PHP
+extensions and supports running on legacy PHP 5.3 through current PHP 7+ and
+HHVM.
+It's *highly recommended to use PHP 7+* for this project.
 
 ## Tests
 

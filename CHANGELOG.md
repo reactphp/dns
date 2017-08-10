@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.4.10 (2017-08-10)
+
+* Feature: Forward compatibility with EventLoop v1.0 and v0.5 and 
+  lock minimum dependencies and work around circular dependency for tests
+  (#70 and #71 by @clue)
+
+* Fix: Work around DNS timeout issues for Windows users
+  (#74 by @clue)
+
+* Documentation and examples for advanced usage
+  (#66 by @WyriHaximus)
+
+* Remove broken TCP code, do not retry with invalid TCP query
+  (#73 by @clue)
+
+* Improve test suite by fixing HHVM build for now again and ignore future HHVM build errors and
+  lock Travis distro so new defaults will not break the build and
+  fix failing tests for PHP 7.1
+  (#68 by @WyriHaximus and #69 and #72 by @clue)
+
 ## 0.4.9 (2017-05-01)
 
 * Feature: Forward compatibility with upcoming Socket v1.0 and v0.8
