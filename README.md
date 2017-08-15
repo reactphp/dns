@@ -40,6 +40,11 @@ $loop->run();
 
 See also the [first example](examples).
 
+> Note that the factory loads the hosts file from the filesystem once when
+  creating the resolver instance.
+  Ideally, this method should thus be executed only once before the loop starts
+  and not repeatedly while it is running.
+
 Pending DNS queries can be cancelled by cancelling its pending promise like so:
 
 ```php

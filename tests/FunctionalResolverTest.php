@@ -17,6 +17,18 @@ class FunctionalTest extends TestCase
         $this->resolver = $factory->create('8.8.8.8', $this->loop);
     }
 
+    public function testResolveLocalhostResolves()
+    {
+        if (DIRECTORY_SEPARATOR === '\\') {
+            $this->markTestSkipped('Not supported on Windows');
+        }
+
+        $promise = $this->resolver->resolve('localhost');
+        $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
+
+        $this->loop->run();
+    }
+
     public function testResolveGoogleResolves()
     {
         $promise = $this->resolver->resolve('google.com');
