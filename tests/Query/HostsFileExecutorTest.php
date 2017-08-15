@@ -43,4 +43,12 @@ class HostsFileExecutorTest extends TestCase
 
         $ret = $this->executor->query('8.8.8.8', new Query('google.com', Message::TYPE_A, Message::CLASS_IN, 0));
     }
+
+    public function testFallsBackIfNoIpv4Matches()
+    {
+        $this->hosts->expects($this->once())->method('getIpsForHost')->willReturn(array('::1'));
+        $this->fallback->expects($this->once())->method('query');
+
+        $ret = $this->executor->query('8.8.8.8', new Query('google.com', Message::TYPE_A, Message::CLASS_IN, 0));
+    }
 }

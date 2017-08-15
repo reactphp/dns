@@ -77,4 +77,11 @@ class HostsFileTest extends TestCase
 
         $this->assertEquals(array('127.0.0.1', '127.0.0.2', '127.0.0.3', '127.0.0.4'), $hosts->getIpsForHost('localhost'));
     }
+
+    public function testMergesIpv4AndIpv6EntriesOverMultipleLines()
+    {
+        $hosts = new HostsFile("127.0.0.1 localhost\n::1 localhost");
+
+        $this->assertEquals(array('127.0.0.1', '::1'), $hosts->getIpsForHost('localhost'));
+    }
 }

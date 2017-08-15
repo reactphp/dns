@@ -28,13 +28,15 @@ class HostsFileExecutor implements ExecutorInterface
     public function query($nameserver, Query $query)
     {
         if ($query->class === Message::CLASS_IN && $query->type === Message::TYPE_A) {
-            $ips = $this->hosts->getIpsForHost($query->name);
-            if ($ips) {
-                $records = array();
-                foreach ($ips as $ip) {
+            $records = array();
+            foreach ($this->hosts->getIpsForHost($query->name) as $ip) {
+                // ensure this is an IPv4 address
+                if (strpos($ip, ':') === false) {
                     $records[] = new Record($query->name, $query->type, $query->class, 0, $ip);
                 }
+            }
 
+            if ($records) {
                 return Promise\resolve(
                     Message::createResponseWithAnswersForQuery($query, $records)
                 );
