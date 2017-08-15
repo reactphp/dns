@@ -19,10 +19,6 @@ class FunctionalTest extends TestCase
 
     public function testResolveLocalhostResolves()
     {
-        if (DIRECTORY_SEPARATOR === '\\') {
-            $this->markTestSkipped('Not supported on Windows');
-        }
-
         $promise = $this->resolver->resolve('localhost');
         $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
 

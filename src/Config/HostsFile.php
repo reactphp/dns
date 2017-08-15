@@ -12,7 +12,9 @@ use RuntimeException;
  *
  * Most notably, this file usually contains an entry to map "localhost" to the
  * local IP. Windows is a notable exception here, as Windows does not actually
- * include "localhost" in this file by default.
+ * include "localhost" in this file by default. To compensate for this, this
+ * class may explicitly be wrapped in another HostsFile instance which
+ * hard-codes these entries for Windows (see also Factory).
  *
  * This class mostly exists to abstract the parsing/extraction process so this
  * can be replaced with a faster alternative in the future.

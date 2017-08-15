@@ -97,7 +97,8 @@ class FactoryTest extends TestCase
     {
         $executor = $this->getResolverPrivateMemberValue($resolver, 'executor');
 
-        if ($executor instanceof HostsFileExecutor) {
+        // extract underlying executor that may be wrapped in multiple layers of hosts file executors
+        while ($executor instanceof HostsFileExecutor) {
             $reflector = new \ReflectionProperty('React\Dns\Query\HostsFileExecutor', 'fallback');
             $reflector->setAccessible(true);
 

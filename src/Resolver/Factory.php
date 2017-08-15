@@ -48,13 +48,24 @@ class Factory
     private function decorateHostsFileExecutor(ExecutorInterface $executor)
     {
         try {
-            $hosts = HostsFile::loadFromPathBlocking();
+            $executor = new HostsFileExecutor(
+                HostsFile::loadFromPathBlocking(),
+                $executor
+            );
         } catch (\RuntimeException $e) {
             // ignore this file if it can not be loaded
-            return $executor;
         }
 
-        return new HostsFileExecutor($hosts, $executor);
+        // Windows does not store localhost in hosts file by default but handles this internally
+        // To compensate for this, we explicitly use hard-coded defaults for localhost
+        if (DIRECTORY_SEPARATOR === '\\') {
+            $executor = new HostsFileExecutor(
+                new HostsFile("127.0.0.1 localhost"),
+                $executor
+            );
+        }
+
+        return $executor;
     }
 
     protected function createExecutor(LoopInterface $loop)
