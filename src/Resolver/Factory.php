@@ -60,7 +60,7 @@ class Factory
         // To compensate for this, we explicitly use hard-coded defaults for localhost
         if (DIRECTORY_SEPARATOR === '\\') {
             $executor = new HostsFileExecutor(
-                new HostsFile("127.0.0.1 localhost"),
+                new HostsFile("127.0.0.1 localhost\n::1 localhost"),
                 $executor
             );
         }

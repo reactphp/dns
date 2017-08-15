@@ -51,4 +51,20 @@ class HostsFileExecutorTest extends TestCase
 
         $ret = $this->executor->query('8.8.8.8', new Query('google.com', Message::TYPE_A, Message::CLASS_IN, 0));
     }
+
+    public function testReturnsResponseMessageIfIpv6AddressesWereFound()
+    {
+        $this->hosts->expects($this->once())->method('getIpsForHost')->willReturn(array('::1'));
+        $this->fallback->expects($this->never())->method('query');
+
+        $ret = $this->executor->query('8.8.8.8', new Query('google.com', Message::TYPE_AAAA, Message::CLASS_IN, 0));
+    }
+
+    public function testFallsBackIfNoIpv6Matches()
+    {
+        $this->hosts->expects($this->once())->method('getIpsForHost')->willReturn(array('127.0.0.1'));
+        $this->fallback->expects($this->once())->method('query');
+
+        $ret = $this->executor->query('8.8.8.8', new Query('google.com', Message::TYPE_AAAA, Message::CLASS_IN, 0));
+    }
 }
