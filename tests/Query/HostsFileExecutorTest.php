@@ -67,4 +67,52 @@ class HostsFileExecutorTest extends TestCase
 
         $ret = $this->executor->query('8.8.8.8', new Query('google.com', Message::TYPE_AAAA, Message::CLASS_IN, 0));
     }
+
+    public function testDoesReturnReverseIpv4Lookup()
+    {
+        $this->hosts->expects($this->once())->method('getHostsForIp')->with('127.0.0.1')->willReturn(array('localhost'));
+        $this->fallback->expects($this->never())->method('query');
+
+        $this->executor->query('8.8.8.8', new Query('1.0.0.127.in-addr.arpa', Message::TYPE_PTR, Message::CLASS_IN, 0));
+    }
+
+    public function testFallsBackIfNoReverseIpv4Matches()
+    {
+        $this->hosts->expects($this->once())->method('getHostsForIp')->with('127.0.0.1')->willReturn(array());
+        $this->fallback->expects($this->once())->method('query');
+
+        $this->executor->query('8.8.8.8', new Query('1.0.0.127.in-addr.arpa', Message::TYPE_PTR, Message::CLASS_IN, 0));
+    }
+
+    public function testDoesReturnReverseIpv6Lookup()
+    {
+        $this->hosts->expects($this->once())->method('getHostsForIp')->with('2a02:2e0:3fe:100::6')->willReturn(array('ip6-localhost'));
+        $this->fallback->expects($this->never())->method('query');
+
+        $this->executor->query('8.8.8.8', new Query('6.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1.0.e.f.3.0.0.e.2.0.2.0.a.2.ip6.arpa', Message::TYPE_PTR, Message::CLASS_IN, 0));
+    }
+
+    public function testFallsBackForInvalidAddress()
+    {
+        $this->hosts->expects($this->never())->method('getHostsForIp');
+        $this->fallback->expects($this->once())->method('query');
+
+        $this->executor->query('8.8.8.8', new Query('example.com', Message::TYPE_PTR, Message::CLASS_IN, 0));
+    }
+
+    public function testReverseFallsBackForInvalidIpv4Address()
+    {
+        $this->hosts->expects($this->never())->method('getHostsForIp');
+        $this->fallback->expects($this->once())->method('query');
+
+        $this->executor->query('8.8.8.8', new Query('::1.in-addr.arpa', Message::TYPE_PTR, Message::CLASS_IN, 0));
+    }
+
+    public function testReverseFallsBackForInvalidIpv6Address()
+    {
+        $this->hosts->expects($this->never())->method('getHostsForIp');
+        $this->fallback->expects($this->once())->method('query');
+
+        $this->executor->query('8.8.8.8', new Query('abcd.ip6.arpa', Message::TYPE_PTR, Message::CLASS_IN, 0));
+    }
 }
