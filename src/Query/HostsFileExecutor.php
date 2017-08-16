@@ -76,7 +76,7 @@ class HostsFileExecutor implements ExecutorInterface
             return inet_ntop(strrev($ip));
         } elseif (substr($host, -9) === '.ip6.arpa') {
             // IPv6: replace dots, reverse nibbles and interpret as hexadecimal string
-            $ip = @inet_ntop(hex2bin(strrev(str_replace('.', '', substr($host, 0, -9)))));
+            $ip = @inet_ntop(pack('H*', strrev(str_replace('.', '', substr($host, 0, -9)))));
             if ($ip === false) {
                 return null;
             }

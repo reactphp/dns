@@ -108,11 +108,19 @@ class HostsFileExecutorTest extends TestCase
         $this->executor->query('8.8.8.8', new Query('::1.in-addr.arpa', Message::TYPE_PTR, Message::CLASS_IN, 0));
     }
 
-    public function testReverseFallsBackForInvalidIpv6Address()
+    public function testReverseFallsBackForInvalidLengthIpv6Address()
     {
         $this->hosts->expects($this->never())->method('getHostsForIp');
         $this->fallback->expects($this->once())->method('query');
 
         $this->executor->query('8.8.8.8', new Query('abcd.ip6.arpa', Message::TYPE_PTR, Message::CLASS_IN, 0));
+    }
+
+    public function testReverseFallsBackForInvalidHexIpv6Address()
+    {
+        $this->hosts->expects($this->never())->method('getHostsForIp');
+        $this->fallback->expects($this->once())->method('query');
+
+        $this->executor->query('8.8.8.8', new Query('zZz.ip6.arpa', Message::TYPE_PTR, Message::CLASS_IN, 0));
     }
 }
