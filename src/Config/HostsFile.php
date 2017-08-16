@@ -107,4 +107,29 @@ class HostsFile
 
         return $ips;
     }
+
+    /**
+     * Returns all hostnames for the given IPv4 or IPv6 address
+     *
+     * @param string $ip
+     * @return string[]
+     */
+    public function getHostsForIp($ip)
+    {
+        // check binary representation of IP to avoid string case and short notation
+        $ip = @inet_pton($ip);
+
+        $names = array();
+        foreach (preg_split('/\r?\n/', $this->contents) as $line) {
+            $parts = preg_split('/\s+/', $line);
+
+            if (inet_pton(array_shift($parts)) === $ip) {
+                foreach ($parts as $part) {
+                    $names[] = $part;
+                }
+            }
+        }
+
+        return $names;
+    }
 }

@@ -84,4 +84,48 @@ class HostsFileTest extends TestCase
 
         $this->assertEquals(array('127.0.0.1', '::1'), $hosts->getIpsForHost('localhost'));
     }
+
+    public function testReverseLookup()
+    {
+        $hosts = new HostsFile('127.0.0.1 localhost');
+
+        $this->assertEquals(array('localhost'), $hosts->getHostsForIp('127.0.0.1'));
+        $this->assertEquals(array(), $hosts->getHostsForIp('192.168.1.1'));
+    }
+
+    public function testReverseNonIpReturnsNothing()
+    {
+        $hosts = new HostsFile('127.0.0.1 localhost');
+
+        $this->assertEquals(array(), $hosts->getHostsForIp('localhost'));
+        $this->assertEquals(array(), $hosts->getHostsForIp('127.0.0.1.1'));
+    }
+
+    public function testReverseLookupReturnsLowerCaseHost()
+    {
+        $hosts = new HostsFile('127.0.0.1 LocalHost');
+
+        $this->assertEquals(array('localhost'), $hosts->getHostsForIp('127.0.0.1'));
+    }
+
+    public function testReverseLookupChecksNormalizedIpv6()
+    {
+        $hosts = new HostsFile('FE80::00a1 localhost');
+
+        $this->assertEquals(array('localhost'), $hosts->getHostsForIp('fe80::A1'));
+    }
+
+    public function testReverseLookupReturnsMultipleHostsOverSingleLine()
+    {
+        $hosts = new HostsFile("::1 ip6-localhost ip6-loopback");
+
+        $this->assertEquals(array('ip6-localhost', 'ip6-loopback'), $hosts->getHostsForIp('::1'));
+    }
+
+    public function testReverseLookupReturnsMultipleHostsOverMultipleLines()
+    {
+        $hosts = new HostsFile("::1 ip6-localhost\n::1 ip6-loopback");
+
+        $this->assertEquals(array('ip6-localhost', 'ip6-loopback'), $hosts->getHostsForIp('::1'));
+    }
 }
