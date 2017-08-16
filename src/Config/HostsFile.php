@@ -101,6 +101,11 @@ class HostsFile
             $parts = preg_split('/\s+/', $line);
             $ip = array_shift($parts);
             if ($parts && array_search($name, $parts) !== false) {
+                // remove IPv6 zone ID (`fe80::1%lo0` => `fe80:1`)
+                if (strpos($ip, ':') !== false && ($pos = strpos($ip, '%')) !== false) {
+                    $ip= substr($ip, 0, $pos);
+                }
+
                 $ips[] = $ip;
             }
         }
@@ -122,8 +127,14 @@ class HostsFile
         $names = array();
         foreach (preg_split('/\r?\n/', $this->contents) as $line) {
             $parts = preg_split('/\s+/', $line);
+            $addr = array_shift($parts);
 
-            if (inet_pton(array_shift($parts)) === $ip) {
+            // remove IPv6 zone ID (`fe80::1%lo0` => `fe80:1`)
+            if (strpos($addr, ':') !== false && ($pos = strpos($addr, '%')) !== false) {
+                $addr = substr($addr, 0, $pos);
+            }
+
+            if (@inet_pton($addr) === $ip) {
                 foreach ($parts as $part) {
                     $names[] = $part;
                 }

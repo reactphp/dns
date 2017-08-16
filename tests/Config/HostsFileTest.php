@@ -41,6 +41,13 @@ class HostsFileTest extends TestCase
         $this->assertEquals(array(), $hosts->getIpsForHost('example.com'));
     }
 
+    public function testIgnoresIpv6ZoneId()
+    {
+        $hosts = new HostsFile('fe80::1%lo0 localhost');
+
+        $this->assertEquals(array('fe80::1'), $hosts->getIpsForHost('localhost'));
+    }
+
     public function testSkipsComments()
     {
         $hosts = new HostsFile('# start' . PHP_EOL .'#127.0.0.1 localhost' . PHP_EOL . '127.0.0.2 localhost # example.com');
@@ -113,6 +120,13 @@ class HostsFileTest extends TestCase
         $hosts = new HostsFile('FE80::00a1 localhost');
 
         $this->assertEquals(array('localhost'), $hosts->getHostsForIp('fe80::A1'));
+    }
+
+    public function testReverseLookupIgnoresIpv6ZoneId()
+    {
+        $hosts = new HostsFile('fe80::1%lo0 localhost');
+
+        $this->assertEquals(array('localhost'), $hosts->getHostsForIp('fe80::1'));
     }
 
     public function testReverseLookupReturnsMultipleHostsOverSingleLine()
