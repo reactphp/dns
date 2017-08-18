@@ -4,6 +4,7 @@ namespace React\Tests\Dns\Resolver;
 
 use React\Dns\Resolver\Factory;
 use React\Tests\Dns\TestCase;
+use React\Dns\Query\HostsFileExecutor;
 
 class FactoryTest extends TestCase
 {
@@ -39,7 +40,7 @@ class FactoryTest extends TestCase
         $resolver = $factory->createCached('8.8.8.8:53', $loop);
 
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
-        $executor = $this->getResolverPrivateMemberValue($resolver, 'executor');
+        $executor = $this->getResolverPrivateExecutor($resolver);
         $this->assertInstanceOf('React\Dns\Query\CachedExecutor', $executor);
         $recordCache = $this->getCachedExecutorPrivateMemberValue($executor, 'cache');
         $recordCacheCache = $this->getRecordCachePrivateMemberValue($recordCache, 'cache');
@@ -57,7 +58,7 @@ class FactoryTest extends TestCase
         $resolver = $factory->createCached('8.8.8.8:53', $loop, $cache);
 
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
-        $executor = $this->getResolverPrivateMemberValue($resolver, 'executor');
+        $executor = $this->getResolverPrivateExecutor($resolver);
         $this->assertInstanceOf('React\Dns\Query\CachedExecutor', $executor);
         $recordCache = $this->getCachedExecutorPrivateMemberValue($executor, 'cache');
         $recordCacheCache = $this->getRecordCachePrivateMemberValue($recordCache, 'cache');
@@ -90,6 +91,21 @@ class FactoryTest extends TestCase
             array('::1',            '[::1]:53'),
             array('[::1]:53',       '[::1]:53')
         );
+    }
+
+    private function getResolverPrivateExecutor($resolver)
+    {
+        $executor = $this->getResolverPrivateMemberValue($resolver, 'executor');
+
+        // extract underlying executor that may be wrapped in multiple layers of hosts file executors
+        while ($executor instanceof HostsFileExecutor) {
+            $reflector = new \ReflectionProperty('React\Dns\Query\HostsFileExecutor', 'fallback');
+            $reflector->setAccessible(true);
+
+            $executor = $reflector->getValue($executor);
+        }
+
+        return $executor;
     }
 
     private function getResolverPrivateMemberValue($resolver, $field)

@@ -4,21 +4,24 @@ namespace React\Dns\Resolver;
 
 use React\Cache\ArrayCache;
 use React\Cache\CacheInterface;
-use React\Dns\Query\Executor;
-use React\Dns\Query\CachedExecutor;
-use React\Dns\Query\RecordCache;
+use React\Dns\Config\HostsFile;
 use React\Dns\Protocol\Parser;
 use React\Dns\Protocol\BinaryDumper;
-use React\EventLoop\LoopInterface;
+use React\Dns\Query\CachedExecutor;
+use React\Dns\Query\Executor;
+use React\Dns\Query\ExecutorInterface;
+use React\Dns\Query\HostsFileExecutor;
+use React\Dns\Query\RecordCache;
 use React\Dns\Query\RetryExecutor;
 use React\Dns\Query\TimeoutExecutor;
+use React\EventLoop\LoopInterface;
 
 class Factory
 {
     public function create($nameserver, LoopInterface $loop)
     {
         $nameserver = $this->addPortToServerIfMissing($nameserver);
-        $executor = $this->createRetryExecutor($loop);
+        $executor = $this->decorateHostsFileExecutor($this->createRetryExecutor($loop));
 
         return new Resolver($nameserver, $executor);
     }
@@ -30,9 +33,39 @@ class Factory
         }
 
         $nameserver = $this->addPortToServerIfMissing($nameserver);
-        $executor = $this->createCachedExecutor($loop, $cache);
+        $executor = $this->decorateHostsFileExecutor($this->createCachedExecutor($loop, $cache));
 
         return new Resolver($nameserver, $executor);
+    }
+
+    /**
+     * Tries to load the hosts file and decorates the given executor on success
+     *
+     * @param ExecutorInterface $executor
+     * @return ExecutorInterface
+     * @codeCoverageIgnore
+     */
+    private function decorateHostsFileExecutor(ExecutorInterface $executor)
+    {
+        try {
+            $executor = new HostsFileExecutor(
+                HostsFile::loadFromPathBlocking(),
+                $executor
+            );
+        } catch (\RuntimeException $e) {
+            // ignore this file if it can not be loaded
+        }
+
+        // Windows does not store localhost in hosts file by default but handles this internally
+        // To compensate for this, we explicitly use hard-coded defaults for localhost
+        if (DIRECTORY_SEPARATOR === '\\') {
+            $executor = new HostsFileExecutor(
+                new HostsFile("127.0.0.1 localhost\n::1 localhost"),
+                $executor
+            );
+        }
+
+        return $executor;
     }
 
     protected function createExecutor(LoopInterface $loop)

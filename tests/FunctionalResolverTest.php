@@ -17,6 +17,14 @@ class FunctionalTest extends TestCase
         $this->resolver = $factory->create('8.8.8.8', $this->loop);
     }
 
+    public function testResolveLocalhostResolves()
+    {
+        $promise = $this->resolver->resolve('localhost');
+        $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
+
+        $this->loop->run();
+    }
+
     public function testResolveGoogleResolves()
     {
         $promise = $this->resolver->resolve('google.com');
