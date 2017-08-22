@@ -41,6 +41,14 @@ class HostsFileTest extends TestCase
         $this->assertEquals(array(), $hosts->getIpsForHost('example.com'));
     }
 
+    public function testNonIpReturnsNothingForInvalidHosts()
+    {
+        $hosts = new HostsFile('a b');
+
+        $this->assertEquals(array(), $hosts->getIpsForHost('a'));
+        $this->assertEquals(array(), $hosts->getIpsForHost('b'));
+    }
+
     public function testIgnoresIpv6ZoneId()
     {
         $hosts = new HostsFile('fe80::1%lo0 localhost');
@@ -106,6 +114,14 @@ class HostsFileTest extends TestCase
 
         $this->assertEquals(array(), $hosts->getHostsForIp('localhost'));
         $this->assertEquals(array(), $hosts->getHostsForIp('127.0.0.1.1'));
+    }
+
+    public function testReverseNonIpReturnsNothingForInvalidHosts()
+    {
+        $hosts = new HostsFile('a b');
+
+        $this->assertEquals(array(), $hosts->getHostsForIp('a'));
+        $this->assertEquals(array(), $hosts->getHostsForIp('b'));
     }
 
     public function testReverseLookupReturnsLowerCaseHost()
