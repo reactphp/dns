@@ -108,6 +108,15 @@ class HostsFileTest extends TestCase
         $this->assertEquals(array(), $hosts->getHostsForIp('192.168.1.1'));
     }
 
+    public function testReverseSkipsComments()
+    {
+        $hosts = new HostsFile("# start\n#127.0.0.1 localhosted\n127.0.0.2\tlocalhost\t# example.com\n\t127.0.0.3\t\texample.org\t\t");
+
+        $this->assertEquals(array(), $hosts->getHostsForIp('127.0.0.1'));
+        $this->assertEquals(array('localhost'), $hosts->getHostsForIp('127.0.0.2'));
+        $this->assertEquals(array('example.org'), $hosts->getHostsForIp('127.0.0.3'));
+    }
+
     public function testReverseNonIpReturnsNothing()
     {
         $hosts = new HostsFile('127.0.0.1 localhost');

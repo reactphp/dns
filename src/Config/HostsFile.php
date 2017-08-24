@@ -81,7 +81,7 @@ class HostsFile
     public function __construct($contents)
     {
         // remove all comments from the contents
-        $contents = preg_replace('/ *#.*/', '', strtolower($contents));
+        $contents = preg_replace('/[ \t]*#.*/', '', strtolower($contents));
 
         $this->contents = $contents;
     }
@@ -131,7 +131,7 @@ class HostsFile
 
         $names = array();
         foreach (preg_split('/\r?\n/', $this->contents) as $line) {
-            $parts = preg_split('/\s+/', $line);
+            $parts = preg_split('/\s+/', $line, null, PREG_SPLIT_NO_EMPTY);
             $addr = array_shift($parts);
 
             // remove IPv6 zone ID (`fe80::1%lo0` => `fe80:1`)
