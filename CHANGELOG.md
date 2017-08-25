@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.4.11 (2017-08-25)
+
+*   Feature: Support resolving from default hosts file
+    (#75, #76 and #77 by @clue)
+
+    This means that resolving hosts such as `localhost` will now work as
+    expected across all platforms with no changes required:
+
+    ```php
+    $resolver->resolve('localhost')->then(function ($ip) {
+        echo 'IP: ' . $ip;
+    });
+    ```
+
+    The new `HostsExecutor` exists for advanced usage and is otherwise used
+    internally for this feature.
+
 ## 0.4.10 (2017-08-10)
 
 * Feature: Forward compatibility with EventLoop v1.0 and v0.5 and 
