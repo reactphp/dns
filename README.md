@@ -1,8 +1,9 @@
-# Dns Component
+# Dns
 
-[![Build Status](https://secure.travis-ci.org/reactphp/dns.png?branch=master)](http://travis-ci.org/reactphp/dns) [![Code Climate](https://codeclimate.com/github/reactphp/dns/badges/gpa.svg)](https://codeclimate.com/github/reactphp/dns)
+[![Build Status](https://travis-ci.org/reactphp/dns.svg?branch=master)](https://travis-ci.org/reactphp/dns)
+[![Code Climate](https://codeclimate.com/github/reactphp/dns/badges/gpa.svg)](https://codeclimate.com/github/reactphp/dns)
 
-Async DNS resolver for [ReactPHP](https://reactphp.org/)
+Async DNS resolver for [ReactPHP](https://reactphp.org/).
 
 The main point of the DNS component is to provide async DNS resolution.
 However, it is really a toolkit for working with DNS messages, and could
@@ -144,8 +145,8 @@ $executor->query(
 
 ## Install
 
-The recommended way to install this library is [through Composer](http://getcomposer.org).
-[New to Composer?](http://getcomposer.org/doc/00-intro.md)
+The recommended way to install this library is [through Composer](https://getcomposer.org).
+[New to Composer?](https://getcomposer.org/doc/00-intro.md)
 
 This will install the latest supported version:
 
@@ -163,7 +164,7 @@ It's *highly recommended to use PHP 7+* for this project.
 ## Tests
 
 To run the test suite, you first need to clone this repo and then install all
-dependencies [through Composer](http://getcomposer.org).
+dependencies [through Composer](https://getcomposer.org).
 Because the test suite contains some circular dependencies, you may have to
 manually specify the root package version like this:
 
@@ -183,5 +184,5 @@ MIT, see [LICENSE file](LICENSE).
 
 ## References
 
-* [RFC 1034](http://tools.ietf.org/html/rfc1034) Domain Names - Concepts and Facilities
-* [RFC 1035](http://tools.ietf.org/html/rfc1035) Domain Names - Implementation and Specification
+* [RFC 1034](https://tools.ietf.org/html/rfc1034) Domain Names - Concepts and Facilities
+* [RFC 1035](https://tools.ietf.org/html/rfc1035) Domain Names - Implementation and Specification
