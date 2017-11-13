@@ -2,9 +2,10 @@
 
 namespace React\Test\Dns\Config;
 
+use PHPUnit\Framework\TestCase;
 use React\Dns\Config\FilesystemFactory;
 
-class FilesystemFactoryTest extends \PHPUnit_Framework_TestCase
+class FilesystemFactoryTest extends TestCase
 {
     /** @test */
     public function parseEtcResolvConfShouldParseCorrectly()
