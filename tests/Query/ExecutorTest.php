@@ -46,24 +46,17 @@ class ExecutorTest extends TestCase
         $this->executor->query('8.8.8.8:53', $query);
     }
 
-    /**
-     * @test
-     * @expectedException RuntimeException
-     */
+    /** @test */
     public function resolveShouldRejectIfRequestIsLargerThan512Bytes()
     {
         $query = new Query(str_repeat('a', 512).'.igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
         $promise = $this->executor->query('8.8.8.8:53', $query);
 
-        $this->expectExceptionMessage('DNS query for ' . $query->name . ' failed: Requested transport "tcp" not available, only UDP is supported in this version');
+        $this->setExpectedException('RuntimeException', 'DNS query for ' . $query->name . ' failed: Requested transport "tcp" not available, only UDP is supported in this version');
         Block\await($promise, $this->loop);
     }
 
-    /**
-     * @test
-     * @expectedException React\Dns\Query\CancellationException
-     * @expectedExceptionMessage DNS query for igor.io has been cancelled
-     */
+    /** @test */
     public function resolveShouldCloseConnectionWhenCancelled()
     {
         $conn = $this->createConnectionMock(false);
@@ -87,14 +80,11 @@ class ExecutorTest extends TestCase
 
         $promise->cancel();
 
+        $this->setExpectedException('React\Dns\Query\CancellationException', 'DNS query for igor.io has been cancelled');
         Block\await($promise, $this->loop);
     }
 
-    /**
-     * @test
-     * @expectedException React\Dns\Query\CancellationException
-     * @expectedExceptionMessage DNS query for igor.io has been cancelled
-     */
+    /** @test */
     public function resolveShouldNotStartOrCancelTimerWhenCancelledWithTimeoutIsNull()
     {
         $this->loop
@@ -108,6 +98,7 @@ class ExecutorTest extends TestCase
 
         $promise->cancel();
 
+        $this->setExpectedException('React\Dns\Query\CancellationException', 'DNS query for igor.io has been cancelled');
         Block\await($promise, $this->loop);
     }
 
@@ -137,11 +128,7 @@ class ExecutorTest extends TestCase
         $this->executor->query('8.8.8.8:53', $query);
     }
 
-    /**
-     * @test
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage DNS query for igor.io failed: Nope
-     */
+    /** @test */
     public function resolveShouldFailIfUdpThrow()
     {
         $this->loop
@@ -162,6 +149,7 @@ class ExecutorTest extends TestCase
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
         $promise = $this->executor->query('8.8.8.8:53', $query);
 
+        $this->setExpectedException('RuntimeException', 'DNS query for igor.io failed: Nope');
         Block\await($promise, $this->loop);
     }
 
@@ -200,11 +188,7 @@ class ExecutorTest extends TestCase
         $this->executor->query('8.8.8.8:53', $query);
     }
 
-    /**
-     * @test
-     * @expectedException React\Dns\Query\TimeoutException
-     * @expectedExceptionMessage DNS query for igor.io timed out
-     */
+    /** @test */
     public function resolveShouldCloseConnectionOnTimeout()
     {
         $this->executor = $this->createExecutorMock();
@@ -234,6 +218,7 @@ class ExecutorTest extends TestCase
         $this->assertNotNull($timerCallback);
         $timerCallback();
 
+        $this->setExpectedException('React\Dns\Query\TimeoutException', 'DNS query for igor.io timed out');
         Block\await($promise, $this->loop);
     }
 
