@@ -2,11 +2,12 @@
 
 namespace React\Tests\Dns\Query;
 
+use PHPUnit\Framework\TestCase;
 use React\Dns\Query\RecordBag;
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
 
-class RecordBagTest extends \PHPUnit_Framework_TestCase
+class RecordBagTest extends TestCase
 {
     /**
     * @covers React\Dns\Query\RecordBag

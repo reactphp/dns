@@ -2,10 +2,11 @@
 
 namespace React\Tests\Dns\Protocol;
 
+use PHPUnit\Framework\TestCase;
 use React\Dns\Protocol\BinaryDumper;
 use React\Dns\Model\Message;
 
-class BinaryDumperTest extends \PHPUnit_Framework_TestCase
+class BinaryDumperTest extends TestCase
 {
     public function testRequestToBinary()
     {

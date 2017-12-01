@@ -2,6 +2,7 @@
 
 namespace React\Tests\Dns\Query;
 
+use PHPUnit\Framework\TestCase;
 use React\Cache\ArrayCache;
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
@@ -9,7 +10,7 @@ use React\Dns\Query\RecordCache;
 use React\Dns\Query\Query;
 use React\Promise\PromiseInterface;
 
-class RecordCacheTest extends \PHPUnit_Framework_TestCase
+class RecordCacheTest extends TestCase
 {
     /**
     * @covers React\Dns\Query\RecordCache

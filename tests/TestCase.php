@@ -2,7 +2,9 @@
 
 namespace React\Tests\Dns;
 
-abstract class TestCase extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase as BaseTestCase;
+
+abstract class TestCase extends BaseTestCase
 {
     protected function expectCallableOnce()
     {
@@ -39,4 +41,21 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
     {
         return $this->getMockBuilder('React\Tests\Dns\CallableStub')->getMock();
     }
+
+    public function setExpectedException($exception, $exceptionMessage = '', $exceptionCode = null)
+    {
+         if (method_exists($this, 'expectException')) {
+             // PHPUnit 5
+             $this->expectException($exception);
+             if ($exceptionMessage !== '') {
+                 $this->expectExceptionMessage($exceptionMessage);
+             }
+             if ($exceptionCode !== null) {
+                 $this->expectExceptionCode($exceptionCode);
+             }
+         } else {
+             // legacy PHPUnit 4
+             parent::setExpectedException($exception, $exceptionMessage, $exceptionCode);
+         }
+     }
 }

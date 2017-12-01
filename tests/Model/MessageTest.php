@@ -2,10 +2,11 @@
 
 namespace React\Tests\Dns\Model;
 
+use PHPUnit\Framework\TestCase;
 use React\Dns\Query\Query;
 use React\Dns\Model\Message;
 
-class MessageTest extends \PHPUnit_Framework_TestCase
+class MessageTest extends TestCase
 {
     public function testCreateRequestDesiresRecusion()
     {

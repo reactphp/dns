@@ -2,10 +2,11 @@
 
 namespace React\Tests\Dns\Protocol;
 
+use PHPUnit\Framework\TestCase;
 use React\Dns\Protocol\Parser;
 use React\Dns\Model\Message;
 
-class ParserTest extends \PHPUnit_Framework_TestCase
+class ParserTest extends TestCase
 {
     public function setUp()
     {
