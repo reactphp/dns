@@ -29,7 +29,7 @@ class ExecutorTest extends TestCase
     /** @test */
     public function queryShouldCreateUdpRequest()
     {
-        $timer = $this->getMockBuilder('React\EventLoop\Timer\TimerInterface')->getMock();
+        $timer = $this->createTimerMock();
         $this->loop
             ->expects($this->any())
             ->method('addTimer')
@@ -62,7 +62,7 @@ class ExecutorTest extends TestCase
         $conn = $this->createConnectionMock(false);
         $conn->expects($this->once())->method('close');
 
-        $timer = $this->getMockBuilder('React\EventLoop\Timer\TimerInterface')->getMock();
+        $timer = $this->createTimerMock();
         $this->loop
             ->expects($this->any())
             ->method('addTimer')
@@ -105,7 +105,7 @@ class ExecutorTest extends TestCase
     /** @test */
     public function resolveShouldRejectIfResponseIsTruncated()
     {
-        $timer = $this->getMockBuilder('React\EventLoop\Timer\TimerInterface')->getMock();
+        $timer = $this->createTimerMock();
 
         $this->loop
             ->expects($this->any())
@@ -171,7 +171,7 @@ class ExecutorTest extends TestCase
             ->will($this->returnNewConnectionMock());
 
 
-        $timer = $this->getMockBuilder('React\EventLoop\Timer\TimerInterface')->getMock();
+        $timer = $this->createTimerMock();
 
         $this->loop
             ->expects($this->once())
@@ -198,10 +198,11 @@ class ExecutorTest extends TestCase
             ->with('8.8.8.8:53', 'udp')
             ->will($this->returnNewConnectionMock(false));
 
-        $timer = $this->getMockBuilder('React\EventLoop\Timer\TimerInterface')->getMock();
-        $timer
+        $timer = $this->createTimerMock();
+
+        $this->loop
             ->expects($this->never())
-            ->method('cancel');
+            ->method('cancelTimer');
 
         $this->loop
             ->expects($this->once())
@@ -288,6 +289,13 @@ class ExecutorTest extends TestCase
             }));
 
         return $conn;
+    }
+
+    private function createTimerMock()
+    {
+        return $this->getMockBuilder(
+            interface_exists('React\EventLoop\TimerInterface') ? 'React\EventLoop\TimerInterface' : 'React\EventLoop\Timer\TimerInterface'
+        )->getMock();
     }
 
     private function createExecutorMock()
