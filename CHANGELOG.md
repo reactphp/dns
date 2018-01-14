@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.12 (2018-01-14)
+
+*   Improve test suite by adding forward compatibility with PHPUnit 6,
+    test against PHP 7.2, fix forward compatibility with upcoming EventLoop releases,
+    add test group to skip integration tests relying on internet connection
+    and add minor documentation improvements.
+    (#85 and #87 by @carusogabriel, #88 and #89 by @clue and #83 by @jsor)
+
 ## 0.4.11 (2017-08-25)
 
 *   Feature: Support resolving from default hosts file

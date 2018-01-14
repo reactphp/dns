@@ -1,7 +1,6 @@
 # Dns
 
 [![Build Status](https://travis-ci.org/reactphp/dns.svg?branch=master)](https://travis-ci.org/reactphp/dns)
-[![Code Climate](https://codeclimate.com/github/reactphp/dns/badges/gpa.svg)](https://codeclimate.com/github/reactphp/dns)
 
 Async DNS resolver for [ReactPHP](https://reactphp.org/).
 
@@ -151,7 +150,7 @@ The recommended way to install this library is [through Composer](https://getcom
 This will install the latest supported version:
 
 ```bash
-$ composer require react/dns:^0.4.11
+$ composer require react/dns:^0.4.12
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
