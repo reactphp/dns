@@ -94,7 +94,7 @@ class ExecutorTest extends TestCase
         $this->executor = new Executor($this->loop, $this->parser, $this->dumper, null);
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
-        $promise = $this->executor->query('8.8.8.8:53', $query);
+        $promise = $this->executor->query('127.0.0.1:53', $query);
 
         $promise->cancel();
 
