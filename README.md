@@ -28,8 +28,12 @@ names, baby!
 
 ```php
 $loop = React\EventLoop\Factory::create();
+
+$config = React\Dns\Config\Config::loadSystemConfigBlocking();
+$server = $config->nameservers ? reset($config->nameservers) : '8.8.8.8';
+
 $factory = new React\Dns\Resolver\Factory();
-$dns = $factory->create('8.8.8.8', $loop);
+$dns = $factory->create($server, $loop);
 
 $dns->resolve('igor.io')->then(function ($ip) {
     echo "Host: $ip\n";
@@ -39,6 +43,14 @@ $loop->run();
 ```
 
 See also the [first example](examples).
+
+The `Config` class can be used to load the system default config. This is an
+operation that may access the filesystem and block. Ideally, this method should
+thus be executed only once before the loop starts and not repeatedly while it is
+running.
+Note that this class may return an *empty* configuration if the system config
+can not be loaded. As such, you'll likely want to apply a default nameserver
+as above if none can be found.
 
 > Note that the factory loads the hosts file from the filesystem once when
   creating the resolver instance.
@@ -61,8 +73,12 @@ You can cache results by configuring the resolver to use a `CachedExecutor`:
 
 ```php
 $loop = React\EventLoop\Factory::create();
+
+$config = React\Dns\Config\Config::loadSystemConfigBlocking();
+$server = $config->nameservers ? reset($config->nameservers) : '8.8.8.8';
+
 $factory = new React\Dns\Resolver\Factory();
-$dns = $factory->createCached('8.8.8.8', $loop);
+$dns = $factory->createCached($server, $loop);
 
 $dns->resolve('igor.io')->then(function ($ip) {
     echo "Host: $ip\n";
