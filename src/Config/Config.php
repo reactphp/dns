@@ -17,7 +17,7 @@ class Config
      *
      * Note that this method will try to access its files and/or commands and
      * try to parse its output. Currently, this will only parse valid nameserver
-     * entries from `/etc/resolv.conf` and will ignore all other output without
+     * entries from its output and will ignore all other output without
      * complaining.
      *
      * Note that the previous section implies that this may return an empty
@@ -28,6 +28,12 @@ class Config
      */
     public static function loadSystemConfigBlocking()
     {
+        // Use WMIC output on Windows
+        if (DIRECTORY_SEPARATOR === '\\') {
+            return self::loadWmicBlocking();
+        }
+
+        // otherwise (try to) load from resolv.conf
         try {
             return self::loadResolvConfBlocking();
         } catch (RuntimeException $ignored) {
@@ -77,6 +83,39 @@ class Config
         }
 
         preg_match_all('/^nameserver\s+(\S+)\s*$/m', $contents, $matches);
+
+        $config = new self();
+        $config->nameservers = $matches[1];
+
+        return $config;
+    }
+
+    /**
+     * Loads the DNS configurations from Windows's WMIC (from the given command or default command)
+     *
+     * Note that this method blocks while loading the given command and should
+     * thus be used with care! While this should be relatively fast for normal
+     * WMIC commands, it remains unknown if this may block under certain
+     * circumstances. In particular, this method should only be executed before
+     * the loop starts, not while it is running.
+     *
+     * Note that this method will only try to execute the given command try to
+     * parse its output, irrespective of whether this command exists. In
+     * particular, this command is only available on Windows. Currently, this
+     * will only parse valid nameserver entries from the command output and will
+     * ignore all other output without complaining.
+     *
+     * Note that the previous section implies that this may return an empty
+     * `Config` object if no valid nameserver entries can be found.
+     *
+     * @param ?string $command (advanced) should not be given (NULL) unless you know what you're doing
+     * @return self
+     * @link https://ss64.com/nt/wmic.html
+     */
+    public static function loadWmicBlocking($command = null)
+    {
+        $contents = shell_exec($command === null ? 'wmic NICCONFIG get "DNSServerSearchOrder" /format:CSV' : $command);
+        preg_match_all('/(?:{|,|")([\da-f.:]{4,})(?:}|,|")/i', $contents, $matches);
 
         $config = new self();
         $config->nameservers = $matches[1];
