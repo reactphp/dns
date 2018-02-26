@@ -5,9 +5,13 @@ namespace React\Dns\Config;
 use React\EventLoop\LoopInterface;
 use React\Promise;
 use React\Promise\Deferred;
-use React\Stream\Stream;
 use React\Stream\ReadableResourceStream;
+use React\Stream\Stream;
 
+/**
+ * @deprecated
+ * @see Config see Config class instead.
+ */
 class FilesystemFactory
 {
     private $loop;
@@ -24,22 +28,16 @@ class FilesystemFactory
             ->then(array($this, 'parseEtcResolvConf'));
     }
 
+    /**
+     * @param string $contents
+     * @return Promise
+     * @deprecated see Config instead
+     */
     public function parseEtcResolvConf($contents)
     {
-        $nameservers = array();
-
-        $contents = preg_replace('/^#/', '', $contents);
-        $lines = preg_split('/\r?\n/is', $contents);
-        foreach ($lines as $line) {
-            if (preg_match('/^nameserver (.+)/', $line, $match)) {
-                $nameservers[] = $match[1];
-            }
-        }
-
-        $config = new Config();
-        $config->nameservers = $nameservers;
-
-        return Promise\resolve($config);
+        return Promise\resolve(Config::loadResolvConfBlocking(
+            'data://text/plain;base64,' . base64_encode($contents)
+        ));
     }
 
     public function loadEtcResolvConf($filename)
