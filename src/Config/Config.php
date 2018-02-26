@@ -115,7 +115,7 @@ class Config
     public static function loadWmicBlocking($command = null)
     {
         $contents = shell_exec($command === null ? 'wmic NICCONFIG get "DNSServerSearchOrder" /format:CSV' : $command);
-        preg_match_all('/(?:{|,|")([\da-f.:]{4,})(?:}|,|")/i', $contents, $matches);
+        preg_match_all('/(?<=[{;,"])([\da-f.:]{4,})(?=[};,"])/i', $contents, $matches);
 
         $config = new self();
         $config->nameservers = $matches[1];
