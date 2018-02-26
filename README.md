@@ -163,12 +163,10 @@ It's *highly recommended to use PHP 7+* for this project.
 ## Tests
 
 To run the test suite, you first need to clone this repo and then install all
-dependencies [through Composer](https://getcomposer.org).
-Because the test suite contains some circular dependencies, you may have to
-manually specify the root package version like this:
+dependencies [through Composer](https://getcomposer.org):
 
 ```bash
-$ COMPOSER_ROOT_VERSION=`git describe --abbrev=0` composer install
+$ composer install
 ```
 
 To run the test suite, go to the project root and run:
