@@ -95,4 +95,80 @@ NameServer 7.8.9.10
         $config = Config::loadResolvConfBlocking('data://text/plain;base64,' . base64_encode($contents));
         $this->assertEquals($expected, $config->nameservers);
     }
+
+    public function testLoadsFromWmicOnWindows()
+    {
+        if (DIRECTORY_SEPARATOR !== '\\') {
+            $this->markTestSkipped('Only on Windows');
+        }
+
+        $config = Config::loadWmicBlocking();
+
+        $this->assertInstanceOf('React\Dns\Config\Config', $config);
+    }
+
+    public function testLoadsSingleEntryFromWmicOutput()
+    {
+        $contents = '
+Node,DNSServerSearchOrder
+ACE,
+ACE,{192.168.2.1}
+ACE,
+';
+        $expected = array('192.168.2.1');
+
+        $config = Config::loadWmicBlocking($this->echoCommand($contents));
+
+        $this->assertEquals($expected, $config->nameservers);
+    }
+
+    public function testLoadsEmptyListFromWmicOutput()
+    {
+        $contents = '
+Node,DNSServerSearchOrder
+ACE,
+';
+        $expected = array();
+
+        $config = Config::loadWmicBlocking($this->echoCommand($contents));
+
+        $this->assertEquals($expected, $config->nameservers);
+    }
+
+    public function testLoadsSingleEntryForMultipleNicsFromWmicOutput()
+    {
+        $contents = '
+Node,DNSServerSearchOrder
+ACE,
+ACE,{192.168.2.1}
+ACE,
+ACE,{192.168.2.2}
+ACE,
+';
+        $expected = array('192.168.2.1', '192.168.2.2');
+
+        $config = Config::loadWmicBlocking($this->echoCommand($contents));
+
+        $this->assertEquals($expected, $config->nameservers);
+    }
+
+    public function testLoadsMultipleEntriesForSingleNicFromWmicOutput()
+    {
+        $contents = '
+Node,DNSServerSearchOrder
+ACE,
+ACE,{"192.168.2.1","192.168.2.2"}
+ACE,
+';
+        $expected = array('192.168.2.1', '192.168.2.2');
+
+        $config = Config::loadWmicBlocking($this->echoCommand($contents));
+
+        $this->assertEquals($expected, $config->nameservers);
+    }
+
+    private function echoCommand($output)
+    {
+        return 'echo ' . escapeshellarg($output);
+    }
 }
