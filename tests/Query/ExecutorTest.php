@@ -279,7 +279,7 @@ class ExecutorTest extends TestCase
 
     private function createConnectionMock($emitData = true)
     {
-        $conn = $this->getMockBuilder('React\Socket\ConnectionInterface')->getMock();
+        $conn = $this->getMockBuilder('React\Stream\DuplexStreamInterface')->getMock();
         $conn
             ->expects($this->any())
             ->method('on')
