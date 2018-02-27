@@ -152,7 +152,22 @@ ACE,
         $this->assertEquals($expected, $config->nameservers);
     }
 
-    public function testLoadsMultipleEntriesForSingleNicFromWmicOutput()
+    public function testLoadsMultipleEntriesForSingleNicWithSemicolonFromWmicOutput()
+    {
+        $contents = '
+Node,DNSServerSearchOrder
+ACE,
+ACE,{192.168.2.1;192.168.2.2}
+ACE,
+';
+        $expected = array('192.168.2.1', '192.168.2.2');
+
+        $config = Config::loadWmicBlocking($this->echoCommand($contents));
+
+        $this->assertEquals($expected, $config->nameservers);
+    }
+
+    public function testLoadsMultipleEntriesForSingleNicWithQuotesFromWmicOutput()
     {
         $contents = '
 Node,DNSServerSearchOrder
