@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.4.13 (2018-02-27)
+
+*   Add `Config::loadSystemConfigBlocking()` to load default system config
+    and support parsing DNS config on all supported platforms
+    (`/etc/resolv.conf` on Unix/Linux/Mac and WMIC on Windows)
+    (#92, #93, #94 and #95 by @clue)
+
+    ```php
+    $config = Config::loadSystemConfigBlocking();
+    $server = $config->nameservers ? reset($config->nameservers) : '8.8.8.8';
+    ```
+
+*   Remove unneeded cyclic dependency on react/socket
+    (#96 by @clue)
+
 ## 0.4.12 (2018-01-14)
 
 *   Improve test suite by adding forward compatibility with PHPUnit 6,

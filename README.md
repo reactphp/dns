@@ -166,7 +166,7 @@ The recommended way to install this library is [through Composer](https://getcom
 This will install the latest supported version:
 
 ```bash
-$ composer require react/dns:^0.4.12
+$ composer require react/dns:^0.4.13
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
