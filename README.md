@@ -65,6 +65,25 @@ $promise = $resolver->resolve('reactphp.org');
 $promise->cancel();
 ```
 
+Where `resolve` only returns one record but there is also `resolveAll` which returns all records.
+
+```php
+$loop = React\EventLoop\Factory::create();
+
+$factory = new React\Dns\Resolver\Factory();
+$resolver = $factory->create('8.8.8.8', $loop);
+
+$resolver->resolveAll('blog.wyrihaximus.net')->done(function ($ips) use ($name) {
+    foreach ($ips as $ip) {
+        echo "Host: $ip\n";
+    }
+});
+
+$loop->run();
+```
+
+See also the [fith example](examples).
+
 But there's more.
 
 ## Caching

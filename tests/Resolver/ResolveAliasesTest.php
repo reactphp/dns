@@ -19,7 +19,7 @@ class ResolveAliasesTest extends TestCase
         $executor = $this->createExecutorMock();
         $resolver = new Resolver('8.8.8.8:53', $executor);
 
-        $answers = $resolver->resolveAliases($answers, $name);
+        $answers = $resolver->resolveAliases($answers, $name, Message::TYPE_A);
 
         $this->assertEquals($expectedAnswers, $answers);
     }

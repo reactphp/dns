@@ -122,6 +122,28 @@ class ResolverTest extends TestCase
         $resolver->resolve('igor.io')->then($this->expectCallableNever(), $errback);
     }
 
+    /** @test */
+    public function resolveAllShouldReturnAllAddresses()
+    {
+        $executor = $this->createExecutorMock();
+        $executor
+            ->expects($this->once())
+            ->method('query')
+            ->with($this->anything(), $this->isInstanceOf('React\Dns\Query\Query'))
+            ->will($this->returnCallback(function ($nameserver, $query) {
+                $response = new Message();
+                $response->header->set('qr', 1);
+                $response->questions[] = new Record($query->name, $query->type, $query->class);
+                $response->answers[] = new Record($query->name, $query->type, $query->class, 3600, '178.79.169.131');
+                $response->answers[] = new Record($query->name, $query->type, $query->class, 3600, '178.79.169.132');
+
+                return Promise\resolve($response);
+            }));
+
+        $resolver = new Resolver('8.8.8.8:53', $executor);
+        $resolver->resolveAll('igor.io')->then($this->expectCallableOnceWith(array('178.79.169.131', '178.79.169.132')));
+    }
+
     private function createExecutorMock()
     {
         return $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();

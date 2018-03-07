@@ -20,17 +20,30 @@ class Resolver
 
     public function resolve($domain)
     {
+        return $this->resolveAll($domain)->then(function ($addresses) {
+                return $addresses[array_rand($addresses)];
+            });
+    }
+
+    public function resolveAll($domain)
+    {
         $query = new Query($domain, Message::TYPE_A, Message::CLASS_IN, time());
         $that = $this;
 
         return $this->executor
             ->query($this->nameserver, $query)
             ->then(function (Message $response) use ($query, $that) {
-                return $that->extractAddress($query, $response);
+                return $that->extractAddresses($query, $response);
             });
     }
 
     public function extractAddress(Query $query, Message $response)
+    {
+        $addresses = $this->extractAddresses($query, $response);
+        return $addresses[array_rand($addresses)];
+    }
+
+    public function extractAddresses(Query $query, Message $response)
     {
         $answers = $response->answers;
 
@@ -41,8 +54,7 @@ class Resolver
             throw new RecordNotFoundException($message);
         }
 
-        $address = $addresses[array_rand($addresses)];
-        return $address;
+        return $addresses;
     }
 
     public function resolveAliases(array $answers, $name)
