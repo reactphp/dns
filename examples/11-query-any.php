@@ -43,6 +43,11 @@ $executor->query('8.8.8.8:53', $any)->then(function (Message $message) {
                 $type = 'TXT';
                 $data = implode('', $data);
                 break;
+            case Message::TYPE_MX:
+                // MX records contain "priority" and "target", only dump its values here
+                $type = 'MX';
+                $data = implode(' ', $data);
+                break;
             default:
                 // unknown type uses HEX format
                 $type = 'Type ' . $answer->type;
