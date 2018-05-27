@@ -8,6 +8,7 @@ use React\Dns\Model\Message;
 use React\Dns\Model\Record;
 use React\Promise;
 use React\Tests\Dns\TestCase;
+use React\Dns\RecordNotFoundException;
 
 class ResolverTest extends TestCase
 {
@@ -76,28 +77,6 @@ class ResolverTest extends TestCase
         $resolver->resolve('igor.io')->then($this->expectCallableNever(), $errback);
     }
 
-    /** @test */
-    public function resolveWithNoAnswersShouldThrowException()
-    {
-        $executor = $this->createExecutorMock();
-        $executor
-            ->expects($this->once())
-            ->method('query')
-            ->with($this->anything(), $this->isInstanceOf('React\Dns\Query\Query'))
-            ->will($this->returnCallback(function ($nameserver, $query) {
-                $response = new Message();
-                $response->header->set('qr', 1);
-                $response->questions[] = new Record($query->name, $query->type, $query->class);
-
-                return Promise\resolve($response);
-            }));
-
-        $errback = $this->expectCallableOnceWith($this->isInstanceOf('React\Dns\RecordNotFoundException'));
-
-        $resolver = new Resolver('8.8.8.8:53', $executor);
-        $resolver->resolve('igor.io')->then($this->expectCallableNever(), $errback);
-    }
-
     /**
      * @test
      */
@@ -116,10 +95,70 @@ class ResolverTest extends TestCase
                 return Promise\resolve($response);
             }));
 
-        $errback = $this->expectCallableOnceWith($this->isInstanceOf('React\Dns\RecordNotFoundException'));
+        $errback = $this->expectCallableOnceWith($this->callback(function ($param) {
+            return ($param instanceof RecordNotFoundException && $param->getCode() === 0 && $param->getMessage() === 'DNS query for igor.io did not return a valid answer (NOERROR / NODATA)');
+        }));
 
         $resolver = new Resolver('8.8.8.8:53', $executor);
         $resolver->resolve('igor.io')->then($this->expectCallableNever(), $errback);
+    }
+
+    public function provideRcodeErrors()
+    {
+        return array(
+            array(
+                Message::RCODE_FORMAT_ERROR,
+                'DNS query for example.com returned an error response (Format Error)',
+            ),
+            array(
+                Message::RCODE_SERVER_FAILURE,
+                'DNS query for example.com returned an error response (Server Failure)',
+            ),
+            array(
+                Message::RCODE_NAME_ERROR,
+                'DNS query for example.com returned an error response (Non-Existent Domain / NXDOMAIN)'
+            ),
+            array(
+                Message::RCODE_NOT_IMPLEMENTED,
+                'DNS query for example.com returned an error response (Not Implemented)'
+            ),
+            array(
+                Message::RCODE_REFUSED,
+                'DNS query for example.com returned an error response (Refused)'
+            ),
+            array(
+                99,
+                'DNS query for example.com returned an error response (Unknown error response code 99)'
+            )
+        );
+    }
+
+    /**
+     * @test
+     * @dataProvider provideRcodeErrors
+     */
+    public function resolveWithRcodeErrorShouldCallErrbackIfGiven($code, $expectedMessage)
+    {
+        $executor = $this->createExecutorMock();
+        $executor
+            ->expects($this->once())
+            ->method('query')
+            ->with($this->anything(), $this->isInstanceOf('React\Dns\Query\Query'))
+            ->will($this->returnCallback(function ($nameserver, $query) use ($code) {
+                $response = new Message();
+                $response->header->set('qr', 1);
+                $response->header->set('rcode', $code);
+                $response->questions[] = new Record($query->name, $query->type, $query->class);
+
+                return Promise\resolve($response);
+            }));
+
+        $errback = $this->expectCallableOnceWith($this->callback(function ($param) use ($code, $expectedMessage) {
+            return ($param instanceof RecordNotFoundException && $param->getCode() === $code && $param->getMessage() === $expectedMessage);
+        }));
+
+        $resolver = new Resolver('8.8.8.8:53', $executor);
+        $resolver->resolve('example.com')->then($this->expectCallableNever(), $errback);
     }
 
     private function createExecutorMock()

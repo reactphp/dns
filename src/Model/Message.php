@@ -137,6 +137,16 @@ class Message
         return $this->header->get('id');
     }
 
+    /**
+     * Returns the response code (RCODE)
+     *
+     * @return int see self::RCODE_* constants
+     */
+    public function getResponseCode()
+    {
+        return $this->header->get('rcode');
+    }
+
     public function prepare()
     {
         $this->header->populateCounts($this);
