@@ -20,7 +20,7 @@ class Resolver
 
     public function resolve($domain)
     {
-        $query = new Query($domain, Message::TYPE_A, Message::CLASS_IN, time());
+        $query = new Query($domain, Message::TYPE_A, Message::CLASS_IN);
         $that = $this;
 
         return $this->executor

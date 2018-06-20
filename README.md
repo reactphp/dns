@@ -127,8 +127,8 @@ $executor = new Executor($loop, new Parser(), new BinaryDumper(), null);
 
 $executor->query(
     '8.8.8.8:53', 
-    new Query($name, Message::TYPE_AAAA, Message::CLASS_IN, time())
-)->done(function (Message $message) {
+    new Query($name, Message::TYPE_AAAA, Message::CLASS_IN)
+)->then(function (Message $message) {
     foreach ($message->answers as $answer) {
         echo 'IPv6: ' . $answer->data . PHP_EOL;
     }
@@ -154,7 +154,7 @@ $executor = new HostsFileExecutor($hosts, $executor);
 
 $executor->query(
     '8.8.8.8:53', 
-    new Query('localhost', Message::TYPE_A, Message::CLASS_IN, time())
+    new Query('localhost', Message::TYPE_A, Message::CLASS_IN)
 );
 ```
 
