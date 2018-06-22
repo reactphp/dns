@@ -7,6 +7,8 @@ use React\Dns\Query\DatagramTransportExecutor;
 use React\Dns\Query\Query;
 use React\Dns\Model\Message;
 use React\EventLoop\Factory;
+use React\Dns\Protocol\Parser;
+use React\Dns\Protocol\BinaryDumper;
 
 class DatagramTransportExecutorTest extends TestCase
 {
@@ -60,7 +62,7 @@ class DatagramTransportExecutorTest extends TestCase
         $promise->then(null, $this->expectCallableOnce());
     }
 
-    public function testQueryRejectsIfServerRejectsNetworkPacket()
+    public function testQueryKeepsPendingIfServerRejectsNetworkPacket()
     {
         $loop = Factory::create();
 
@@ -77,19 +79,11 @@ class DatagramTransportExecutorTest extends TestCase
             }
         );
 
-        // run loop for short period to ensure we detect connection ICMP rejection error
-        \Clue\React\Block\sleep(0.01, $loop);
-        if ($wait) {
-            \Clue\React\Block\sleep(0.2, $loop);
-            if ($wait) {
-                $this->markTestSkipped('Did not receive an error (your OS may drop UDP packets to unbound port?)');
-            }
-        }
-
-        $this->assertFalse($wait);
+        \Clue\React\Block\sleep(0.2, $loop);
+        $this->assertTrue($wait);
     }
 
-    public function testQueryRejectsIfServerSendInvalidMessage()
+    public function testQueryKeepsPendingIfServerSendInvalidMessage()
     {
         $loop = Factory::create();
 
@@ -113,33 +107,64 @@ class DatagramTransportExecutorTest extends TestCase
             }
         );
 
-        // run loop for short period to ensure we detect connection ICMP rejection error
-        \Clue\React\Block\sleep(0.01, $loop);
-        if ($wait) {
-            \Clue\React\Block\sleep(0.2, $loop);
-        }
-
-        $this->assertFalse($wait);
+        \Clue\React\Block\sleep(0.2, $loop);
+        $this->assertTrue($wait);
     }
 
-    public function testQueryRejectsIfServerSendsTruncatedResponse()
+    public function testQueryKeepsPendingIfServerSendInvalidId()
     {
-        $response = new Message();
-        $response->header->set('tc', 1);
-
-        $parser = $this->getMockBuilder('React\Dns\Protocol\Parser')->getMock();
-        $parser->expects($this->once())->method('parseMessage')->with('data')->willReturn($response);
+        $parser = new Parser();
+        $dumper = new BinaryDumper();
 
         $loop = Factory::create();
 
         $server = stream_socket_server('udp://127.0.0.1:0', $errno, $errstr, STREAM_SERVER_BIND);
-        $loop->addReadStream($server, function ($server) {
+        $loop->addReadStream($server, function ($server) use ($parser, $dumper) {
             $data = stream_socket_recvfrom($server, 512, 0, $peer);
-            stream_socket_sendto($server, 'data', 0, $peer);
+
+            $message = $parser->parseMessage($data);
+            $message->header->set('id', 0);
+
+            stream_socket_sendto($server, $dumper->toBinary($message), 0, $peer);
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new DatagramTransportExecutor($loop, $parser);
+        $executor = new DatagramTransportExecutor($loop, $parser, $dumper);
+
+        $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
+
+        $wait = true;
+        $promise = $executor->query($address, $query)->then(
+            null,
+            function ($e) use (&$wait) {
+                $wait = false;
+                throw $e;
+            }
+        );
+
+        \Clue\React\Block\sleep(0.2, $loop);
+        $this->assertTrue($wait);
+    }
+
+    public function testQueryRejectsIfServerSendsTruncatedResponse()
+    {
+        $parser = new Parser();
+        $dumper = new BinaryDumper();
+
+        $loop = Factory::create();
+
+        $server = stream_socket_server('udp://127.0.0.1:0', $errno, $errstr, STREAM_SERVER_BIND);
+        $loop->addReadStream($server, function ($server) use ($parser, $dumper) {
+            $data = stream_socket_recvfrom($server, 512, 0, $peer);
+
+            $message = $parser->parseMessage($data);
+            $message->header->set('tc', 1);
+
+            stream_socket_sendto($server, $dumper->toBinary($message), 0, $peer);
+        });
+
+        $address = stream_socket_get_name($server, false);
+        $executor = new DatagramTransportExecutor($loop, $parser, $dumper);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -163,21 +188,22 @@ class DatagramTransportExecutorTest extends TestCase
 
     public function testQueryResolvesIfServerSendsValidResponse()
     {
-        $response = new Message();
-
-        $parser = $this->getMockBuilder('React\Dns\Protocol\Parser')->getMock();
-        $parser->expects($this->once())->method('parseMessage')->with('data')->willReturn($response);
+        $parser = new Parser();
+        $dumper = new BinaryDumper();
 
         $loop = Factory::create();
 
         $server = stream_socket_server('udp://127.0.0.1:0', $errno, $errstr, STREAM_SERVER_BIND);
-        $loop->addReadStream($server, function ($server) {
+        $loop->addReadStream($server, function ($server) use ($parser, $dumper) {
             $data = stream_socket_recvfrom($server, 512, 0, $peer);
-            stream_socket_sendto($server, 'data', 0, $peer);
+
+            $message = $parser->parseMessage($data);
+
+            stream_socket_sendto($server, $dumper->toBinary($message), 0, $peer);
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new DatagramTransportExecutor($loop, $parser);
+        $executor = new DatagramTransportExecutor($loop, $parser, $dumper);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 

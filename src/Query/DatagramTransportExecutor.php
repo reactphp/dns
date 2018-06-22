@@ -125,22 +125,28 @@ class DatagramTransportExecutor implements ExecutorInterface
         });
 
         $parser = $this->parser;
-        $loop->addReadStream($socket, function ($socket) use ($loop, $deferred, $query, $parser) {
+        $loop->addReadStream($socket, function ($socket) use ($loop, $deferred, $query, $parser, $request) {
             // try to read a single data packet from the DNS server
             // ignoring any errors, this is uses UDP packets and not a stream of data
             $data = @\fread($socket, 512);
 
-            // we only react to the first message, so immediately remove socket from loop and close
-            $loop->removeReadStream($socket);
-            \fclose($socket);
-
             try {
                 $response = $parser->parseMessage($data);
             } catch (\Exception $e) {
-                // reject if we received an invalid message from remote server
-                $deferred->reject($e);
+                // ignore and await next if we received an invalid message from remote server
+                // this may as well be a fake response from an attacker (possible DOS)
                 return;
             }
+
+            // ignore and await next if we received an unexpected response ID
+            // this may as well be a fake response from an attacker (possible cache poisoning)
+            if ($response->getId() !== $request->getId()) {
+                return;
+            }
+
+            // we only react to the first valid message, so remove socket from loop and close
+            $loop->removeReadStream($socket);
+            \fclose($socket);
 
             if ($response->header->isTruncated()) {
                 $deferred->reject(new \RuntimeException('DNS query for ' . $query->name . ' failed: The server returned a truncated result for a UDP query, but retrying via TCP is currently not supported'));
