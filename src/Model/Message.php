@@ -78,14 +78,20 @@ class Message
         return mt_rand(0, 0xffff);
     }
 
-    public $data = '';
-
     public $header;
     public $questions = array();
     public $answers = array();
     public $authority = array();
     public $additional = array();
 
+    /**
+     * @deprecated still used internally for BC reasons, should not be used externally.
+     */
+    public $data = '';
+
+    /**
+     * @deprecated still used internally for BC reasons, should not be used externally.
+     */
     public $consumed = 0;
 
     public function __construct()

@@ -4,8 +4,6 @@ namespace React\Dns\Model;
 
 class HeaderBag
 {
-    public $data = '';
-
     public $attributes = array(
         'qdCount'   => 0,
         'anCount'   => 0,
@@ -20,6 +18,11 @@ class HeaderBag
         'z'         => 0,
         'rcode'     => Message::RCODE_OK,
     );
+
+    /**
+     * @deprecated unused, exists for BC only
+     */
+    public $data = '';
 
     public function get($name)
     {
