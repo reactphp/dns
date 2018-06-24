@@ -14,6 +14,7 @@ easily be used to create a DNS server.
 * [Caching](#caching)
   * [Custom cache adapter](#custom-cache-adapter)
 * [Advanced usage](#advanced-usage)
+  * [DatagramTransportExecutor](#datagramtransportexecutor)
   * [HostsFileExecutor](#hostsfileexecutor)
 * [Install](#install)
 * [Tests](#tests)
@@ -117,13 +118,20 @@ See also the wiki for possible [cache implementations](https://github.com/reactp
 
 ## Advanced Usage
 
-For more advanced usages one can utilize the `React\Dns\Query\Executor` directly.
+### DatagramTransportExecutor
+
+The `DatagramTransportExecutor` can be used to
+send DNS queries over a datagram transport such as UDP.
+
+This is the main class that sends a DNS query to your DNS server and is used
+internally by the `Resolver` for the actual message transport.
+
+For more advanced usages one can utilize this class directly.
 The following example looks up the `IPv6` address for `igor.io`.
 
 ```php
 $loop = Factory::create();
-
-$executor = new Executor($loop, new Parser(), new BinaryDumper(), null);
+$executor = new DatagramTransportExecutor($loop);
 
 $executor->query(
     '8.8.8.8:53', 
@@ -135,10 +143,40 @@ $executor->query(
 }, 'printf');
 
 $loop->run();
-
 ```
 
 See also the [fourth example](examples).
+
+Note that this executor does not implement a timeout, so you will very likely
+want to use this in combination with a `TimeoutExecutor` like this:
+
+```php
+$executor = new TimeoutExecutor(
+    new DatagramTransportExecutor($loop),
+    3.0,
+    $loop
+);
+```
+
+Also note that this executor uses an unreliable UDP transport and that it
+does not implement any retry logic, so you will likely want to use this in
+combination with a `RetryExecutor` like this:
+
+```php
+$executor = new RetryExecutor(
+    new TimeoutExecutor(
+        new DatagramTransportExecutor($loop),
+        3.0,
+        $loop
+    )
+);
+```
+
+> Internally, this class uses PHP's UDP sockets and does not take advantage
+  of [react/datagram](https://github.com/reactphp/datagram) purely for
+  organizational reasons to avoid a cyclic dependency between the two
+  packages. Higher-level components should take advantage of the Datagram
+  component instead of reimplementing this socket logic from scratch.
 
 ### HostsFileExecutor
 

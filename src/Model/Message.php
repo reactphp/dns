@@ -3,7 +3,6 @@
 namespace React\Dns\Model;
 
 use React\Dns\Query\Query;
-use React\Dns\Model\Record;
 
 class Message
 {
@@ -73,8 +72,29 @@ class Message
         return $response;
     }
 
+    /**
+     * generates a random 16 bit message ID
+     *
+     * This uses a CSPRNG so that an outside attacker that is sending spoofed
+     * DNS response messages can not guess the message ID to avoid possible
+     * cache poisoning attacks.
+     *
+     * The `random_int()` function is only available on PHP 7+ or when
+     * https://github.com/paragonie/random_compat is installed. As such, using
+     * the latest supported PHP version is highly recommended. This currently
+     * falls back to a less secure random number generator on older PHP versions
+     * in the hope that this system is properly protected against outside
+     * attackers, for example by using one of the common local DNS proxy stubs.
+     *
+     * @return int
+     * @see self::getId()
+     * @codeCoverageIgnore
+     */
     private static function generateId()
     {
+        if (function_exists('random_int')) {
+            return random_int(0, 0xffff);
+        }
         return mt_rand(0, 0xffff);
     }
 
@@ -97,6 +117,22 @@ class Message
     public function __construct()
     {
         $this->header = new HeaderBag();
+    }
+
+    /**
+     * Returns the 16 bit message ID
+     *
+     * The response message ID has to match the request message ID. This allows
+     * the receiver to verify this is the correct response message. An outside
+     * attacker may try to inject fake responses by "guessing" the message ID,
+     * so this should use a proper CSPRNG to avoid possible cache poisoning.
+     *
+     * @return int
+     * @see self::generateId()
+     */
+    public function getId()
+    {
+        return $this->header->get('id');
     }
 
     public function prepare()
