@@ -9,21 +9,91 @@ use React\Dns\Model\Record;
 use React\Dns\Query\RecordCache;
 use React\Dns\Query\Query;
 use React\Promise\PromiseInterface;
+use React\Promise\Promise;
 
 class RecordCacheTest extends TestCase
 {
     /**
-    * @covers React\Dns\Query\RecordCache
-    * @test
-    */
-    public function lookupOnEmptyCacheShouldReturnNull()
+     * @covers React\Dns\Query\RecordCache
+     * @test
+     */
+    public function lookupOnNewCacheMissShouldReturnNull()
     {
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
 
-        $cache = new RecordCache(new ArrayCache());
+        $base = $this->getMockBuilder('React\Cache\CacheInterface')->getMock();
+        $base->expects($this->once())->method('get')->willReturn(\React\Promise\resolve(null));
+
+        $cache = new RecordCache($base);
         $promise = $cache->lookup($query);
 
         $this->assertInstanceOf('React\Promise\RejectedPromise', $promise);
+    }
+
+    /**
+     * @covers React\Dns\Query\RecordCache
+     * @test
+     */
+    public function lookupOnLegacyCacheMissShouldReturnNull()
+    {
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+
+        $base = $this->getMockBuilder('React\Cache\CacheInterface')->getMock();
+        $base->expects($this->once())->method('get')->willReturn(\React\Promise\reject());
+
+        $cache = new RecordCache($base);
+        $promise = $cache->lookup($query);
+
+        $this->assertInstanceOf('React\Promise\RejectedPromise', $promise);
+    }
+
+    /**
+     * @covers React\Dns\Query\RecordCache
+     * @test
+     */
+    public function storeRecordPendingCacheDoesNotSetCache()
+    {
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $pending = new Promise(function () { });
+
+        $base = $this->getMockBuilder('React\Cache\CacheInterface')->getMock();
+        $base->expects($this->once())->method('get')->willReturn($pending);
+        $base->expects($this->never())->method('set');
+
+        $cache = new RecordCache($base);
+        $cache->storeRecord($query->currentTime, new Record('igor.io', Message::TYPE_A, Message::CLASS_IN, 3600, '178.79.169.131'));
+    }
+
+    /**
+     * @covers React\Dns\Query\RecordCache
+     * @test
+     */
+    public function storeRecordOnNewCacheMissSetsCache()
+    {
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+
+        $base = $this->getMockBuilder('React\Cache\CacheInterface')->getMock();
+        $base->expects($this->once())->method('get')->willReturn(\React\Promise\resolve(null));
+        $base->expects($this->once())->method('set')->with($this->isType('string'), $this->isType('string'));
+
+        $cache = new RecordCache($base);
+        $cache->storeRecord($query->currentTime, new Record('igor.io', Message::TYPE_A, Message::CLASS_IN, 3600, '178.79.169.131'));
+    }
+
+    /**
+     * @covers React\Dns\Query\RecordCache
+     * @test
+     */
+    public function storeRecordOnOldCacheMissSetsCache()
+    {
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+
+        $base = $this->getMockBuilder('React\Cache\CacheInterface')->getMock();
+        $base->expects($this->once())->method('get')->willReturn(\React\Promise\reject());
+        $base->expects($this->once())->method('set')->with($this->isType('string'), $this->isType('string'));
+
+        $cache = new RecordCache($base);
+        $cache->storeRecord($query->currentTime, new Record('igor.io', Message::TYPE_A, Message::CLASS_IN, 3600, '178.79.169.131'));
     }
 
     /**
