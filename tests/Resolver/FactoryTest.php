@@ -32,7 +32,7 @@ class FactoryTest extends TestCase
     }
 
     /** @test */
-    public function createCachedShouldCreateResolverWithCachedExecutor()
+    public function createCachedShouldCreateResolverWithCachingExecutor()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
@@ -41,15 +41,13 @@ class FactoryTest extends TestCase
 
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
         $executor = $this->getResolverPrivateExecutor($resolver);
-        $this->assertInstanceOf('React\Dns\Query\CachedExecutor', $executor);
-        $recordCache = $this->getCachedExecutorPrivateMemberValue($executor, 'cache');
-        $recordCacheCache = $this->getRecordCachePrivateMemberValue($recordCache, 'cache');
-        $this->assertInstanceOf('React\Cache\CacheInterface', $recordCacheCache);
-        $this->assertInstanceOf('React\Cache\ArrayCache', $recordCacheCache);
+        $this->assertInstanceOf('React\Dns\Query\CachingExecutor', $executor);
+        $cache = $this->getCachingExecutorPrivateMemberValue($executor, 'cache');
+        $this->assertInstanceOf('React\Cache\ArrayCache', $cache);
     }
 
     /** @test */
-    public function createCachedShouldCreateResolverWithCachedExecutorWithCustomCache()
+    public function createCachedShouldCreateResolverWithCachingExecutorWithCustomCache()
     {
         $cache = $this->getMockBuilder('React\Cache\CacheInterface')->getMock();
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
@@ -59,11 +57,9 @@ class FactoryTest extends TestCase
 
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
         $executor = $this->getResolverPrivateExecutor($resolver);
-        $this->assertInstanceOf('React\Dns\Query\CachedExecutor', $executor);
-        $recordCache = $this->getCachedExecutorPrivateMemberValue($executor, 'cache');
-        $recordCacheCache = $this->getRecordCachePrivateMemberValue($recordCache, 'cache');
-        $this->assertInstanceOf('React\Cache\CacheInterface', $recordCacheCache);
-        $this->assertSame($cache, $recordCacheCache);
+        $this->assertInstanceOf('React\Dns\Query\CachingExecutor', $executor);
+        $cacheProperty = $this->getCachingExecutorPrivateMemberValue($executor, 'cache');
+        $this->assertSame($cache, $cacheProperty);
     }
 
     /**
@@ -115,16 +111,9 @@ class FactoryTest extends TestCase
         return $reflector->getValue($resolver);
     }
 
-    private function getCachedExecutorPrivateMemberValue($resolver, $field)
+    private function getCachingExecutorPrivateMemberValue($resolver, $field)
     {
-        $reflector = new \ReflectionProperty('React\Dns\Query\CachedExecutor', $field);
-        $reflector->setAccessible(true);
-        return $reflector->getValue($resolver);
-    }
-
-    private function getRecordCachePrivateMemberValue($resolver, $field)
-    {
-        $reflector = new \ReflectionProperty('React\Dns\Query\RecordCache', $field);
+        $reflector = new \ReflectionProperty('React\Dns\Query\CachingExecutor', $field);
         $reflector->setAccessible(true);
         return $reflector->getValue($resolver);
     }
