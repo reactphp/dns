@@ -2,15 +2,15 @@
 
 namespace React\Tests\Dns\Query;
 
-use React\Tests\Dns\TestCase;
-use React\Dns\Query\DatagramTransportExecutor;
-use React\Dns\Query\Query;
 use React\Dns\Model\Message;
-use React\EventLoop\Factory;
-use React\Dns\Protocol\Parser;
 use React\Dns\Protocol\BinaryDumper;
+use React\Dns\Protocol\Parser;
+use React\Dns\Query\Query;
+use React\Dns\Query\UdpTransportExecutor;
+use React\EventLoop\Factory;
+use React\Tests\Dns\TestCase;
 
-class DatagramTransportExecutorTest extends TestCase
+class UdpTransportExecutorTest extends TestCase
 {
     public function testQueryRejectsIfMessageExceedsUdpSize()
     {
@@ -20,7 +20,7 @@ class DatagramTransportExecutorTest extends TestCase
         $dumper = $this->getMockBuilder('React\Dns\Protocol\BinaryDumper')->getMock();
         $dumper->expects($this->once())->method('toBinary')->willReturn(str_repeat('.', 513));
 
-        $executor = new DatagramTransportExecutor($loop, null, $dumper);
+        $executor = new UdpTransportExecutor($loop, null, $dumper);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
         $promise = $executor->query('8.8.8.8:53', $query);
@@ -34,7 +34,7 @@ class DatagramTransportExecutorTest extends TestCase
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->never())->method('addReadStream');
 
-        $executor = new DatagramTransportExecutor($loop);
+        $executor = new UdpTransportExecutor($loop);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
         $promise = $executor->query('///', $query);
@@ -52,7 +52,7 @@ class DatagramTransportExecutorTest extends TestCase
         $loop->expects($this->once())->method('addReadStream');
         $loop->expects($this->once())->method('removeReadStream');
 
-        $executor = new DatagramTransportExecutor($loop);
+        $executor = new UdpTransportExecutor($loop);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
         $promise = $executor->query('8.8.8.8:53', $query);
@@ -66,7 +66,7 @@ class DatagramTransportExecutorTest extends TestCase
     {
         $loop = Factory::create();
 
-        $executor = new DatagramTransportExecutor($loop);
+        $executor = new UdpTransportExecutor($loop);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -94,7 +94,7 @@ class DatagramTransportExecutorTest extends TestCase
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new DatagramTransportExecutor($loop);
+        $executor = new UdpTransportExecutor($loop);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -129,7 +129,7 @@ class DatagramTransportExecutorTest extends TestCase
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new DatagramTransportExecutor($loop, $parser, $dumper);
+        $executor = new UdpTransportExecutor($loop, $parser, $dumper);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -164,7 +164,7 @@ class DatagramTransportExecutorTest extends TestCase
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new DatagramTransportExecutor($loop, $parser, $dumper);
+        $executor = new UdpTransportExecutor($loop, $parser, $dumper);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -203,7 +203,7 @@ class DatagramTransportExecutorTest extends TestCase
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new DatagramTransportExecutor($loop, $parser, $dumper);
+        $executor = new UdpTransportExecutor($loop, $parser, $dumper);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 

@@ -1,14 +1,14 @@
 <?php
 
 use React\Dns\Model\Message;
-use React\Dns\Query\DatagramTransportExecutor;
 use React\Dns\Query\Query;
+use React\Dns\Query\UdpTransportExecutor;
 use React\EventLoop\Factory;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $loop = Factory::create();
-$executor = new DatagramTransportExecutor($loop);
+$executor = new UdpTransportExecutor($loop);
 
 $name = isset($argv[1]) ? $argv[1] : 'www.google.com';
 

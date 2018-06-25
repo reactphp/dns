@@ -6,12 +6,12 @@ use React\Cache\ArrayCache;
 use React\Cache\CacheInterface;
 use React\Dns\Config\HostsFile;
 use React\Dns\Query\CachedExecutor;
-use React\Dns\Query\DatagramTransportExecutor;
 use React\Dns\Query\ExecutorInterface;
 use React\Dns\Query\HostsFileExecutor;
 use React\Dns\Query\RecordCache;
 use React\Dns\Query\RetryExecutor;
 use React\Dns\Query\TimeoutExecutor;
+use React\Dns\Query\UdpTransportExecutor;
 use React\EventLoop\LoopInterface;
 
 class Factory
@@ -69,7 +69,7 @@ class Factory
     protected function createExecutor(LoopInterface $loop)
     {
         return new TimeoutExecutor(
-            new DatagramTransportExecutor($loop),
+            new UdpTransportExecutor($loop),
             5.0,
             $loop
         );
