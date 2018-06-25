@@ -9,7 +9,7 @@ use React\EventLoop\LoopInterface;
 use React\Promise\Deferred;
 
 /**
- * Send DNS queries over a datagram transport such as UDP.
+ * Send DNS queries over a UDP transport.
  *
  * This is the main class that sends a DNS query to your DNS server and is used
  * internally by the `Resolver` for the actual message transport.
@@ -19,11 +19,11 @@ use React\Promise\Deferred;
  *
  * ```php
  * $loop = Factory::create();
- * $executor = new DatagramTransportExecutor($loop);
+ * $executor = new UdpTransportExecutor($loop);
  *
  * $executor->query(
  *     '8.8.8.8:53',
- *     new Query($name, Message::TYPE_AAAA, Message::CLASS_IN, time())
+ *     new Query($name, Message::TYPE_AAAA, Message::CLASS_IN)
  * )->then(function (Message $message) {
  *     foreach ($message->answers as $answer) {
  *         echo 'IPv6: ' . $answer->data . PHP_EOL;
@@ -40,7 +40,7 @@ use React\Promise\Deferred;
  *
  * ```php
  * $executor = new TimeoutExecutor(
- *     new DatagramTransportExecutor($loop),
+ *     new UdpTransportExecutor($loop),
  *     3.0,
  *     $loop
  * );
@@ -53,7 +53,7 @@ use React\Promise\Deferred;
  * ```php
  * $executor = new RetryExecutor(
  *     new TimeoutExecutor(
- *         new DatagramTransportExecutor($loop),
+ *         new UdpTransportExecutor($loop),
  *         3.0,
  *         $loop
  *     )
@@ -66,7 +66,7 @@ use React\Promise\Deferred;
  *   packages. Higher-level components should take advantage of the Datagram
  *   component instead of reimplementing this socket logic from scratch.
  */
-class DatagramTransportExecutor implements ExecutorInterface
+class UdpTransportExecutor implements ExecutorInterface
 {
     private $loop;
     private $parser;

@@ -14,7 +14,7 @@ easily be used to create a DNS server.
 * [Caching](#caching)
   * [Custom cache adapter](#custom-cache-adapter)
 * [Advanced usage](#advanced-usage)
-  * [DatagramTransportExecutor](#datagramtransportexecutor)
+  * [UdpTransportExecutor](#udptransportexecutor)
   * [HostsFileExecutor](#hostsfileexecutor)
 * [Install](#install)
 * [Tests](#tests)
@@ -118,10 +118,10 @@ See also the wiki for possible [cache implementations](https://github.com/reactp
 
 ## Advanced Usage
 
-### DatagramTransportExecutor
+### UdpTransportExecutor
 
-The `DatagramTransportExecutor` can be used to
-send DNS queries over a datagram transport such as UDP.
+The `UdpTransportExecutor` can be used to
+send DNS queries over a UDP transport.
 
 This is the main class that sends a DNS query to your DNS server and is used
 internally by the `Resolver` for the actual message transport.
@@ -131,7 +131,7 @@ The following example looks up the `IPv6` address for `igor.io`.
 
 ```php
 $loop = Factory::create();
-$executor = new DatagramTransportExecutor($loop);
+$executor = new UdpTransportExecutor($loop);
 
 $executor->query(
     '8.8.8.8:53', 
@@ -152,7 +152,7 @@ want to use this in combination with a `TimeoutExecutor` like this:
 
 ```php
 $executor = new TimeoutExecutor(
-    new DatagramTransportExecutor($loop),
+    new UdpTransportExecutor($loop),
     3.0,
     $loop
 );
@@ -165,7 +165,7 @@ combination with a `RetryExecutor` like this:
 ```php
 $executor = new RetryExecutor(
     new TimeoutExecutor(
-        new DatagramTransportExecutor($loop),
+        new UdpTransportExecutor($loop),
         3.0,
         $loop
     )
@@ -180,14 +180,14 @@ $executor = new RetryExecutor(
 
 ### HostsFileExecutor
 
-Note that the above `Executor` class always performs an actual DNS query.
+Note that the above `UdpTransportExecutor` class always performs an actual DNS query.
 If you also want to take entries from your hosts file into account, you may
 use this code:
 
 ```php
 $hosts = \React\Dns\Config\HostsFile::loadFromPathBlocking();
 
-$executor = new Executor($loop, new Parser(), new BinaryDumper(), null);
+$executor = new UdpTransportExecutor($loop);
 $executor = new HostsFileExecutor($hosts, $executor);
 
 $executor->query(

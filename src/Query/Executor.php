@@ -13,7 +13,7 @@ use React\Stream\Stream;
 
 /**
  * @deprecated unused, exists for BC only
- * @see DatagramTransportExecutor
+ * @see UdpTransportExecutor
  */
 class Executor implements ExecutorInterface
 {
