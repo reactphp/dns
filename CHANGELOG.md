@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.14 (2018-06-26)
+
+*   Feature: Add `UdpTransportExecutor`, validate incoming DNS response messages
+    to avoid cache poisoning attacks and deprecate legacy `Executor`.
+    (#101 and #103 by @clue)
+
+*   Feature: Forward compatibility with Cache 0.5
+    (#102 by @clue)
+
+*   Deprecate legacy `Query::$currentTime` and binary parser data attributes to clean up and simplify API.
+    (#99 by @clue)
+
 ## 0.4.13 (2018-02-27)
 
 *   Add `Config::loadSystemConfigBlocking()` to load default system config
