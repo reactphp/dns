@@ -36,14 +36,14 @@ class BinaryDumperTest extends TestCase
         $this->assertSame($expected, $data);
     }
 
-    public function testToBinaryRequestMessageWithCustomOptForEdns0()
+    public function testToBinaryRequestMessageWithUnknownAuthorityTypeEncodesValueAsBinary()
     {
         $data = "";
-        $data .= "72 62 01 00 00 01 00 00 00 00 00 01"; // header
+        $data .= "72 62 01 00 00 01 00 00 00 01 00 00"; // header
         $data .= "04 69 67 6f 72 02 69 6f 00";          // question: igor.io
         $data .= "00 01 00 01";                         // question: type A, class IN
         $data .= "00";                                  // additional: (empty hostname)
-        $data .= "00 29 03 e8 00 00 00 00 00 00 ";      // additional: type OPT, class UDP size, TTL 0, no RDATA
+        $data .= "d4 31 03 e8 00 00 00 00 00 02 01 02 ";// additional: type OPT, class 1000, TTL 0, binary rdata
 
         $expected = $this->formatHexDump($data);
 
@@ -57,7 +57,72 @@ class BinaryDumperTest extends TestCase
             Message::CLASS_IN
         );
 
-        $request->additional[] = new Record('', 41, 1000, 0, '');
+        $request->authority[] = new Record('', 54321, 1000, 0, "\x01\x02");
+
+        $dumper = new BinaryDumper();
+        $data = $dumper->toBinary($request);
+        $data = $this->convertBinaryToHexDump($data);
+
+        $this->assertSame($expected, $data);
+    }
+
+    public function testToBinaryRequestMessageWithAdditionalOptForEdns0()
+    {
+        $data = "";
+        $data .= "72 62 01 00 00 01 00 00 00 00 00 01"; // header
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // question: igor.io
+        $data .= "00 01 00 01";                         // question: type A, class IN
+        $data .= "00";                                  // additional: (empty hostname)
+        $data .= "00 29 03 e8 00 00 00 00 00 00 ";      // additional: type OPT, class 1000 UDP size, TTL 0, no RDATA
+
+        $expected = $this->formatHexDump($data);
+
+        $request = new Message();
+        $request->id = 0x7262;
+        $request->rd = true;
+
+        $request->questions[] = new Query(
+            'igor.io',
+            Message::TYPE_A,
+            Message::CLASS_IN
+        );
+
+        $request->additional[] = new Record('', Message::TYPE_OPT, 1000, 0, array());
+
+        $dumper = new BinaryDumper();
+        $data = $dumper->toBinary($request);
+        $data = $this->convertBinaryToHexDump($data);
+
+        $this->assertSame($expected, $data);
+    }
+
+    public function testToBinaryRequestMessageWithAdditionalOptForEdns0WithCustomOptCodes()
+    {
+        $data = "";
+        $data .= "72 62 01 00 00 01 00 00 00 00 00 01"; // header
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // question: igor.io
+        $data .= "00 01 00 01";                         // question: type A, class IN
+        $data .= "00";                                  // additional: (empty hostname)
+        $data .= "00 29 03 e8 00 00 00 00 00 0d ";      // additional: type OPT, class 1000 UDP size, TTL 0, 13 bytes RDATA
+        $data .= "00 a0 00 03 66 6f 6f";                // OPT code 0xa0 encoded
+        $data .= "00 01 00 02 00 00 ";                  // OPT code 0x01 encoded
+
+        $expected = $this->formatHexDump($data);
+
+        $request = new Message();
+        $request->id = 0x7262;
+        $request->rd = true;
+
+        $request->questions[] = new Query(
+            'igor.io',
+            Message::TYPE_A,
+            Message::CLASS_IN
+        );
+
+        $request->additional[] = new Record('', Message::TYPE_OPT, 1000, 0, array(
+            0xa0 => 'foo',
+            0x01 => "\x00\00"
+        ));
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($request);

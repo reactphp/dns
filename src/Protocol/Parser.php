@@ -230,6 +230,13 @@ final class Parser
                     'minimum' => $minimum
                 );
             }
+        } elseif (Message::TYPE_OPT === $type) {
+            $rdata = array();
+            while (isset($message->data[$consumed + 4 - 1])) {
+                list($code, $length) = array_values(unpack('n*', substr($message->data, $consumed, 4)));
+                $rdata[$code] = (string) substr($message->data, $consumed + 4, $length);
+                $consumed += 4 + $length;
+            }
         } elseif (Message::TYPE_CAA === $type) {
             if ($rdLength > 3) {
                 list($flag, $tagLength) = array_values(unpack('C*', substr($message->data, $consumed, 2)));

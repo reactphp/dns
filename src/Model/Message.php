@@ -21,6 +21,19 @@ final class Message
     const TYPE_AAAA = 28;
     const TYPE_SRV = 33;
     const TYPE_SSHFP = 44;
+
+    /**
+     * pseudo-type for EDNS0
+     *
+     * These are included in the additional section and usually not in answer section.
+     * Defined in [RFC 6891](https://tools.ietf.org/html/rfc6891) (or older
+     * [RFC 2671](https://tools.ietf.org/html/rfc2671)).
+     *
+     * The OPT record uses the "class" field to store the maximum size.
+     *
+     * The OPT record uses the "ttl" field to store additional flags.
+     */
+    const TYPE_OPT = 41;
     const TYPE_ANY = 255;
     const TYPE_CAA = 257;
 
