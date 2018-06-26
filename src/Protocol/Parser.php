@@ -185,6 +185,21 @@ class Parser
                 'priority' => $priority,
                 'target' => implode('.', $bodyLabels)
             );
+        } elseif (Message::TYPE_SOA === $type) {
+            list($primaryLabels, $consumed) = $this->readLabels($message->data, $consumed);
+            list($mailLabels, $consumed) = $this->readLabels($message->data, $consumed);
+            list($serial, $refresh, $retry, $expire, $minimum) = array_values(unpack('N*', substr($message->data, $consumed, 20)));
+            $consumed += 20;
+
+            $rdata = array(
+                'mname' => implode('.', $primaryLabels),
+                'rname' => implode('.', $mailLabels),
+                'serial' => $serial,
+                'refresh' => $refresh,
+                'retry' => $retry,
+                'expire' => $expire,
+                'minimum' => $minimum
+            );
         } else {
             // unknown types simply parse rdata as an opaque binary string
             $rdata = substr($message->data, $consumed, $rdLength);
