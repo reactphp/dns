@@ -298,6 +298,31 @@ class ParserTest extends TestCase
         $this->assertSame('193.223.78.152', $response->answers[1]->data);
     }
 
+    public function testParseNSResponse()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 02 00 01";                         // answer: type NS, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 07";                               // answer: rdlength 7
+        $data .= "05 68 65 6c 6c 6f 00";                // answer: rdata hello
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('igor.io', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_NS, $response->answers[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
+        $this->assertSame(86400, $response->answers[0]->ttl);
+        $this->assertSame('hello', $response->answers[0]->data);
+    }
+
     public function testParsePTRResponse()
     {
         $data = "";

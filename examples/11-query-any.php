@@ -28,6 +28,9 @@ $executor->query('8.8.8.8:53', $any)->then(function (Message $message) {
             case Message::TYPE_AAAA:
                 $type = 'AAAA';
                 break;
+            case Message::TYPE_NS:
+                $type = 'NS';
+                break;
             case Message::TYPE_PTR:
                 $type = 'PTR';
                 break;

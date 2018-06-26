@@ -35,7 +35,7 @@ class Record
      *   IPv4 address string, for example "192.168.1.1".
      * - AAAA:
      *   IPv6 address string, for example "::1".
-     * - CNAME / PTR:
+     * - CNAME / PTR / NS:
      *   The hostname without trailing dot, for example "reactphp.org".
      * - Any other unknown type:
      *   An opaque binary string containing the RDATA as transported in the DNS
