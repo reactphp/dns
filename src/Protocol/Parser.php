@@ -164,12 +164,14 @@ class Parser
             $consumed += $rdLength;
 
             $rdata = inet_ntop($ip);
-        }
-
-        if (Message::TYPE_CNAME === $type || Message::TYPE_PTR === $type) {
+        } elseif (Message::TYPE_CNAME === $type || Message::TYPE_PTR === $type || Message::TYPE_NS === $type) {
             list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed);
 
             $rdata = implode('.', $bodyLabels);
+        } else {
+            // unknown types simply parse rdata as an opaque binary string
+            $rdata = substr($message->data, $consumed, $rdLength);
+            $consumed += $rdLength;
         }
 
         $message->consumed = $consumed;
