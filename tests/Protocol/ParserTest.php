@@ -331,6 +331,39 @@ class ParserTest extends TestCase
         $this->assertSame(array('priority' => 10, 'target' => 'hello'), $response->answers[0]->data);
     }
 
+    public function testParseSRVResponse()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 21 00 01";                         // answer: type SRV, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 0C";                               // answer: rdlength 12
+        $data .= "00 0a 00 14 1F 90 04 74 65 73 74 00"; // answer: rdata priority 10, weight 20, port 8080 test
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('igor.io', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_SRV, $response->answers[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
+        $this->assertSame(86400, $response->answers[0]->ttl);
+        $this->assertSame(
+            array(
+                'priority' => 10,
+                'weight' => 20,
+                'port' => 8080,
+                'target' => 'test'
+            ),
+            $response->answers[0]->data
+        );
+    }
+
     public function testParseResponseWithTwoAnswers()
     {
         $data = "";

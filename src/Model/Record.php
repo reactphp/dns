@@ -56,6 +56,18 @@ class Record
      *   referred to as exchange). If a response message contains multiple
      *   records of this type, targets should be sorted by priority (lowest
      *   first) - this is left up to consumers of this library (used for SMTP).
+     * - SRV:
+     *   Service priority (UINT16), service weight (UINT16), service port (UINT16)
+     *   and target hostname without trailing dot, for example
+     *   `{"priority":10,"weight":50,"port":8080,"target":"example.com"}`.
+     *   The payload data uses an associative array with fixed keys "priority",
+     *   "weight", "port" and "target" (also referred to as name).
+     *   The target may be an empty host name string if the service is decidedly
+     *   not available. If a response message contains multiple records of this
+     *   type, targets should be sorted by priority (lowest first) and selected
+     *   randomly according to their weight - this is left up to consumers of
+     *   this library, see also [RFC 2782](https://tools.ietf.org/html/rfc2782)
+     *   for more details.
      * - SOA:
      *   Includes master hostname without trailing dot, responsible person email
      *   as hostname without trailing dot and serial, refresh, retry, expire and
