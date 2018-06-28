@@ -185,6 +185,16 @@ class Parser
                 'priority' => $priority,
                 'target' => implode('.', $bodyLabels)
             );
+        } elseif (Message::TYPE_SRV === $type) {
+            list($priority, $weight, $port) = array_values(unpack('n*', substr($message->data, $consumed, 6)));
+            list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed + 6);
+
+            $rdata = array(
+                'priority' => $priority,
+                'weight' => $weight,
+                'port' => $port,
+                'target' => implode('.', $bodyLabels)
+            );
         } elseif (Message::TYPE_SOA === $type) {
             list($primaryLabels, $consumed) = $this->readLabels($message->data, $consumed);
             list($mailLabels, $consumed) = $this->readLabels($message->data, $consumed);
