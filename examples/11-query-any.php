@@ -37,6 +37,12 @@ $executor->query('8.8.8.8:53', $any)->then(function (Message $message) {
             case Message::TYPE_CNAME:
                 $type = 'CNAME';
                 break;
+            case Message::TYPE_TXT:
+                // TXT records can contain a list of (binary) strings for each record.
+                // here, we assume this is printable ASCII and simply concatenate output
+                $type = 'TXT';
+                $data = implode('', $data);
+                break;
             default:
                 // unknown type uses HEX format
                 $type = 'Type ' . $answer->type;

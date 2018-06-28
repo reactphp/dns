@@ -168,6 +168,15 @@ class Parser
             list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed);
 
             $rdata = implode('.', $bodyLabels);
+        } elseif (Message::TYPE_TXT === $type) {
+            $rdata = array();
+            $remaining = $rdLength;
+            while ($remaining) {
+                $len = ord($message->data[$consumed]);
+                $rdata[] = substr($message->data, $consumed + 1, $len);
+                $consumed += $len + 1;
+                $remaining -= $len + 1;
+            }
         } else {
             // unknown types simply parse rdata as an opaque binary string
             $rdata = substr($message->data, $consumed, $rdLength);
