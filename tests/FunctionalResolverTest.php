@@ -25,6 +25,14 @@ class FunctionalTest extends TestCase
         $this->loop->run();
     }
 
+    public function testResolveAllLocalhostResolvesWithArray()
+    {
+        $promise = $this->resolver->resolveAll('localhost', Message::TYPE_A);
+        $promise->then($this->expectCallableOnceWith($this->isType('array')), $this->expectCallableNever());
+
+        $this->loop->run();
+    }
+
     /**
      * @group internet
      */
