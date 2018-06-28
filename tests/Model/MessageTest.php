@@ -26,5 +26,6 @@ class MessageTest extends TestCase
         $this->assertFalse($request->header->isQuery());
         $this->assertTrue($request->header->isResponse());
         $this->assertEquals(0, $request->header->get('anCount'));
+        $this->assertEquals(Message::RCODE_OK, $request->getResponseCode());
     }
 }

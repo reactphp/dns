@@ -13,6 +13,8 @@ easily be used to create a DNS server.
 * [Basic usage](#basic-usage)
 * [Caching](#caching)
   * [Custom cache adapter](#custom-cache-adapter)
+* [Resolver](#resolver)
+  * [resolve()](#resolve)
 * [Advanced usage](#advanced-usage)
   * [UdpTransportExecutor](#udptransportexecutor)
   * [HostsFileExecutor](#hostsfileexecutor)
@@ -57,14 +59,6 @@ as above if none can be found.
   creating the resolver instance.
   Ideally, this method should thus be executed only once before the loop starts
   and not repeatedly while it is running.
-
-Pending DNS queries can be cancelled by cancelling its pending promise like so:
-
-```php
-$promise = $resolver->resolve('reactphp.org');
-
-$promise->cancel();
-```
 
 But there's more.
 
@@ -115,6 +109,42 @@ $dns = $factory->createCached('8.8.8.8', $loop, $cache);
 ```
 
 See also the wiki for possible [cache implementations](https://github.com/reactphp/react/wiki/Users#cache-implementations).
+
+## Resolver
+
+### resolve()
+
+The `resolve(string $domain): PromiseInterface<string,Exception>` method can be used to
+resolve the given $domain name to a single IPv4 address (type `A` query).
+
+```php
+$resolver->resolve('reactphp.org')->then(function ($ip) {
+    echo 'IP for reactphp.org is ' . $ip . PHP_EOL;
+});
+```
+
+This is one of the main methods in this package. It sends a DNS query
+for the given $domain name to your DNS server and returns a single IP
+address on success.
+
+If the DNS server sends a DNS response message that contains more than
+one IP address for this query, it will randomly pick one of the IP
+addresses from the response.
+
+If the DNS server sends a DNS response message that indicated an error
+code, this method will reject with a `RecordNotFoundException`. Its
+message and code can be used to check for the response code.
+
+If the DNS communication fails and the server does not respond with a
+valid response message, this message will reject with an `Exception`.
+
+Pending DNS queries can be cancelled by cancelling its pending promise like so:
+
+```php
+$promise = $resolver->resolve('reactphp.org');
+
+$promise->cancel();
+```
 
 ## Advanced Usage
 
