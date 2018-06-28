@@ -48,6 +48,14 @@ class Record
      *   suggests using key-value pairs such as `["name=test","version=1"]`, but
      *   interpretation of this is not enforced and left up to consumers of this
      *   library (used for DNS-SD/Zeroconf and others).
+     * - MX:
+     *   Mail server priority (UINT16) and target hostname without trailing dot,
+     *   for example `{"priority":10,"target":"mx.example.com"}`.
+     *   The payload data uses an associative array with fixed keys "priority"
+     *   (also commonly referred to as weight or preference) and "target" (also
+     *   referred to as exchange). If a response message contains multiple
+     *   records of this type, targets should be sorted by priority (lowest
+     *   first) - this is left up to consumers of this library (used for SMTP).
      * - Any other unknown type:
      *   An opaque binary string containing the RDATA as transported in the DNS
      *   record. For forwards compatibility, you should not rely on this format
@@ -56,7 +64,7 @@ class Record
      *   considered a BC break. See the format definition of known types above
      *   for more details.
      *
-     * @var string|string[]
+     * @var string|string[]|array
      */
     public $data;
 

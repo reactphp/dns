@@ -177,6 +177,14 @@ class Parser
                 $consumed += $len + 1;
                 $remaining -= $len + 1;
             }
+        } elseif (Message::TYPE_MX === $type) {
+            list($priority) = array_values(unpack('n', substr($message->data, $consumed, 2)));
+            list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed + 2);
+
+            $rdata = array(
+                'priority' => $priority,
+                'target' => implode('.', $bodyLabels)
+            );
         } else {
             // unknown types simply parse rdata as an opaque binary string
             $rdata = substr($message->data, $consumed, $rdLength);
