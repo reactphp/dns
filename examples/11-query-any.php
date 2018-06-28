@@ -48,6 +48,11 @@ $executor->query('8.8.8.8:53', $any)->then(function (Message $message) {
                 $type = 'MX';
                 $data = implode(' ', $data);
                 break;
+            case Message::TYPE_SOA:
+                // SOA records contain structured data, dump structure here
+                $type = 'SOA';
+                $data = json_encode($data);
+                break;
             default:
                 // unknown type uses HEX format
                 $type = 'Type ' . $answer->type;

@@ -398,6 +398,45 @@ class ParserTest extends TestCase
         $this->assertSame('hello', $response->answers[0]->data);
     }
 
+    public function testParseSOAResponse()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 06 00 01";                         // answer: type SOA, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 07";                               // answer: rdlength 7
+        $data .= "02 6e 73 05 68 65 6c 6c 6f 00";       // answer: rdata ns.hello (mname)
+        $data .= "01 65 05 68 65 6c 6c 6f 00";          // answer: rdata e.hello (rname)
+        $data .= "78 49 28 D5 00 00 2a 30 00 00 0e 10"; // answer: rdata 2018060501, 10800, 3600
+        $data .= "00 09 3a 80 00 00 0e 10";             // answer: 605800, 3600
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('igor.io', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_SOA, $response->answers[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
+        $this->assertSame(86400, $response->answers[0]->ttl);
+        $this->assertSame(
+            array(
+                'mname' => 'ns.hello',
+                'rname' => 'e.hello',
+                'serial' => 2018060501,
+                'refresh' => 10800,
+                'retry' => 3600,
+                'expire' => 604800,
+                'minimum' => 3600
+            ),
+            $response->answers[0]->data
+        );
+    }
+
     public function testParsePTRResponse()
     {
         $data = "";
