@@ -34,6 +34,75 @@ class ResolverTest extends TestCase
     }
 
     /** @test */
+    public function resolveAllShouldQueryGivenRecords()
+    {
+        $executor = $this->createExecutorMock();
+        $executor
+            ->expects($this->once())
+            ->method('query')
+            ->with($this->anything(), $this->isInstanceOf('React\Dns\Query\Query'))
+            ->will($this->returnCallback(function ($nameserver, $query) {
+                $response = new Message();
+                $response->header->set('qr', 1);
+                $response->questions[] = new Record($query->name, $query->type, $query->class);
+                $response->answers[] = new Record($query->name, $query->type, $query->class, 3600, '::1');
+
+                return Promise\resolve($response);
+            }));
+
+        $resolver = new Resolver('8.8.8.8:53', $executor);
+        $resolver->resolveAll('reactphp.org', Message::TYPE_AAAA)->then($this->expectCallableOnceWith(array('::1')));
+    }
+
+    /** @test */
+    public function resolveAllShouldIgnoreRecordsWithOtherTypes()
+    {
+        $executor = $this->createExecutorMock();
+        $executor
+            ->expects($this->once())
+            ->method('query')
+            ->with($this->anything(), $this->isInstanceOf('React\Dns\Query\Query'))
+            ->will($this->returnCallback(function ($nameserver, $query) {
+                $response = new Message();
+                $response->header->set('qr', 1);
+                $response->questions[] = new Record($query->name, $query->type, $query->class);
+                $response->answers[] = new Record($query->name, Message::TYPE_TXT, $query->class, 3600, array('ignored'));
+                $response->answers[] = new Record($query->name, $query->type, $query->class, 3600, '::1');
+
+                return Promise\resolve($response);
+            }));
+
+        $resolver = new Resolver('8.8.8.8:53', $executor);
+        $resolver->resolveAll('reactphp.org', Message::TYPE_AAAA)->then($this->expectCallableOnceWith(array('::1')));
+    }
+
+    /** @test */
+    public function resolveAllShouldReturnMultipleValuesForAlias()
+    {
+        $executor = $this->createExecutorMock();
+        $executor
+            ->expects($this->once())
+            ->method('query')
+            ->with($this->anything(), $this->isInstanceOf('React\Dns\Query\Query'))
+            ->will($this->returnCallback(function ($nameserver, $query) {
+                $response = new Message();
+                $response->header->set('qr', 1);
+                $response->questions[] = new Record($query->name, $query->type, $query->class);
+                $response->answers[] = new Record($query->name, Message::TYPE_CNAME, $query->class, 3600, 'example.com');
+                $response->answers[] = new Record('example.com', $query->type, $query->class, 3600, '::1');
+                $response->answers[] = new Record('example.com', $query->type, $query->class, 3600, '::2');
+                $response->prepare();
+
+                return Promise\resolve($response);
+            }));
+
+        $resolver = new Resolver('8.8.8.8:53', $executor);
+        $resolver->resolveAll('reactphp.org', Message::TYPE_AAAA)->then(
+            $this->expectCallableOnceWith($this->equalTo(array('::1', '::2')))
+        );
+    }
+
+    /** @test */
     public function resolveShouldQueryARecordsAndIgnoreCase()
     {
         $executor = $this->createExecutorMock();
@@ -159,6 +228,20 @@ class ResolverTest extends TestCase
 
         $resolver = new Resolver('8.8.8.8:53', $executor);
         $resolver->resolve('example.com')->then($this->expectCallableNever(), $errback);
+    }
+
+    public function testLegacyExtractAddress()
+    {
+        $executor = $this->createExecutorMock();
+        $resolver = new Resolver('8.8.8.8:53', $executor);
+
+        $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
+        $response = Message::createResponseWithAnswersForQuery($query, array(
+            new Record('reactphp.org', Message::TYPE_A, Message::CLASS_IN, 3600, '1.2.3.4')
+        ));
+
+        $ret = $resolver->extractAddress($query, $response);
+        $this->assertEquals('1.2.3.4', $ret);
     }
 
     private function createExecutorMock()

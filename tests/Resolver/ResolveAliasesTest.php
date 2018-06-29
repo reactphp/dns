@@ -12,6 +12,7 @@ class ResolveAliasesTest extends TestCase
 {
     /**
      * @covers React\Dns\Resolver\Resolver::resolveAliases
+     * @covers React\Dns\Resolver\Resolver::valuesByNameAndType
      * @dataProvider provideAliasedAnswers
      */
     public function testResolveAliases(array $expectedAnswers, array $answers, $name)
