@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.4.15 (2018-07-02)
+
+*   Feature: Add `resolveAll()` method to support custom query types in `Resolver`.
+    (#110 by @clue and @WyriHaximus)
+
+    ```php
+    $resolver->resolveAll('reactphp.org', Message::TYPE_AAAA)->then(function ($ips) {
+        echo 'IPv6 addresses for reactphp.org ' . implode(', ', $ips) . PHP_EOL;
+    });
+    ```
+
+*   Feature: Support parsing `NS`, `TXT`, `MX`, `SOA` and `SRV` records.
+    (#104, #105, #106, #107 and #108 by @clue)
+
+*   Feature: Add support for `Message::TYPE_ANY` parse unknown types as binary data.
+    (#104 by @clue)
+
+*   Feature: Improve error messages for failed queries and improve documentation.
+    (#109 by @clue)
+
+*   Feature: Add reverse DNS lookup example.
+    (#111 by @clue)
+
 ## 0.4.14 (2018-06-26)
 
 *   Feature: Add `UdpTransportExecutor`, validate incoming DNS response messages
