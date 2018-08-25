@@ -154,6 +154,11 @@ class Parser
         list($ttl) = array_values(unpack('N', substr($message->data, $consumed, 4)));
         $consumed += 4;
 
+        // TTL is a UINT32 that must not have most significant bit set for BC reasons
+        if ($ttl < 0 || $ttl >= 1 << 31) {
+            $ttl = 0;
+        }
+
         list($rdLength) = array_values(unpack('n', substr($message->data, $consumed, 2)));
         $consumed += 2;
 
@@ -219,7 +224,6 @@ class Parser
         $message->consumed = $consumed;
 
         $name = implode('.', $labels);
-        $ttl = $this->signedLongToUnsignedLong($ttl);
         $record = new Record($name, $type, $class, $ttl, $rdata);
 
         $message->answers[] = $record;
@@ -291,6 +295,10 @@ class Parser
         return array($peek & $mask, $consumed + 2);
     }
 
+    /**
+     * @deprecated unused, exists for BC only
+     * @codeCoverageIgnore
+     */
     public function signedLongToUnsignedLong($i)
     {
         return $i & 0x80000000 ? $i - 0xffffffff : $i;
