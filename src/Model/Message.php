@@ -100,10 +100,44 @@ class Message
         return mt_rand(0, 0xffff);
     }
 
+    /**
+     * @var HeaderBag
+     */
     public $header;
+
+    /**
+     * This should be an array of Query objects. For BC reasons, this currently
+     * references a nested array with a structure that results from casting the
+     * Query objects to an array:
+     *
+     * ```php
+     * $questions = array(
+     *     array(
+     *         'name' => 'reactphp.org',
+     *         'type' => Message::TYPE_A,
+     *         'class' => Message::CLASS_IN
+     *     )
+     * );
+     * ```
+     *
+     * @var array
+     * @see Query
+     */
     public $questions = array();
+
+    /**
+     * @var Record[]
+     */
     public $answers = array();
+
+    /**
+     * @var Record[]
+     */
     public $authority = array();
+
+    /**
+     * @var Record[]
+     */
     public $additional = array();
 
     /**

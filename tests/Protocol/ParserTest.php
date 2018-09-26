@@ -439,7 +439,7 @@ class ParserTest extends TestCase
         );
     }
 
-    public function testParseResponseWithTwoAnswers()
+    public function testParseMessageResponseWithTwoAnswers()
     {
         $data = "";
         $data .= "bc 73 81 80 00 01 00 02 00 00 00 00";                 // header
@@ -479,6 +479,95 @@ class ParserTest extends TestCase
         $this->assertSame(Message::CLASS_IN, $response->answers[1]->class);
         $this->assertSame(3575, $response->answers[1]->ttl);
         $this->assertSame('193.223.78.152', $response->answers[1]->data);
+    }
+
+    public function testParseMessageResponseWithTwoAuthorityRecords()
+    {
+        $data = "";
+        $data .= "bc 73 81 80 00 01 00 00 00 02 00 00";                 // header
+        $data .= "02 69 6f 0d 77 68 6f 69 73 2d 73 65 72 76 65 72 73 03 6e 65 74 00";
+        // question: io.whois-servers.net
+        $data .= "00 01 00 01";                                         // question: type A, class IN
+        $data .= "c0 0c";                                               // authority: offset pointer to io.whois-servers.net
+        $data .= "00 05 00 01";                                         // authority: type CNAME, class IN
+        $data .= "00 00 00 29";                                         // authority: ttl 41
+        $data .= "00 0e";                                               // authority: rdlength 14
+        $data .= "05 77 68 6f 69 73 03 6e 69 63 02 69 6f 00";           // authority: rdata whois.nic.io
+        $data .= "c0 32";                                               // authority: offset pointer to whois.nic.io
+        $data .= "00 01 00 01";                                         // authority: type CNAME, class IN
+        $data .= "00 00 0d f7";                                         // authority: ttl 3575
+        $data .= "00 04";                                               // authority: rdlength 4
+        $data .= "c1 df 4e 98";                                         // authority: rdata 193.223.78.152
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = $this->parser->parseMessage($data);
+
+        $this->assertCount(1, $response->questions);
+        $this->assertSame('io.whois-servers.net', $response->questions[0]['name']);
+        $this->assertSame(Message::TYPE_A, $response->questions[0]['type']);
+        $this->assertSame(Message::CLASS_IN, $response->questions[0]['class']);
+
+        $this->assertCount(0, $response->answers);
+
+        $this->assertCount(2, $response->authority);
+
+        $this->assertSame('io.whois-servers.net', $response->authority[0]->name);
+        $this->assertSame(Message::TYPE_CNAME, $response->authority[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->authority[0]->class);
+        $this->assertSame(41, $response->authority[0]->ttl);
+        $this->assertSame('whois.nic.io', $response->authority[0]->data);
+
+        $this->assertSame('whois.nic.io', $response->authority[1]->name);
+        $this->assertSame(Message::TYPE_A, $response->authority[1]->type);
+        $this->assertSame(Message::CLASS_IN, $response->authority[1]->class);
+        $this->assertSame(3575, $response->authority[1]->ttl);
+        $this->assertSame('193.223.78.152', $response->authority[1]->data);
+    }
+
+    public function testParseMessageResponseWithAnswerAndAdditionalRecord()
+    {
+        $data = "";
+        $data .= "bc 73 81 80 00 01 00 01 00 00 00 01";                 // header
+        $data .= "02 69 6f 0d 77 68 6f 69 73 2d 73 65 72 76 65 72 73 03 6e 65 74 00";
+        // question: io.whois-servers.net
+        $data .= "00 01 00 01";                                         // question: type A, class IN
+        $data .= "c0 0c";                                               // answer: offset pointer to io.whois-servers.net
+        $data .= "00 05 00 01";                                         // answer: type CNAME, class IN
+        $data .= "00 00 00 29";                                         // answer: ttl 41
+        $data .= "00 0e";                                               // answer: rdlength 14
+        $data .= "05 77 68 6f 69 73 03 6e 69 63 02 69 6f 00";           // answer: rdata whois.nic.io
+        $data .= "c0 32";                                               // additional: offset pointer to whois.nic.io
+        $data .= "00 01 00 01";                                         // additional: type CNAME, class IN
+        $data .= "00 00 0d f7";                                         // additional: ttl 3575
+        $data .= "00 04";                                               // additional: rdlength 4
+        $data .= "c1 df 4e 98";                                         // additional: rdata 193.223.78.152
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = $this->parser->parseMessage($data);
+
+        $this->assertCount(1, $response->questions);
+        $this->assertSame('io.whois-servers.net', $response->questions[0]['name']);
+        $this->assertSame(Message::TYPE_A, $response->questions[0]['type']);
+        $this->assertSame(Message::CLASS_IN, $response->questions[0]['class']);
+
+        $this->assertCount(1, $response->answers);
+
+        $this->assertSame('io.whois-servers.net', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_CNAME, $response->answers[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
+        $this->assertSame(41, $response->answers[0]->ttl);
+        $this->assertSame('whois.nic.io', $response->answers[0]->data);
+
+        $this->assertCount(0, $response->authority);
+        $this->assertCount(1, $response->additional);
+
+        $this->assertSame('whois.nic.io', $response->additional[0]->name);
+        $this->assertSame(Message::TYPE_A, $response->additional[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->additional[0]->class);
+        $this->assertSame(3575, $response->additional[0]->ttl);
+        $this->assertSame('193.223.78.152', $response->additional[0]->data);
     }
 
     public function testParseNSResponse()
@@ -700,6 +789,38 @@ class ParserTest extends TestCase
         $data .= "04 69 67 6f 72 02 69 6f 00";          // question: igor.io
         $data .= "00 01 00 01";                         // question: type A, class IN
         $data .= "c0 0c";                               // answer: offset pointer to igor.io
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $this->parser->parseMessage($data);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseMessageResponseWithIncompleteAuthorityRecordThrows()
+    {
+        $data = "";
+        $data .= "72 62 81 80 00 01 00 00 00 01 00 00"; // header
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // question: igor.io
+        $data .= "00 01 00 01";                         // question: type A, class IN
+        $data .= "c0 0c";                               // authority: offset pointer to igor.io
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $this->parser->parseMessage($data);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseMessageResponseWithIncompleteAdditionalRecordThrows()
+    {
+        $data = "";
+        $data .= "72 62 81 80 00 01 00 00 00 00 00 01"; // header
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // question: igor.io
+        $data .= "00 01 00 01";                         // question: type A, class IN
+        $data .= "c0 0c";                               // additional: offset pointer to igor.io
 
         $data = $this->convertTcpDumpToBinary($data);
 

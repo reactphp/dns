@@ -87,6 +87,13 @@ class Record
      */
     public $data;
 
+    /**
+     * @param string                $name
+     * @param int                   $type
+     * @param int                   $class
+     * @param int                   $ttl
+     * @param string|string[]|array $data
+     */
     public function __construct($name, $type, $class, $ttl = 0, $data = null)
     {
         $this->name     = $name;

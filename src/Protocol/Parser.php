@@ -55,9 +55,33 @@ class Parser
             }
         }
 
-        if ($message->header->get('anCount') != count($message->answers)) {
-            if (!$this->parseAnswer($message)) {
+        // parse all answer records
+        for ($i = $message->header->get('anCount'); $i > 0; --$i) {
+            $record = $this->parseRecord($message);
+            if ($record === null) {
                 return;
+            } else {
+                $message->answers[] = $record;
+            }
+        }
+
+        // parse all authority records
+        for ($i = $message->header->get('nsCount'); $i > 0; --$i) {
+            $record = $this->parseRecord($message);
+            if ($record === null) {
+                return;
+            } else {
+                $message->authority[] = $record;
+            }
+        }
+
+        // parse all additional records
+        for ($i = $message->header->get('arCount'); $i > 0; --$i) {
+            $record = $this->parseRecord($message);
+            if ($record === null) {
+                return;
+            } else {
+                $message->additional[] = $record;
             }
         }
 
@@ -86,7 +110,6 @@ class Parser
 
         $vars = compact('id', 'qdCount', 'anCount', 'nsCount', 'arCount',
                             'qr', 'opcode', 'aa', 'tc', 'rd', 'ra', 'z', 'rcode');
-
 
         foreach ($vars as $name => $value) {
             $message->header->set($name, $value);
@@ -123,14 +146,42 @@ class Parser
         return $message;
     }
 
+    /**
+     * recursively parse all answers from the message data into message answer records
+     *
+     * @param Message $message
+     * @return ?Message returns the updated message on success or null if the data is invalid/incomplete
+     * @deprecated unused, exists for BC only
+     * @codeCoverageIgnore
+     */
     public function parseAnswer(Message $message)
+    {
+        $record = $this->parseRecord($message);
+        if ($record === null) {
+            return null;
+        }
+
+        $message->answers[] = $record;
+
+        if ($message->header->get('anCount') != count($message->answers)) {
+            return $this->parseAnswer($message);
+        }
+
+        return $message;
+    }
+
+    /**
+     * @param Message $message
+     * @return ?Record returns parsed Record on success or null if data is invalid/incomplete
+     */
+    private function parseRecord(Message $message)
     {
         $consumed = $message->consumed;
 
         list($name, $consumed) = $this->readDomain($message->data, $consumed);
 
         if ($name === null || !isset($message->data[$consumed + 10 - 1])) {
-            return;
+            return null;
         }
 
         list($type, $class) = array_values(unpack('n*', substr($message->data, $consumed, 4)));
@@ -148,7 +199,7 @@ class Parser
         $consumed += 2;
 
         if (!isset($message->data[$consumed + $rdLength - 1])) {
-            return;
+            return null;
         }
 
         $rdata = null;
@@ -221,20 +272,12 @@ class Parser
 
         // ensure parsing record data consumes expact number of bytes indicated in record length
         if ($consumed !== $expected || $rdata === null) {
-            return;
+            return null;
         }
 
         $message->consumed = $consumed;
 
-        $record = new Record($name, $type, $class, $ttl, $rdata);
-
-        $message->answers[] = $record;
-
-        if ($message->header->get('anCount') != count($message->answers)) {
-            return $this->parseAnswer($message);
-        }
-
-        return $message;
+        return new Record($name, $type, $class, $ttl, $rdata);
     }
 
     private function readDomain($data, $consumed)
