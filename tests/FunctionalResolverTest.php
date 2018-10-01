@@ -57,6 +57,19 @@ class FunctionalTest extends TestCase
 
         $this->loop->run();
     }
+    /**
+     * @group internet
+     */
+    public function testResolveAllGoogleCaaResolvesWithCache()
+    {
+        $factory = new Factory();
+        $this->resolver = $factory->createCached('8.8.8.8', $this->loop);
+
+        $promise = $this->resolver->resolveAll('google.com', Message::TYPE_CAA);
+        $promise->then($this->expectCallableOnceWith($this->isType('array')), $this->expectCallableNever());
+
+        $this->loop->run();
+    }
 
     /**
      * @group internet
