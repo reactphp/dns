@@ -66,7 +66,7 @@ class Parser
 
     public function parseHeader(Message $message)
     {
-        if (strlen($message->data) < 12) {
+        if (!isset($message->data[12 - 1])) {
             return;
         }
 
@@ -97,19 +97,11 @@ class Parser
 
     public function parseQuestion(Message $message)
     {
-        if (strlen($message->data) < 2) {
-            return;
-        }
-
         $consumed = $message->consumed;
 
         list($labels, $consumed) = $this->readLabels($message->data, $consumed);
 
-        if (null === $labels) {
-            return;
-        }
-
-        if (strlen($message->data) - $consumed < 4) {
+        if ($labels === null || !isset($message->data[$consumed + 4 - 1])) {
             return;
         }
 
@@ -133,19 +125,11 @@ class Parser
 
     public function parseAnswer(Message $message)
     {
-        if (strlen($message->data) < 2) {
-            return;
-        }
-
         $consumed = $message->consumed;
 
         list($labels, $consumed) = $this->readLabels($message->data, $consumed);
 
-        if (null === $labels) {
-            return;
-        }
-
-        if (strlen($message->data) - $consumed < 10) {
+        if ($labels === null || !isset($message->data[$consumed + 10 - 1])) {
             return;
         }
 
@@ -162,6 +146,10 @@ class Parser
 
         list($rdLength) = array_values(unpack('n', substr($message->data, $consumed, 2)));
         $consumed += 2;
+
+        if (!isset($message->data[$consumed + $rdLength - 1])) {
+            return;
+        }
 
         $rdata = null;
 
@@ -262,6 +250,7 @@ class Parser
 
                 $consumed += 2;
                 list($newLabels) = $this->readLabels($data, $offset);
+
                 if ($newLabels === null) {
                     return array(null, null);
                 }

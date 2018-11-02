@@ -690,6 +690,41 @@ class ParserTest extends TestCase
         $this->parser->parseMessage($data);
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseIncompleteAnswerFieldsThrows()
+    {
+        $data = "";
+        $data .= "72 62 81 80 00 01 00 01 00 00 00 00"; // header
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // question: igor.io
+        $data .= "00 01 00 01";                         // question: type A, class IN
+        $data .= "c0 0c";                               // answer: offset pointer to igor.io
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $this->parser->parseMessage($data);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseIncompleteAnswerRecordDataThrows()
+    {
+        $data = "";
+        $data .= "72 62 81 80 00 01 00 01 00 00 00 00"; // header
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // question: igor.io
+        $data .= "00 01 00 01";                         // question: type A, class IN
+        $data .= "c0 0c";                               // answer: offset pointer to igor.io
+        $data .= "00 01 00 01";                         // answer: type A, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 04";                               // answer: rdlength 4
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $this->parser->parseMessage($data);
+    }
+
     private function convertTcpDumpToBinary($input)
     {
         // sudo ngrep -d en1 -x port 53
