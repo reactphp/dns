@@ -512,7 +512,7 @@ class ParserTest extends TestCase
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
         $data .= "00 06 00 01";                         // answer: type SOA, class IN
         $data .= "00 01 51 80";                         // answer: ttl 86400
-        $data .= "00 07";                               // answer: rdlength 7
+        $data .= "00 27";                               // answer: rdlength 39
         $data .= "02 6e 73 05 68 65 6c 6c 6f 00";       // answer: rdata ns.hello (mname)
         $data .= "01 65 05 68 65 6c 6c 6f 00";          // answer: rdata e.hello (rname)
         $data .= "78 49 28 D5 00 00 2a 30 00 00 0e 10"; // answer: rdata 2018060501, 10800, 3600
@@ -723,6 +723,184 @@ class ParserTest extends TestCase
         $data = $this->convertTcpDumpToBinary($data);
 
         $this->parser->parseMessage($data);
+    }
+
+    public function testParseInvalidNSResponseWhereDomainNameIsMissing()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 02 00 01";                         // answer: type NS, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 00";                               // answer: rdlength 0
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(0, $response->answers);
+    }
+
+    public function testParseInvalidAResponseWhereIPIsMissing()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 01 00 01";                         // answer: type A, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 00";                               // answer: rdlength 0
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(0, $response->answers);
+    }
+
+    public function testParseInvalidAAAAResponseWhereIPIsMissing()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 1c 00 01";                         // answer: type AAAA, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 00";                               // answer: rdlength 0
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(0, $response->answers);
+    }
+
+    public function testParseInvalidTXTResponseWhereTxtChunkExceedsLimit()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 10 00 01";                         // answer: type TXT, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 06";                               // answer: rdlength 6
+        $data .= "06 68 65 6c 6c 6f 6f";                // answer: rdata length 6: helloo
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(0, $response->answers);
+    }
+
+    public function testParseInvalidMXResponseWhereDomainNameIsIncomplete()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 0f 00 01";                         // answer: type MX, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 08";                               // answer: rdlength 8
+        $data .= "00 0a 05 68 65 6c 6c 6f";             // answer: rdata priority 10: hello (missing label end)
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(0, $response->answers);
+    }
+
+    public function testParseInvalidMXResponseWhereDomainNameIsMissing()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 0f 00 01";                         // answer: type MX, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 02";                               // answer: rdlength 2
+        $data .= "00 0a";                               // answer: rdata priority 10
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(0, $response->answers);
+    }
+
+    public function testParseInvalidSRVResponseWhereDomainNameIsIncomplete()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 21 00 01";                         // answer: type SRV, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 0b";                               // answer: rdlength 11
+        $data .= "00 0a 00 14 1F 90 04 74 65 73 74";    // answer: rdata priority 10, weight 20, port 8080 test (missing label end)
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(0, $response->answers);
+    }
+
+    public function testParseInvalidSRVResponseWhereDomainNameIsMissing()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 21 00 01";                         // answer: type SRV, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 06";                               // answer: rdlength 6
+        $data .= "00 0a 00 14 1F 90";                   // answer: rdata priority 10, weight 20, port 8080
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(0, $response->answers);
+    }
+
+    public function testParseInvalidSOAResponseWhereFlagsAreMissing()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 06 00 01";                         // answer: type SOA, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 13";                               // answer: rdlength 19
+        $data .= "02 6e 73 05 68 65 6c 6c 6f 00";       // answer: rdata ns.hello (mname)
+        $data .= "01 65 05 68 65 6c 6c 6f 00";          // answer: rdata e.hello (rname)
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(0, $response->answers);
     }
 
     private function convertTcpDumpToBinary($input)
