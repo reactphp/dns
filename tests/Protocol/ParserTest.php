@@ -157,6 +157,81 @@ class ParserTest extends TestCase
         $this->assertSame('178.79.169.131', $response->answers[0]->data);
     }
 
+    public function testParseAnswerWithExcessiveTtlReturnsZeroTtl()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 01 00 01";                         // answer: type A, class IN
+        $data .= "ff ff ff ff";                         // answer: ttl 2^32 - 1
+        $data .= "00 04";                               // answer: rdlength 4
+        $data .= "b2 4f a9 83";                         // answer: rdata 178.79.169.131
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('igor.io', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_A, $response->answers[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
+        $this->assertSame(0, $response->answers[0]->ttl);
+        $this->assertSame('178.79.169.131', $response->answers[0]->data);
+    }
+
+    public function testParseAnswerWithTtlExactlyBoundaryReturnsZeroTtl()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 01 00 01";                         // answer: type A, class IN
+        $data .= "80 00 00 00";                         // answer: ttl 2^31
+        $data .= "00 04";                               // answer: rdlength 4
+        $data .= "b2 4f a9 83";                         // answer: rdata 178.79.169.131
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('igor.io', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_A, $response->answers[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
+        $this->assertSame(0, $response->answers[0]->ttl);
+        $this->assertSame('178.79.169.131', $response->answers[0]->data);
+    }
+
+    public function testParseAnswerWithMaximumTtlReturnsExactTtl()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 01 00 01";                         // answer: type A, class IN
+        $data .= "7f ff ff ff";                         // answer: ttl 2^31 - 1
+        $data .= "00 04";                               // answer: rdlength 4
+        $data .= "b2 4f a9 83";                         // answer: rdata 178.79.169.131
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = new Message();
+        $response->header->set('anCount', 1);
+        $response->data = $data;
+
+        $this->parser->parseAnswer($response);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('igor.io', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_A, $response->answers[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
+        $this->assertSame(0x7fffffff, $response->answers[0]->ttl);
+        $this->assertSame('178.79.169.131', $response->answers[0]->data);
+    }
+
     public function testParseAnswerWithUnknownType()
     {
         $data = "";

@@ -20,7 +20,8 @@ class Record
     public $class;
 
     /**
-     * @var int maximum TTL in seconds (UINT16)
+     * @var int maximum TTL in seconds (UINT32, most significant bit always unset)
+     * @link https://tools.ietf.org/html/rfc2181#section-8
      */
     public $ttl;
 
