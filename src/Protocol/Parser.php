@@ -32,6 +32,7 @@ class Parser
 
     /**
      * @deprecated unused, exists for BC only
+     * @codeCoverageIgnore
      */
     public function parseChunk($data, Message $message)
     {
@@ -236,37 +237,61 @@ class Parser
         $labels = array();
 
         while (true) {
-            if ($this->isEndOfLabels($data, $consumed)) {
+            if (!isset($data[$consumed])) {
+                return array(null, null);
+            }
+
+            $length = \ord($data[$consumed]);
+
+            // end of labels reached
+            if ($length === 0) {
                 $consumed += 1;
                 break;
             }
 
-            if ($this->isCompressedLabel($data, $consumed)) {
-                list($newLabels, $consumed) = $this->getCompressedLabel($data, $consumed);
+            // first two bits set? this is a compressed label (14 bit pointer offset)
+            if (($length & 0xc0) === 0xc0 && isset($data[$consumed + 1])) {
+                $offset = ($length & ~0xc0) << 8 | \ord($data[$consumed + 1]);
+                if ($offset >= $consumed) {
+                    return array(null, null);
+                }
+
+                $consumed += 2;
+                list($newLabels) = $this->readLabels($data, $offset);
+                if ($newLabels === null) {
+                    return array(null, null);
+                }
+
                 $labels = array_merge($labels, $newLabels);
                 break;
             }
 
-            $length = ord(substr($data, $consumed, 1));
-            $consumed += 1;
-
-            if (strlen($data) - $consumed < $length) {
+            // length MUST be 0-63 (6 bits only) and data has to be large enough
+            if ($length & 0xc0 || !isset($data[$consumed + $length - 1])) {
                 return array(null, null);
             }
 
-            $labels[] = substr($data, $consumed, $length);
-            $consumed += $length;
+            $labels[] = substr($data, $consumed + 1, $length);
+            $consumed += $length + 1;
         }
 
         return array($labels, $consumed);
     }
 
+    /**
+     * @deprecated unused, exists for BC only
+     * @codeCoverageIgnore
+     */
     public function isEndOfLabels($data, $consumed)
     {
         $length = ord(substr($data, $consumed, 1));
         return 0 === $length;
     }
 
+    /**
+     * @deprecated unused, exists for BC only
+     * @codeCoverageIgnore
+     */
     public function getCompressedLabel($data, $consumed)
     {
         list($nameOffset, $consumed) = $this->getCompressedLabelOffset($data, $consumed);
@@ -275,6 +300,10 @@ class Parser
         return array($labels, $consumed);
     }
 
+    /**
+     * @deprecated unused, exists for BC only
+     * @codeCoverageIgnore
+     */
     public function isCompressedLabel($data, $consumed)
     {
         $mask = 0xc000; // 1100000000000000
@@ -283,6 +312,10 @@ class Parser
         return (bool) ($peek & $mask);
     }
 
+    /**
+     * @deprecated unused, exists for BC only
+     * @codeCoverageIgnore
+     */
     public function getCompressedLabelOffset($data, $consumed)
     {
         $mask = 0x3fff; // 0011111111111111

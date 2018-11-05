@@ -519,12 +519,96 @@ class ParserTest extends TestCase
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testParseIncomplete()
+    public function testParseIncompleteQuestionThrows()
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
         $data .= "04 69 67 6f 72 02 69 6f 00";          // question: igor.io
         //$data .= "00 01 00 01";                         // question: type A, class IN
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $this->parser->parseMessage($data);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseIncompleteQuestionLabelThrows()
+    {
+        $data = "";
+        $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
+        $data .= "04 69 67";          // question: ig …?
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $this->parser->parseMessage($data);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseIncompleteQuestionNameThrows()
+    {
+        $data = "";
+        $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
+        $data .= "04 69 67 6f 72";          // question: igor. …?
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $this->parser->parseMessage($data);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseIncompleteOffsetPointerInQuestionNameThrows()
+    {
+        $data = "";
+        $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
+        $data .= "ff";          // question: incomplete offset pointer
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $this->parser->parseMessage($data);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseInvalidOffsetPointerInQuestionNameThrows()
+    {
+        $data = "";
+        $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
+        $data .= "ff ff";          // question: offset pointer to invalid address
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $this->parser->parseMessage($data);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseInvalidOffsetPointerToSameLabelInQuestionNameThrows()
+    {
+        $data = "";
+        $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
+        $data .= "c0 0c";          // question: offset pointer to invalid address
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $this->parser->parseMessage($data);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseInvalidOffsetPointerToStartOfMessageInQuestionNameThrows()
+    {
+        $data = "";
+        $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
+        $data .= "c0 00";          // question: offset pointer to start of message
 
         $data = $this->convertTcpDumpToBinary($data);
 
