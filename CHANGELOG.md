@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.4.16 (2018-11-11)
+
+*   Feature: Improve promise cancellation for DNS lookup retries and clean up any garbage references.
+    (#118 by @clue)
+
+*   Fix: Reject parsing malformed DNS response messages such as incomplete DNS response messages,
+    malformed record data or malformed compressed domain name labels.
+    (#115 and #117 by @clue)
+
+*   Fix: Fix interpretation of TTL as UINT32 with most significant bit unset.
+    (#116 by @clue)
+
+*   Fix: Fix caching advanced MX/SRV/TXT/SOA structures.
+    (#112 by @clue)
+
 ## 0.4.15 (2018-07-02)
 
 *   Feature: Add `resolveAll()` method to support custom query types in `Resolver`.
@@ -14,7 +29,7 @@
 *   Feature: Support parsing `NS`, `TXT`, `MX`, `SOA` and `SRV` records.
     (#104, #105, #106, #107 and #108 by @clue)
 
-*   Feature: Add support for `Message::TYPE_ANY` parse unknown types as binary data.
+*   Feature: Add support for `Message::TYPE_ANY` and parse unknown types as binary data.
     (#104 by @clue)
 
 *   Feature: Improve error messages for failed queries and improve documentation.
