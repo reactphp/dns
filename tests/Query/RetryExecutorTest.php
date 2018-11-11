@@ -162,6 +162,159 @@ class RetryExecutorTest extends TestCase
         $this->assertEquals(1, $cancelled);
     }
 
+    /**
+     * @covers React\Dns\Query\RetryExecutor
+     * @test
+     */
+    public function queryShouldCancelSecondQueryOnCancel()
+    {
+        $deferred = new Deferred();
+        $cancelled = 0;
+
+        $executor = $this->createExecutorMock();
+        $executor
+            ->expects($this->exactly(2))
+            ->method('query')
+            ->with('8.8.8.8', $this->isInstanceOf('React\Dns\Query\Query'))
+            ->will($this->onConsecutiveCalls(
+                $this->returnValue($deferred->promise()),
+                $this->returnCallback(function ($domain, $query) use (&$cancelled) {
+                    $deferred = new Deferred(function ($resolve, $reject) use (&$cancelled) {
+                        ++$cancelled;
+                        $reject(new CancellationException('Cancelled'));
+                    });
+
+                    return $deferred->promise();
+                })
+        ));
+
+        $retryExecutor = new RetryExecutor($executor, 2);
+
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $promise = $retryExecutor->query('8.8.8.8', $query);
+
+        $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
+
+        // first query will time out after a while and this sends the next query
+        $deferred->reject(new TimeoutException());
+
+        $this->assertEquals(0, $cancelled);
+        $promise->cancel();
+        $this->assertEquals(1, $cancelled);
+    }
+
+    /**
+     * @covers React\Dns\Query\RetryExecutor
+     * @test
+     */
+    public function queryShouldNotCauseGarbageReferencesOnSuccess()
+    {
+        if (class_exists('React\Promise\When')) {
+            $this->markTestSkipped('Not supported on legacy Promise v1 API');
+        }
+
+        $executor = $this->createExecutorMock();
+        $executor
+            ->expects($this->once())
+            ->method('query')
+            ->with('8.8.8.8', $this->isInstanceOf('React\Dns\Query\Query'))
+            ->willReturn(Promise\resolve($this->createStandardResponse()));
+
+        $retryExecutor = new RetryExecutor($executor, 0);
+
+        gc_collect_cycles();
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $retryExecutor->query('8.8.8.8', $query);
+
+        $this->assertEquals(0, gc_collect_cycles());
+    }
+
+    /**
+     * @covers React\Dns\Query\RetryExecutor
+     * @test
+     */
+    public function queryShouldNotCauseGarbageReferencesOnTimeoutErrors()
+    {
+        if (class_exists('React\Promise\When')) {
+            $this->markTestSkipped('Not supported on legacy Promise v1 API');
+        }
+
+        $executor = $this->createExecutorMock();
+        $executor
+            ->expects($this->any())
+            ->method('query')
+            ->with('8.8.8.8', $this->isInstanceOf('React\Dns\Query\Query'))
+            ->willReturn(Promise\reject(new TimeoutException("timeout")));
+
+        $retryExecutor = new RetryExecutor($executor, 0);
+
+        gc_collect_cycles();
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $retryExecutor->query('8.8.8.8', $query);
+
+        $this->assertEquals(0, gc_collect_cycles());
+    }
+
+    /**
+     * @covers React\Dns\Query\RetryExecutor
+     * @test
+     */
+    public function queryShouldNotCauseGarbageReferencesOnCancellation()
+    {
+        if (class_exists('React\Promise\When')) {
+            $this->markTestSkipped('Not supported on legacy Promise v1 API');
+        }
+
+        $deferred = new Deferred(function () {
+            throw new \RuntimeException();
+        });
+
+        $executor = $this->createExecutorMock();
+        $executor
+            ->expects($this->once())
+            ->method('query')
+            ->with('8.8.8.8', $this->isInstanceOf('React\Dns\Query\Query'))
+            ->willReturn($deferred->promise());
+
+        $retryExecutor = new RetryExecutor($executor, 0);
+
+        gc_collect_cycles();
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $promise = $retryExecutor->query('8.8.8.8', $query);
+        $promise->cancel();
+        $promise = null;
+
+        $this->assertEquals(0, gc_collect_cycles());
+    }
+
+    /**
+     * @covers React\Dns\Query\RetryExecutor
+     * @test
+     */
+    public function queryShouldNotCauseGarbageReferencesOnNonTimeoutErrors()
+    {
+        if (class_exists('React\Promise\When')) {
+            $this->markTestSkipped('Not supported on legacy Promise v1 API');
+        }
+
+        $executor = $this->createExecutorMock();
+        $executor
+            ->expects($this->once())
+            ->method('query')
+            ->with('8.8.8.8', $this->isInstanceOf('React\Dns\Query\Query'))
+            ->will($this->returnCallback(function ($domain, $query) {
+                return Promise\reject(new \Exception);
+            }));
+
+        $retryExecutor = new RetryExecutor($executor, 2);
+
+        gc_collect_cycles();
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $retryExecutor->query('8.8.8.8', $query);
+
+        $this->assertEquals(0, gc_collect_cycles());
+    }
+
     protected function expectPromiseOnce($return = null)
     {
         $mock = $this->createPromiseMock();

@@ -2,6 +2,7 @@
 
 namespace React\Dns\Query;
 
+use React\Promise\CancellablePromiseInterface;
 use React\Promise\Deferred;
 
 class RetryExecutor implements ExecutorInterface
@@ -22,23 +23,57 @@ class RetryExecutor implements ExecutorInterface
 
     public function tryQuery($nameserver, Query $query, $retries)
     {
-        $that = $this;
-        $errorback = function ($error) use ($nameserver, $query, $retries, $that) {
-            if (!$error instanceof TimeoutException) {
-                throw $error;
+        $deferred = new Deferred(function () use (&$promise) {
+            if ($promise instanceof CancellablePromiseInterface) {
+                $promise->cancel();
             }
-            if (0 >= $retries) {
-                throw new \RuntimeException(
-                    sprintf("DNS query for %s failed: too many retries", $query->name),
-                    0,
-                    $error
-                );
-            }
-            return $that->tryQuery($nameserver, $query, $retries-1);
+        });
+
+        $success = function ($value) use ($deferred, &$errorback) {
+            $errorback = null;
+            $deferred->resolve($value);
         };
 
-        return $this->executor
-            ->query($nameserver, $query)
-            ->then(null, $errorback);
+        $executor = $this->executor;
+        $errorback = function ($e) use ($deferred, &$promise, $nameserver, $query, $success, &$errorback, &$retries, $executor) {
+            if (!$e instanceof TimeoutException) {
+                $errorback = null;
+                $deferred->reject($e);
+            } elseif ($retries <= 0) {
+                $errorback = null;
+                $deferred->reject($e = new \RuntimeException(
+                    'DNS query for ' . $query->name . ' failed: too many retries',
+                    0,
+                    $e
+                ));
+
+                // avoid garbage references by replacing all closures in call stack.
+                // what a lovely piece of code!
+                $r = new \ReflectionProperty('Exception', 'trace');
+                $r->setAccessible(true);
+                $trace = $r->getValue($e);
+                foreach ($trace as &$one) {
+                    foreach ($one['args'] as &$arg) {
+                        if ($arg instanceof \Closure) {
+                            $arg = 'Object(' . \get_class($arg) . ')';
+                        }
+                    }
+                }
+                $r->setValue($e, $trace);
+            } else {
+                --$retries;
+                $promise = $executor->query($nameserver, $query)->then(
+                    $success,
+                    $errorback
+                );
+            }
+        };
+
+        $promise = $this->executor->query($nameserver, $query)->then(
+            $success,
+            $errorback
+        );
+
+        return $deferred->promise();
     }
 }
