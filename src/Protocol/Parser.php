@@ -66,7 +66,7 @@ class Parser
 
     public function parseHeader(Message $message)
     {
-        if (strlen($message->data) < 12) {
+        if (!isset($message->data[12 - 1])) {
             return;
         }
 
@@ -97,19 +97,11 @@ class Parser
 
     public function parseQuestion(Message $message)
     {
-        if (strlen($message->data) < 2) {
-            return;
-        }
-
         $consumed = $message->consumed;
 
         list($labels, $consumed) = $this->readLabels($message->data, $consumed);
 
-        if (null === $labels) {
-            return;
-        }
-
-        if (strlen($message->data) - $consumed < 4) {
+        if ($labels === null || !isset($message->data[$consumed + 4 - 1])) {
             return;
         }
 
@@ -133,19 +125,11 @@ class Parser
 
     public function parseAnswer(Message $message)
     {
-        if (strlen($message->data) < 2) {
-            return;
-        }
-
         $consumed = $message->consumed;
 
-        list($labels, $consumed) = $this->readLabels($message->data, $consumed);
+        list($name, $consumed) = $this->readDomain($message->data, $consumed);
 
-        if (null === $labels) {
-            return;
-        }
-
-        if (strlen($message->data) - $consumed < 10) {
+        if ($name === null || !isset($message->data[$consumed + 10 - 1])) {
             return;
         }
 
@@ -163,68 +147,85 @@ class Parser
         list($rdLength) = array_values(unpack('n', substr($message->data, $consumed, 2)));
         $consumed += 2;
 
+        if (!isset($message->data[$consumed + $rdLength - 1])) {
+            return;
+        }
+
         $rdata = null;
+        $expected = $consumed + $rdLength;
 
-        if (Message::TYPE_A === $type || Message::TYPE_AAAA === $type) {
-            $ip = substr($message->data, $consumed, $rdLength);
-            $consumed += $rdLength;
-
-            $rdata = inet_ntop($ip);
+        if (Message::TYPE_A === $type) {
+            if ($rdLength === 4) {
+                $rdata = inet_ntop(substr($message->data, $consumed, $rdLength));
+                $consumed += $rdLength;
+            }
+        } elseif (Message::TYPE_AAAA === $type) {
+            if ($rdLength === 16) {
+                $rdata = inet_ntop(substr($message->data, $consumed, $rdLength));
+                $consumed += $rdLength;
+            }
         } elseif (Message::TYPE_CNAME === $type || Message::TYPE_PTR === $type || Message::TYPE_NS === $type) {
-            list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed);
-
-            $rdata = implode('.', $bodyLabels);
+            list($rdata, $consumed) = $this->readDomain($message->data, $consumed);
         } elseif (Message::TYPE_TXT === $type) {
             $rdata = array();
-            $remaining = $rdLength;
-            while ($remaining) {
+            while ($consumed < $expected) {
                 $len = ord($message->data[$consumed]);
-                $rdata[] = substr($message->data, $consumed + 1, $len);
+                $rdata[] = (string)substr($message->data, $consumed + 1, $len);
                 $consumed += $len + 1;
-                $remaining -= $len + 1;
             }
         } elseif (Message::TYPE_MX === $type) {
-            list($priority) = array_values(unpack('n', substr($message->data, $consumed, 2)));
-            list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed + 2);
+            if ($rdLength > 2) {
+                list($priority) = array_values(unpack('n', substr($message->data, $consumed, 2)));
+                list($target, $consumed) = $this->readDomain($message->data, $consumed + 2);
 
-            $rdata = array(
-                'priority' => $priority,
-                'target' => implode('.', $bodyLabels)
-            );
+                $rdata = array(
+                    'priority' => $priority,
+                    'target' => $target
+                );
+            }
         } elseif (Message::TYPE_SRV === $type) {
-            list($priority, $weight, $port) = array_values(unpack('n*', substr($message->data, $consumed, 6)));
-            list($bodyLabels, $consumed) = $this->readLabels($message->data, $consumed + 6);
+            if ($rdLength > 6) {
+                list($priority, $weight, $port) = array_values(unpack('n*', substr($message->data, $consumed, 6)));
+                list($target, $consumed) = $this->readDomain($message->data, $consumed + 6);
 
-            $rdata = array(
-                'priority' => $priority,
-                'weight' => $weight,
-                'port' => $port,
-                'target' => implode('.', $bodyLabels)
-            );
+                $rdata = array(
+                    'priority' => $priority,
+                    'weight' => $weight,
+                    'port' => $port,
+                    'target' => $target
+                );
+            }
         } elseif (Message::TYPE_SOA === $type) {
-            list($primaryLabels, $consumed) = $this->readLabels($message->data, $consumed);
-            list($mailLabels, $consumed) = $this->readLabels($message->data, $consumed);
-            list($serial, $refresh, $retry, $expire, $minimum) = array_values(unpack('N*', substr($message->data, $consumed, 20)));
-            $consumed += 20;
+            list($mname, $consumed) = $this->readDomain($message->data, $consumed);
+            list($rname, $consumed) = $this->readDomain($message->data, $consumed);
 
-            $rdata = array(
-                'mname' => implode('.', $primaryLabels),
-                'rname' => implode('.', $mailLabels),
-                'serial' => $serial,
-                'refresh' => $refresh,
-                'retry' => $retry,
-                'expire' => $expire,
-                'minimum' => $minimum
-            );
+            if ($mname !== null && $rname !== null && isset($message->data[$consumed + 20 - 1])) {
+                list($serial, $refresh, $retry, $expire, $minimum) = array_values(unpack('N*', substr($message->data, $consumed, 20)));
+                $consumed += 20;
+
+                $rdata = array(
+                    'mname' => $mname,
+                    'rname' => $rname,
+                    'serial' => $serial,
+                    'refresh' => $refresh,
+                    'retry' => $retry,
+                    'expire' => $expire,
+                    'minimum' => $minimum
+                );
+            }
         } else {
             // unknown types simply parse rdata as an opaque binary string
             $rdata = substr($message->data, $consumed, $rdLength);
             $consumed += $rdLength;
         }
 
+        // ensure parsing record data consumes expact number of bytes indicated in record length
+        if ($consumed !== $expected || $rdata === null) {
+            return;
+        }
+
         $message->consumed = $consumed;
 
-        $name = implode('.', $labels);
         $record = new Record($name, $type, $class, $ttl, $rdata);
 
         $message->answers[] = $record;
@@ -234,6 +235,17 @@ class Parser
         }
 
         return $message;
+    }
+
+    private function readDomain($data, $consumed)
+    {
+        list ($labels, $consumed) = $this->readLabels($data, $consumed);
+
+        if ($labels === null) {
+            return array(null, null);
+        }
+
+        return array(implode('.', $labels), $consumed);
     }
 
     private function readLabels($data, $consumed)
@@ -262,6 +274,7 @@ class Parser
 
                 $consumed += 2;
                 list($newLabels) = $this->readLabels($data, $offset);
+
                 if ($newLabels === null) {
                     return array(null, null);
                 }
