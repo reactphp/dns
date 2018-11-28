@@ -42,7 +42,6 @@ class RecordCache
                     return Promise\reject();
                 }
 
-                /* @var $recordBag RecordBag */
                 $recordBag = unserialize($value);
 
                 // reject this cache hit if the query was started before the time we expired the cache?
@@ -52,8 +51,48 @@ class RecordCache
                     return Promise\reject();
                 }
 
-                return $recordBag->all();
+                return $recordBag;
             });
+    }
+
+    /**
+     * Stores an array containing all the records that were necessary to resolve the $query.
+     *
+     * @param Query $query
+     * @param array $records
+     * @param $currentTime
+     */
+    public function storeQueryResolutionRecords(Query $query, array $records, $currentTime)
+    {
+        $bags = $this->prepareRecordBags($records, $currentTime);
+
+        $this->cache->set($this->serializeQueryToIdentity($query), serialize($bags));
+    }
+
+    /**
+     * Aggregates records of the same identity on its corresponding RecordBag.
+     *
+     * @uses RecordCache::serializeRecordToIdentity() to check the identity of a record.
+     *
+     * @param Record[] $records
+     * @param $currentTime
+     * @return array Array in which the key is the identity of the bag and value is the RecordBag
+     */
+    private function prepareRecordBags(array $records, $currentTime): array
+    {
+        $recordBags = [];
+        foreach ($records as $record) {
+            $identity = $this->serializeRecordToIdentity($record);
+
+            if (isset($recordBags[$identity])) {
+                $recordBags[$identity]->set($currentTime, $record);
+            } else {
+                $recordBags[$identity] = new RecordBag();
+                $recordBags[$identity]->set($currentTime, $record);
+            }
+        }
+
+        return $recordBags;
     }
 
     /**
@@ -65,8 +104,10 @@ class RecordCache
      */
     public function storeResponseMessage($currentTime, Message $message)
     {
-        foreach ($message->answers as $record) {
-            $this->storeRecord($currentTime, $record);
+        $record = $this->prepareRecordBags($message->answers, $currentTime);
+
+        foreach ($record as $bagIdentity => $recordBag) {
+            $this->cache->set($bagIdentity, serialize($recordBag), $recordBag->expires);
         }
     }
 
@@ -101,7 +142,7 @@ class RecordCache
             )
             ->then(function (RecordBag $recordBag) use ($id, $currentTime, $record, $cache) {
                 // add a record to the existing (possibly empty) record bag and save to cache
-                $recordBag->set($currentTime, $record);
+                $recordBag->add($currentTime, $record);
                 $cache->set($id, serialize($recordBag));
             });
     }
