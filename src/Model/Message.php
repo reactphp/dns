@@ -20,6 +20,7 @@ final class Message
     const TYPE_TXT = 16;
     const TYPE_AAAA = 28;
     const TYPE_SRV = 33;
+    const TYPE_SSHFP = 44;
     const TYPE_ANY = 255;
     const TYPE_CAA = 257;
 

@@ -517,6 +517,25 @@ class ParserTest extends TestCase
         $this->assertSame('hello', $response->answers[0]->data);
     }
 
+    public function testParseSSHFPResponse()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 2c 00 01";                         // answer: type SSHFP, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 06";                               // answer: rdlength 6
+        $data .= "01 01 69 ac 09 0c";                   // answer: algorithm 1 (RSA), type 1 (SHA-1), fingerprint "69ac090c"
+
+        $response = $this->parseAnswer($data);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('igor.io', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_SSHFP, $response->answers[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
+        $this->assertSame(86400, $response->answers[0]->ttl);
+        $this->assertSame(array('algorithm' => 1, 'type' => 1, 'fingerprint' => '69ac090c'), $response->answers[0]->data);
+    }
+
     public function testParseSOAResponse()
     {
         $data = "";
@@ -889,6 +908,21 @@ class ParserTest extends TestCase
         $data .= "00 01 51 80";                         // answer: ttl 86400
         $data .= "00 06";                               // answer: rdlength 6
         $data .= "00 0a 00 14 1F 90";                   // answer: rdata priority 10, weight 20, port 8080
+
+        $this->parseAnswer($data);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseInvalidSSHFPResponseWhereRecordIsTooSmall()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 2c 00 01";                         // answer: type SSHFP, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 02";                               // answer: rdlength 2
+        $data .= "01 01";                               // answer: algorithm 1 (RSA), type 1 (SHA), missing fingerprint
 
         $this->parseAnswer($data);
     }

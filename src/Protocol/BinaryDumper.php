@@ -131,6 +131,14 @@ final class BinaryDumper
                     $binary .= $record->data['tag'];
                     $binary .= $record->data['value'];
                     break;
+                case Message::TYPE_SSHFP:
+                    $binary = \pack(
+                        'CCH*',
+                        $record->data['algorithm'],
+                        $record->data['type'],
+                        $record->data['fingerprint']
+                    );
+                    break;
                 default:
                     // RDATA is already stored as binary value for unknown record types
                     $binary = $record->data;

@@ -49,9 +49,14 @@ $executor->query($any)->then(function (Message $message) {
                 $data = implode(' ', $data);
                 break;
             case Message::TYPE_SRV:
-                // SRV records contains priority, weight, port and target, dump structure here
+                // SRV records contain priority, weight, port and target, dump structure here
                 $type = 'SRV';
                 $data = json_encode($data);
+                break;
+            case Message::TYPE_SSHFP:
+                // SSHFP records contain algorithm, fingerprint type and hex fingerprint value
+                $type = 'SSHFP';
+                $data = implode(' ', $data);
                 break;
             case Message::TYPE_SOA:
                 // SOA records contain structured data, dump structure here

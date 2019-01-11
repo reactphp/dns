@@ -200,6 +200,18 @@ final class Parser
                     'target' => $target
                 );
             }
+        } elseif (Message::TYPE_SSHFP === $type) {
+            if ($rdLength > 2) {
+                list($algorithm, $hash) = \array_values(\unpack('C*', \substr($message->data, $consumed, 2)));
+                $fingerprint = \bin2hex(\substr($message->data, $consumed + 2, $rdLength - 2));
+                $consumed += $rdLength;
+
+                $rdata = array(
+                    'algorithm' => $algorithm,
+                    'type' => $hash,
+                    'fingerprint' => $fingerprint
+                );
+            }
         } elseif (Message::TYPE_SOA === $type) {
             list($mname, $consumed) = $this->readDomain($message->data, $consumed);
             list($rname, $consumed) = $this->readDomain($message->data, $consumed);
