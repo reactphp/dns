@@ -8,7 +8,7 @@ use React\Dns\Model\Record;
 use React\Promise;
 
 /**
- * Resolves hosts from the givne HostsFile or falls back to another executor
+ * Resolves hosts from the given HostsFile or falls back to another executor
  *
  * If the host is found in the hosts file, it will not be passed to the actual
  * DNS executor. If the host is not found in the hosts file, it will be passed

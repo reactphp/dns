@@ -6,6 +6,7 @@ use React\Cache\ArrayCache;
 use React\Cache\CacheInterface;
 use React\Dns\Config\HostsFile;
 use React\Dns\Query\CachedExecutor;
+use React\Dns\Query\CoopExecutor;
 use React\Dns\Query\ExecutorInterface;
 use React\Dns\Query\HostsFileExecutor;
 use React\Dns\Query\RecordCache;
@@ -77,7 +78,7 @@ class Factory
 
     protected function createRetryExecutor(LoopInterface $loop)
     {
-        return new RetryExecutor($this->createExecutor($loop));
+        return new CoopExecutor(new RetryExecutor($this->createExecutor($loop)));
     }
 
     protected function createCachedExecutor(LoopInterface $loop, CacheInterface $cache)
