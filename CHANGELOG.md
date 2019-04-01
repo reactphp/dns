@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.4.17 (2019-04-01)
+
+*   Feature: Support parsing `authority` and `additional` records from DNS response.
+    (#123 by @clue)
+
+*   Feature: Support dumping records as part of outgoing binary DNS message.
+    (#124 by @clue)
+
+*   Feature: Forward compatibility with upcoming Cache v0.6 and Cache v1.0
+    (#121 by @clue)
+
+*   Improve test suite to add forward compatibility with PHPUnit 7,
+    test against PHP 7.3 and use legacy PHPUnit 5 on legacy HHVM.
+    (#122 by @clue)
+
 ## 0.4.16 (2018-11-11)
 
 *   Feature: Improve promise cancellation for DNS lookup retries and clean up any garbage references.
