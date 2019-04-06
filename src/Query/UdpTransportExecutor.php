@@ -60,6 +60,26 @@ use React\Promise\Deferred;
  * );
  * ```
  *
+ * Note that this executor is entirely async and as such allows you to execute
+ * any number of queries concurrently. You should probably limit the number of
+ * concurrent queries in your application or you're very likely going to face
+ * rate limitations and bans on the resolver end. For many common applications,
+ * you may want to avoid sending the same query multiple times when the first
+ * one is still pending, so you will likely want to use this in combination with
+ * a `CoopExecutor` like this:
+ *
+ * ```php
+ * $executor = new CoopExecutor(
+ *     new RetryExecutor(
+ *         new TimeoutExecutor(
+ *             new UdpTransportExecutor($loop),
+ *             3.0,
+ *             $loop
+ *         )
+ *     )
+ * );
+ * ```
+ *
  * > Internally, this class uses PHP's UDP sockets and does not take advantage
  *   of [react/datagram](https://github.com/reactphp/datagram) purely for
  *   organizational reasons to avoid a cyclic dependency between the two
