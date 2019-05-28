@@ -122,6 +122,15 @@ final class BinaryDumper
                         $record->data['minimum']
                     );
                     break;
+                case Message::TYPE_CAA:
+                    $binary = \pack(
+                        'C*',
+                        $record->data['flag'],
+                        \strlen($record->data['tag'])
+                    );
+                    $binary .= $record->data['tag'];
+                    $binary .= $record->data['value'];
+                    break;
                 default:
                     // RDATA is already stored as binary value for unknown record types
                     $binary = $record->data;

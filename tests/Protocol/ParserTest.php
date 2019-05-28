@@ -550,6 +550,26 @@ class ParserTest extends TestCase
         );
     }
 
+    public function testParseCAAResponse()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "01 01 00 01";                         // answer: type CAA, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 16";                               // answer: rdlength 22
+        $data .= "00 05 69 73 73 75 65";                // answer: rdata 0, issue
+        $data .= "6c 65 74 73 65 6e 63 72 79 70 74 2e 6f 72 67"; // answer: letsencrypt.org
+
+        $response = $this->parseAnswer($data);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('igor.io', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_CAA, $response->answers[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
+        $this->assertSame(86400, $response->answers[0]->ttl);
+        $this->assertSame(array('flag' => 0, 'tag' => 'issue', 'value' => 'letsencrypt.org'), $response->answers[0]->data);
+    }
+
     public function testParsePTRResponse()
     {
         $data = "";
@@ -885,6 +905,51 @@ class ParserTest extends TestCase
         $data .= "00 13";                               // answer: rdlength 19
         $data .= "02 6e 73 05 68 65 6c 6c 6f 00";       // answer: rdata ns.hello (mname)
         $data .= "01 65 05 68 65 6c 6c 6f 00";          // answer: rdata e.hello (rname)
+
+        $this->parseAnswer($data);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseInvalidCAAResponseEmtpyData()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "01 01 00 01";                         // answer: type CAA, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 00";                               // answer: rdlength 0
+
+        $this->parseAnswer($data);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseInvalidCAAResponseMissingValue()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "01 01 00 01";                         // answer: type CAA, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 07";                               // answer: rdlength 22
+        $data .= "00 05 69 73 73 75 65";                // answer: rdata 0, issue
+
+        $this->parseAnswer($data);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseInvalidCAAResponseIncompleteTag()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "01 01 00 01";                         // answer: type CAA, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 0c";                               // answer: rdlength 22
+        $data .= "00 ff 69 73 73 75 65";                // answer: rdata 0, issue (incomplete due to invalid tag length)
+        $data .= "68 65 6c 6c 6f";                      // answer: hello
 
         $this->parseAnswer($data);
     }

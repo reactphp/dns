@@ -180,21 +180,30 @@ class BinaryDumperTest extends TestCase
     public function testToBinaryForResponseWithMultipleAnswerRecords()
     {
         $data = "";
-        $data .= "72 62 01 00 00 01 00 04 00 00 00 00"; // header
+        $data .= "72 62 01 00 00 01 00 05 00 00 00 00"; // header
         $data .= "04 69 67 6f 72 02 69 6f 00";          // question: igor.io
         $data .= "00 ff 00 01";                         // question: type ANY, class IN
+
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
         $data .= "00 01 00 01 00 00 00 00 00 04";       // answer: type A, class IN, TTL 0, 4 bytes
         $data .= "7f 00 00 01";                         // answer: 127.0.0.1
+
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
         $data .= "00 1c 00 01 00 00 00 00 00 10";       // question: type AAAA, class IN, TTL 0, 16 bytes
         $data .= "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01"; // answer: ::1
+
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
         $data .= "00 10 00 01 00 00 00 00 00 0c";       // answer: type TXT, class IN, TTL 0, 12 bytes
         $data .= "05 68 65 6c 6c 6f 05 77 6f 72 6c 64"; // answer: hello, world
+
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
-        $data .= "00 0f 00 01 00 00 00 00 00 03";       // anwser: type MX, class IN, TTL 0, 3 bytes
-        $data .= "00 00 00";                            // priority 0, no target
+        $data .= "00 0f 00 01 00 00 00 00 00 03";       // answer: type MX, class IN, TTL 0, 3 bytes
+        $data .= "00 00 00";                            // answer: … priority 0, no target
+
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io …
+        $data .= "01 01 00 01 00 00 00 00 00 16";       // answer: type CAA, class IN, TTL 0, 22 bytes
+        $data .= "00 05 69 73 73 75 65";                // answer: 0 issue …
+        $data .= "6c 65 74 73 65 6e 63 72 79 70 74 2e 6f 72 67"; // answer: … letsencrypt.org
 
         $expected = $this->formatHexDump($data);
 
@@ -213,6 +222,7 @@ class BinaryDumperTest extends TestCase
         $response->answers[] = new Record('igor.io', Message::TYPE_AAAA, Message::CLASS_IN, 0, '::1');
         $response->answers[] = new Record('igor.io', Message::TYPE_TXT, Message::CLASS_IN, 0, array('hello', 'world'));
         $response->answers[] = new Record('igor.io', Message::TYPE_MX, Message::CLASS_IN, 0, array('priority' => 0, 'target' => ''));
+        $response->answers[] = new Record('igor.io', Message::TYPE_CAA, Message::CLASS_IN, 0, array('flag' => 0, 'tag' => 'issue', 'value' => 'letsencrypt.org'));
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($response);

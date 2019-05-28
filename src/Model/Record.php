@@ -84,6 +84,9 @@ final class Record
      *   minimum times in seconds (UINT32 each), for example:
      *   `{"mname":"ns.example.com","rname":"hostmaster.example.com","serial":
      *   2018082601,"refresh":3600,"retry":1800,"expire":60000,"minimum":3600}`.
+     * - CAA:
+     *   Includes flag (UNIT8), tag string and value string, for example:
+     *   `{"flag":128,"tag":"issue","value":"letsencrypt.org"}`
      * - Any other unknown type:
      *   An opaque binary string containing the RDATA as transported in the DNS
      *   record. For forwards compatibility, you should not rely on this format

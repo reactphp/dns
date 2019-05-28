@@ -218,6 +218,22 @@ final class Parser
                     'minimum' => $minimum
                 );
             }
+        } elseif (Message::TYPE_CAA === $type) {
+            if ($rdLength > 3) {
+                list($flag, $tagLength) = array_values(unpack('C*', substr($message->data, $consumed, 2)));
+
+                if ($tagLength > 0 && $rdLength - 2 - $tagLength > 0) {
+                    $tag = substr($message->data, $consumed + 2, $tagLength);
+                    $value = substr($message->data, $consumed + 2 + $tagLength, $rdLength - 2 - $tagLength);
+                    $consumed += $rdLength;
+
+                    $rdata = array(
+                        'flag' => $flag,
+                        'tag' => $tag,
+                        'value' => $value
+                    );
+                }
+            }
         } else {
             // unknown types simply parse rdata as an opaque binary string
             $rdata = substr($message->data, $consumed, $rdLength);
