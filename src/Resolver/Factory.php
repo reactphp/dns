@@ -26,8 +26,9 @@ class Factory
 
     public function createCached($nameserver, LoopInterface $loop, CacheInterface $cache = null)
     {
+        // default to keeping maximum of 256 responses in cache unless explicitly given
         if (!($cache instanceof CacheInterface)) {
-            $cache = new ArrayCache();
+            $cache = new ArrayCache(256);
         }
 
         $nameserver = $this->addPortToServerIfMissing($nameserver);
