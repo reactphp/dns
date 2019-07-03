@@ -101,8 +101,6 @@ class CachingExecutorTest extends TestCase
 
     public function testCancelQueryWillReturnRejectedPromiseAndCancelPendingPromiseFromCache()
     {
-        $this->markTestIncomplete();
-
         $fallback = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
         $fallback->expects($this->never())->method('query');
 
@@ -122,8 +120,6 @@ class CachingExecutorTest extends TestCase
 
     public function testCancelQueryWillReturnRejectedPromiseAndCancelPendingPromiseFromFallbackExecutorWhenCacheReturnsMiss()
     {
-        $this->markTestIncomplete();
-
         $pending = new Promise(function () { }, $this->expectCallableOnce());
         $fallback = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
         $fallback->expects($this->once())->method('query')->willReturn($pending);
