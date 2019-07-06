@@ -42,6 +42,9 @@ class ParserTest extends TestCase
 
         $request = $this->parser->parseMessage($data);
 
+        $this->assertFalse(isset($request->data));
+        $this->assertFalse(isset($request->consumed));
+
         $header = $request->header;
         $this->assertSame(0x7262, $header->get('id'));
         $this->assertSame(1, $header->get('qdCount'));
@@ -107,9 +110,10 @@ class ParserTest extends TestCase
         $this->assertSame('178.79.169.131', $response->answers[0]->data);
     }
 
-    public function testParseQuestionWithTwoQuestions()
+    public function testParseRequestWithTwoQuestions()
     {
         $data = "";
+        $data .= "72 62 01 00 00 02 00 00 00 00 00 00";     // header
         $data .= "04 69 67 6f 72 02 69 6f 00";              // question: igor.io
         $data .= "00 01 00 01";                             // question: type A, class IN
         $data .= "03 77 77 77 04 69 67 6f 72 02 69 6f 00";  // question: www.igor.io
@@ -117,11 +121,7 @@ class ParserTest extends TestCase
 
         $data = $this->convertTcpDumpToBinary($data);
 
-        $request = new Message();
-        $request->header->set('qdCount', 2);
-        $request->data = $data;
-
-        $this->parser->parseQuestion($request);
+        $request = $this->parser->parseMessage($data);
 
         $this->assertCount(2, $request->questions);
         $this->assertSame('igor.io', $request->questions[0]['name']);
@@ -141,13 +141,7 @@ class ParserTest extends TestCase
         $data .= "00 04";                               // answer: rdlength 4
         $data .= "b2 4f a9 83";                         // answer: rdata 178.79.169.131
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
+        $response = $this->parseAnswer($data);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('igor.io', $response->answers[0]->name);
@@ -166,13 +160,7 @@ class ParserTest extends TestCase
         $data .= "00 04";                               // answer: rdlength 4
         $data .= "b2 4f a9 83";                         // answer: rdata 178.79.169.131
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
+        $response = $this->parseAnswer($data);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('igor.io', $response->answers[0]->name);
@@ -191,13 +179,7 @@ class ParserTest extends TestCase
         $data .= "00 04";                               // answer: rdlength 4
         $data .= "b2 4f a9 83";                         // answer: rdata 178.79.169.131
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
+        $response = $this->parseAnswer($data);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('igor.io', $response->answers[0]->name);
@@ -216,13 +198,7 @@ class ParserTest extends TestCase
         $data .= "00 04";                               // answer: rdlength 4
         $data .= "b2 4f a9 83";                         // answer: rdata 178.79.169.131
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
+        $response = $this->parseAnswer($data);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('igor.io', $response->answers[0]->name);
@@ -241,13 +217,7 @@ class ParserTest extends TestCase
         $data .= "00 05";                               // answer: rdlength 5
         $data .= "68 65 6c 6c 6f";                      // answer: rdata "hello"
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
+        $response = $this->parseAnswer($data);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('igor.io', $response->answers[0]->name);
@@ -340,13 +310,7 @@ class ParserTest extends TestCase
         $data .= "00 06";                               // answer: rdlength 6
         $data .= "05 68 65 6c 6c 6f";                   // answer: rdata length 5: hello
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
+        $response = $this->parseAnswer($data);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('igor.io', $response->answers[0]->name);
@@ -365,13 +329,7 @@ class ParserTest extends TestCase
         $data .= "00 0C";                               // answer: rdlength 12
         $data .= "05 68 65 6c 6c 6f 05 77 6f 72 6c 64"; // answer: rdata length 5: hello, length 5: world
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
+        $response = $this->parseAnswer($data);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('igor.io', $response->answers[0]->name);
@@ -390,13 +348,7 @@ class ParserTest extends TestCase
         $data .= "00 09";                               // answer: rdlength 9
         $data .= "00 0a 05 68 65 6c 6c 6f 00";          // answer: rdata priority 10: hello
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
+        $response = $this->parseAnswer($data);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('igor.io', $response->answers[0]->name);
@@ -415,13 +367,7 @@ class ParserTest extends TestCase
         $data .= "00 0C";                               // answer: rdlength 12
         $data .= "00 0a 00 14 1F 90 04 74 65 73 74 00"; // answer: rdata priority 10, weight 20, port 8080 test
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
+        $response = $this->parseAnswer($data);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('igor.io', $response->answers[0]->name);
@@ -579,13 +525,7 @@ class ParserTest extends TestCase
         $data .= "00 07";                               // answer: rdlength 7
         $data .= "05 68 65 6c 6c 6f 00";                // answer: rdata hello
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
+        $response = $this->parseAnswer($data);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('igor.io', $response->answers[0]->name);
@@ -607,13 +547,7 @@ class ParserTest extends TestCase
         $data .= "78 49 28 D5 00 00 2a 30 00 00 0e 10"; // answer: rdata 2018060501, 10800, 3600
         $data .= "00 09 3a 80 00 00 0e 10";             // answer: 605800, 3600
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
+        $response = $this->parseAnswer($data);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('igor.io', $response->answers[0]->name);
@@ -846,6 +780,9 @@ class ParserTest extends TestCase
         $this->parser->parseMessage($data);
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testParseInvalidNSResponseWhereDomainNameIsMissing()
     {
         $data = "";
@@ -854,17 +791,12 @@ class ParserTest extends TestCase
         $data .= "00 01 51 80";                         // answer: ttl 86400
         $data .= "00 00";                               // answer: rdlength 0
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
-
-        $this->assertCount(0, $response->answers);
+        $this->parseAnswer($data);
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testParseInvalidAResponseWhereIPIsMissing()
     {
         $data = "";
@@ -873,17 +805,12 @@ class ParserTest extends TestCase
         $data .= "00 01 51 80";                         // answer: ttl 86400
         $data .= "00 00";                               // answer: rdlength 0
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
-
-        $this->assertCount(0, $response->answers);
+        $this->parseAnswer($data);
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testParseInvalidAAAAResponseWhereIPIsMissing()
     {
         $data = "";
@@ -892,17 +819,12 @@ class ParserTest extends TestCase
         $data .= "00 01 51 80";                         // answer: ttl 86400
         $data .= "00 00";                               // answer: rdlength 0
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
-
-        $this->assertCount(0, $response->answers);
+        $this->parseAnswer($data);
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testParseInvalidTXTResponseWhereTxtChunkExceedsLimit()
     {
         $data = "";
@@ -912,17 +834,12 @@ class ParserTest extends TestCase
         $data .= "00 06";                               // answer: rdlength 6
         $data .= "06 68 65 6c 6c 6f 6f";                // answer: rdata length 6: helloo
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
-
-        $this->assertCount(0, $response->answers);
+        $this->parseAnswer($data);
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testParseInvalidMXResponseWhereDomainNameIsIncomplete()
     {
         $data = "";
@@ -932,17 +849,12 @@ class ParserTest extends TestCase
         $data .= "00 08";                               // answer: rdlength 8
         $data .= "00 0a 05 68 65 6c 6c 6f";             // answer: rdata priority 10: hello (missing label end)
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
-
-        $this->assertCount(0, $response->answers);
+        $this->parseAnswer($data);
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testParseInvalidMXResponseWhereDomainNameIsMissing()
     {
         $data = "";
@@ -952,17 +864,12 @@ class ParserTest extends TestCase
         $data .= "00 02";                               // answer: rdlength 2
         $data .= "00 0a";                               // answer: rdata priority 10
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
-
-        $this->assertCount(0, $response->answers);
+        $this->parseAnswer($data);
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testParseInvalidSRVResponseWhereDomainNameIsIncomplete()
     {
         $data = "";
@@ -972,17 +879,12 @@ class ParserTest extends TestCase
         $data .= "00 0b";                               // answer: rdlength 11
         $data .= "00 0a 00 14 1F 90 04 74 65 73 74";    // answer: rdata priority 10, weight 20, port 8080 test (missing label end)
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
-
-        $this->assertCount(0, $response->answers);
+        $this->parseAnswer($data);
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testParseInvalidSRVResponseWhereDomainNameIsMissing()
     {
         $data = "";
@@ -992,17 +894,12 @@ class ParserTest extends TestCase
         $data .= "00 06";                               // answer: rdlength 6
         $data .= "00 0a 00 14 1F 90";                   // answer: rdata priority 10, weight 20, port 8080
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
-
-        $this->assertCount(0, $response->answers);
+        $this->parseAnswer($data);
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testParseInvalidSOAResponseWhereFlagsAreMissing()
     {
         $data = "";
@@ -1013,15 +910,7 @@ class ParserTest extends TestCase
         $data .= "02 6e 73 05 68 65 6c 6c 6f 00";       // answer: rdata ns.hello (mname)
         $data .= "01 65 05 68 65 6c 6c 6f 00";          // answer: rdata e.hello (rname)
 
-        $data = $this->convertTcpDumpToBinary($data);
-
-        $response = new Message();
-        $response->header->set('anCount', 1);
-        $response->data = $data;
-
-        $this->parser->parseAnswer($response);
-
-        $this->assertCount(0, $response->answers);
+        $this->parseAnswer($data);
     }
 
     private function convertTcpDumpToBinary($input)
@@ -1029,5 +918,15 @@ class ParserTest extends TestCase
         // sudo ngrep -d en1 -x port 53
 
         return pack('H*', str_replace(' ', '', $input));
+    }
+
+    private function parseAnswer($answerData)
+    {
+        $data  = "72 62 81 80 00 00 00 01 00 00 00 00"; // header with one answer only
+        $data .= $answerData;
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        return $this->parser->parseMessage($data);
     }
 }

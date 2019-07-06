@@ -3,9 +3,9 @@
 namespace React\Tests\Dns\Protocol;
 
 use PHPUnit\Framework\TestCase;
-use React\Dns\Protocol\BinaryDumper;
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
+use React\Dns\Protocol\BinaryDumper;
 
 class BinaryDumperTest extends TestCase
 {

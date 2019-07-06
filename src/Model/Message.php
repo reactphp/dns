@@ -140,16 +140,6 @@ class Message
      */
     public $additional = array();
 
-    /**
-     * @deprecated still used internally for BC reasons, should not be used externally.
-     */
-    public $data = '';
-
-    /**
-     * @deprecated still used internally for BC reasons, should not be used externally.
-     */
-    public $consumed = 0;
-
     public function __construct()
     {
         $this->header = new HeaderBag();

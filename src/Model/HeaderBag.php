@@ -19,11 +19,6 @@ class HeaderBag
         'rcode'     => Message::RCODE_OK,
     );
 
-    /**
-     * @deprecated unused, exists for BC only
-     */
-    public $data = '';
-
     public function get($name)
     {
         return isset($this->attributes[$name]) ? $this->attributes[$name] : null;

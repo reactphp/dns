@@ -38,7 +38,7 @@ class TimeoutExecutorTest extends TestCase
                 return $deferred->promise();
             }));
 
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $promise = $this->executor->query('8.8.8.8:53', $query);
 
         $this->assertEquals(0, $cancelled);
@@ -55,7 +55,7 @@ class TimeoutExecutorTest extends TestCase
             ->method('query')
             ->willReturn(Promise\resolve('0.0.0.0'));
 
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $promise = $this->executor->query('8.8.8.8:53', $query);
 
         $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
@@ -68,7 +68,7 @@ class TimeoutExecutorTest extends TestCase
             ->method('query')
             ->willReturn(Promise\reject(new \RuntimeException()));
 
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $promise = $this->executor->query('8.8.8.8:53', $query);
 
         $promise->then($this->expectCallableNever(), $this->expectCallableOnceWith(new \RuntimeException()));
@@ -103,7 +103,7 @@ class TimeoutExecutorTest extends TestCase
                 $this->attribute($this->equalTo('DNS query for igor.io timed out'), 'message')
             ));
 
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $this->executor->query('8.8.8.8:53', $query)->then($callback, $errorback);
 
         $this->assertEquals(0, $cancelled);

@@ -29,7 +29,7 @@ class RetryExecutorTest extends TestCase
 
         $retryExecutor = new RetryExecutor($executor, 2);
 
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $retryExecutor->query('8.8.8.8', $query);
     }
 
@@ -65,7 +65,7 @@ class RetryExecutorTest extends TestCase
 
         $retryExecutor = new RetryExecutor($executor, 2);
 
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $retryExecutor->query('8.8.8.8', $query)->then($callback, $errorback);
     }
 
@@ -94,7 +94,7 @@ class RetryExecutorTest extends TestCase
 
         $retryExecutor = new RetryExecutor($executor, 2);
 
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $retryExecutor->query('8.8.8.8', $query)->then($callback, $errorback);
     }
 
@@ -123,7 +123,7 @@ class RetryExecutorTest extends TestCase
 
         $retryExecutor = new RetryExecutor($executor, 2);
 
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $retryExecutor->query('8.8.8.8', $query)->then($callback, $errorback);
     }
 
@@ -152,7 +152,7 @@ class RetryExecutorTest extends TestCase
 
         $retryExecutor = new RetryExecutor($executor, 2);
 
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $promise = $retryExecutor->query('8.8.8.8', $query);
 
         $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
@@ -190,7 +190,7 @@ class RetryExecutorTest extends TestCase
 
         $retryExecutor = new RetryExecutor($executor, 2);
 
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $promise = $retryExecutor->query('8.8.8.8', $query);
 
         $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
@@ -223,7 +223,7 @@ class RetryExecutorTest extends TestCase
         $retryExecutor = new RetryExecutor($executor, 0);
 
         gc_collect_cycles();
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $retryExecutor->query('8.8.8.8', $query);
 
         $this->assertEquals(0, gc_collect_cycles());
@@ -249,7 +249,7 @@ class RetryExecutorTest extends TestCase
         $retryExecutor = new RetryExecutor($executor, 0);
 
         gc_collect_cycles();
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $retryExecutor->query('8.8.8.8', $query);
 
         $this->assertEquals(0, gc_collect_cycles());
@@ -279,7 +279,7 @@ class RetryExecutorTest extends TestCase
         $retryExecutor = new RetryExecutor($executor, 0);
 
         gc_collect_cycles();
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $promise = $retryExecutor->query('8.8.8.8', $query);
         $promise->cancel();
         $promise = null;
@@ -309,7 +309,7 @@ class RetryExecutorTest extends TestCase
         $retryExecutor = new RetryExecutor($executor, 2);
 
         gc_collect_cycles();
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $retryExecutor->query('8.8.8.8', $query);
 
         $this->assertEquals(0, gc_collect_cycles());

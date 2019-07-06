@@ -2,27 +2,31 @@
 
 namespace React\Tests\Dns\Resolver;
 
-use PHPUnit\Framework\TestCase;
+use React\Tests\Dns\TestCase;
 use React\Dns\Resolver\Resolver;
-use React\Dns\Query\Query;
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
 
 class ResolveAliasesTest extends TestCase
 {
     /**
-     * @covers React\Dns\Resolver\Resolver::resolveAliases
-     * @covers React\Dns\Resolver\Resolver::valuesByNameAndType
      * @dataProvider provideAliasedAnswers
      */
     public function testResolveAliases(array $expectedAnswers, array $answers, $name)
     {
+        $message = new Message();
+        foreach ($answers as $answer) {
+            $message->answers[] = $answer;
+        }
+
         $executor = $this->createExecutorMock();
+        $executor->expects($this->once())->method('query')->willReturn(\React\Promise\resolve($message));
+
         $resolver = new Resolver('8.8.8.8:53', $executor);
 
-        $answers = $resolver->resolveAliases($answers, $name);
+        $answers = $resolver->resolveAll($name, Message::TYPE_A);
 
-        $this->assertEquals($expectedAnswers, $answers);
+        $answers->then($this->expectCallableOnceWith($expectedAnswers), null);
     }
 
     public function provideAliasedAnswers()
@@ -50,14 +54,6 @@ class ResolveAliasesTest extends TestCase
                     new Record('igor.io', Message::TYPE_A, Message::CLASS_IN, 3600, '178.79.169.131'),
                     new Record('foo.igor.io', Message::TYPE_A, Message::CLASS_IN, 3600, '178.79.169.131'),
                     new Record('bar.igor.io', Message::TYPE_A, Message::CLASS_IN, 3600, '178.79.169.131'),
-                ),
-                'igor.io',
-            ),
-            array(
-                array(),
-                array(
-                    new Record('foo.igor.io', Message::TYPE_A, Message::CLASS_IN),
-                    new Record('bar.igor.io', Message::TYPE_A, Message::CLASS_IN),
                 ),
                 'igor.io',
             ),
