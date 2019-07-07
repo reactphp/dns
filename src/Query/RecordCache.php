@@ -37,7 +37,7 @@ class RecordCache
         return $this->cache
             ->get($id)
             ->then(function ($value) use ($query, $expiredAt) {
-                // cache 0.5+ resolves with null on cache miss, return explicit cache miss here
+                // reject on cache miss
                 if ($value === null) {
                     return Promise\reject();
                 }
@@ -86,17 +86,13 @@ class RecordCache
             ->get($id)
             ->then(
                 function ($value) {
+                    // return empty bag on cache miss
                     if ($value === null) {
-                        // cache 0.5+ cache miss resolves with null, return empty bag here
                         return new RecordBag();
                     }
 
                     // reuse existing bag on cache hit to append new record to it
                     return unserialize($value);
-                },
-                function ($e) {
-                    // legacy cache < 0.5 cache miss rejects promise, return empty bag here
-                    return new RecordBag();
                 }
             )
             ->then(function (RecordBag $recordBag) use ($id, $currentTime, $record, $cache) {
