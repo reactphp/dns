@@ -10,6 +10,9 @@ use React\Promise\PromiseInterface;
 
 /**
  * Wraps an underlying cache interface and exposes only cached DNS data
+ *
+ * @deprecated unused, exists for BC only
+ * @see CachingExecutor
  */
 class RecordCache
 {

@@ -4,6 +4,10 @@ namespace React\Dns\Query;
 
 use React\Dns\Model\Record;
 
+/**
+ * @deprecated unused, exists for BC only
+ * @see CachingExecutor
+ */
 class RecordBag
 {
     private $records = array();

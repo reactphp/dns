@@ -4,6 +4,10 @@ namespace React\Dns\Query;
 
 use React\Dns\Model\Message;
 
+/**
+ * @deprecated unused, exists for BC only
+ * @see CachingExecutor
+ */
 class CachedExecutor implements ExecutorInterface
 {
     private $executor;
