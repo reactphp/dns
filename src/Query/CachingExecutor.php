@@ -43,8 +43,10 @@ class CachingExecutor implements ExecutorInterface
                     // perform DNS lookup if not already cached
                     return $pending = $executor->query($nameserver, $query)->then(
                         function (Message $message) use ($cache, $id) {
-                            // DNS response message received => store in cache and return
-                            $cache->set($id, $message, CachingExecutor::TTL);
+                            // DNS response message received => store in cache when not truncated and return
+                            if (!$message->header->isTruncated()) {
+                                $cache->set($id, $message, CachingExecutor::TTL);
+                            }
 
                             return $message;
                         }

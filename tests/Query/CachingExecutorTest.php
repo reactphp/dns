@@ -82,6 +82,26 @@ class CachingExecutorTest extends TestCase
         $promise->then($this->expectCallableOnceWith($message), $this->expectCallableNever());
     }
 
+    public function testQueryWillReturnResolvedPromiseWhenCacheReturnsMissAndFallbackExecutorResolvesWithTruncatedResponseButShouldNotSaveTruncatedMessageToCache()
+    {
+        $message = new Message();
+        $message->header->set('tc', 1);
+        $fallback = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
+        $fallback->expects($this->once())->method('query')->willReturn(\React\Promise\resolve($message));
+
+        $cache = $this->getMockBuilder('React\Cache\CacheInterface')->getMock();
+        $cache->expects($this->once())->method('get')->with('reactphp.org:1:1')->willReturn(\React\Promise\resolve(null));
+        $cache->expects($this->never())->method('set');
+
+        $executor = new CachingExecutor($fallback, $cache);
+
+        $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
+
+        $promise = $executor->query('8.8.8.8', $query);
+
+        $promise->then($this->expectCallableOnceWith($message), $this->expectCallableNever());
+    }
+
     public function testQueryWillReturnRejectedPromiseWhenCacheReturnsMissAndFallbackExecutorRejects()
     {
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
