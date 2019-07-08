@@ -8,6 +8,7 @@ use React\Dns\Query\Query;
 use React\Promise\Promise;
 use React\Tests\Dns\TestCase;
 use React\Promise\Deferred;
+use React\Dns\Model\Record;
 
 class CachingExecutorTest extends TestCase
 {
@@ -63,7 +64,28 @@ class CachingExecutorTest extends TestCase
         $promise->then($this->expectCallableOnceWith($message), $this->expectCallableNever());
     }
 
-    public function testQueryWillReturnResolvedPromiseWhenCacheReturnsMissAndFallbackExecutorResolvesAndSaveMessageToCache()
+    public function testQueryWillReturnResolvedPromiseWhenCacheReturnsMissAndFallbackExecutorResolvesAndSaveMessageToCacheWithMinimumTtlFromRecord()
+    {
+        $message = new Message();
+        $message->answers[] = new Record('reactphp.org', Message::TYPE_A, Message::CLASS_IN, 3700, '127.0.0.1');
+        $message->answers[] = new Record('reactphp.org', Message::TYPE_A, Message::CLASS_IN, 3600, '127.0.0.1');
+        $fallback = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
+        $fallback->expects($this->once())->method('query')->willReturn(\React\Promise\resolve($message));
+
+        $cache = $this->getMockBuilder('React\Cache\CacheInterface')->getMock();
+        $cache->expects($this->once())->method('get')->with('reactphp.org:1:1')->willReturn(\React\Promise\resolve(null));
+        $cache->expects($this->once())->method('set')->with('reactphp.org:1:1', $message, 3600);
+
+        $executor = new CachingExecutor($fallback, $cache);
+
+        $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
+
+        $promise = $executor->query('8.8.8.8', $query);
+
+        $promise->then($this->expectCallableOnceWith($message), $this->expectCallableNever());
+    }
+
+    public function testQueryWillReturnResolvedPromiseWhenCacheReturnsMissAndFallbackExecutorResolvesAndSaveMessageToCacheWithDefaultTtl()
     {
         $message = new Message();
         $fallback = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();

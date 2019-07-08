@@ -9,8 +9,7 @@ use React\Promise\Promise;
 class CachingExecutor implements ExecutorInterface
 {
     /**
-     * Initial implementation uses a fixed TTL for postive DNS responses as well
-     * as negative responses (NXDOMAIN etc.).
+     * Default TTL for negative responses (NXDOMAIN etc.).
      *
      * @internal
      */
@@ -29,12 +28,13 @@ class CachingExecutor implements ExecutorInterface
     {
         $id = $query->name . ':' . $query->type . ':' . $query->class;
         $cache = $this->cache;
+        $that = $this;
         $executor = $this->executor;
 
         $pending = $cache->get($id);
-        return new Promise(function ($resolve, $reject) use ($nameserver, $query, $id, $cache, $executor, &$pending) {
+        return new Promise(function ($resolve, $reject) use ($nameserver, $query, $id, $cache, $executor, &$pending, $that) {
             $pending->then(
-                function ($message) use ($nameserver, $query, $id, $cache, $executor, &$pending) {
+                function ($message) use ($nameserver, $query, $id, $cache, $executor, &$pending, $that) {
                     // return cached response message on cache hit
                     if ($message !== null) {
                         return $message;
@@ -42,10 +42,10 @@ class CachingExecutor implements ExecutorInterface
 
                     // perform DNS lookup if not already cached
                     return $pending = $executor->query($nameserver, $query)->then(
-                        function (Message $message) use ($cache, $id) {
+                        function (Message $message) use ($cache, $id, $that) {
                             // DNS response message received => store in cache when not truncated and return
                             if (!$message->header->isTruncated()) {
-                                $cache->set($id, $message, CachingExecutor::TTL);
+                                $cache->set($id, $message, $that->ttl($message));
                             }
 
                             return $message;
@@ -57,5 +57,28 @@ class CachingExecutor implements ExecutorInterface
             $reject(new \RuntimeException('DNS query for ' . $query->name . ' has been cancelled'));
             $pending->cancel();
         });
+    }
+
+    /**
+     * @param Message $message
+     * @return int
+     * @internal
+     */
+    public function ttl(Message $message)
+    {
+        // select TTL from answers (should all be the same), use smallest value if available
+        // @link https://tools.ietf.org/html/rfc2181#section-5.2
+        $ttl = null;
+        foreach ($message->answers as $answer) {
+            if ($ttl === null || $answer->ttl < $ttl) {
+                $ttl = $answer->ttl;
+            }
+        }
+
+        if ($ttl === null) {
+            $ttl = self::TTL;
+        }
+
+        return $ttl;
     }
 }
