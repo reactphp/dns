@@ -124,16 +124,6 @@ class Resolver
     }
 
     /**
-     * @deprecated unused, exists for BC only
-     */
-    public function extractAddress(Query $query, Message $response)
-    {
-        $addresses = $this->extractValues($query, $response);
-
-        return $addresses[array_rand($addresses)];
-    }
-
-    /**
      * [Internal] extract all resource record values from response for this query
      *
      * @param Query   $query
@@ -183,14 +173,6 @@ class Resolver
         }
 
         return array_values($addresses);
-    }
-
-    /**
-     * @deprecated unused, exists for BC only
-     */
-    public function resolveAliases(array $answers, $name)
-    {
-        return $this->valuesByNameAndType($answers, $name, Message::TYPE_A);
     }
 
     /**

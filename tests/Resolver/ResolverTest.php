@@ -230,20 +230,6 @@ class ResolverTest extends TestCase
         $resolver->resolve('example.com')->then($this->expectCallableNever(), $errback);
     }
 
-    public function testLegacyExtractAddress()
-    {
-        $executor = $this->createExecutorMock();
-        $resolver = new Resolver('8.8.8.8:53', $executor);
-
-        $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
-        $response = Message::createResponseWithAnswersForQuery($query, array(
-            new Record('reactphp.org', Message::TYPE_A, Message::CLASS_IN, 3600, '1.2.3.4')
-        ));
-
-        $ret = $resolver->extractAddress($query, $response);
-        $this->assertEquals('1.2.3.4', $ret);
-    }
-
     private function createExecutorMock()
     {
         return $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();

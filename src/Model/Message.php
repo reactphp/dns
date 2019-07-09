@@ -41,7 +41,7 @@ class Message
         $request = new Message();
         $request->header->set('id', self::generateId());
         $request->header->set('rd', 1);
-        $request->questions[] = (array) $query;
+        $request->questions[] = $query;
         $request->prepare();
 
         return $request;
@@ -63,7 +63,7 @@ class Message
         $response->header->set('rd', 1);
         $response->header->set('rcode', Message::RCODE_OK);
 
-        $response->questions[] = (array) $query;
+        $response->questions[] = $query;
 
         foreach ($answers as $record) {
             $response->answers[] = $record;
@@ -106,22 +106,19 @@ class Message
     public $header;
 
     /**
-     * This should be an array of Query objects. For BC reasons, this currently
-     * references a nested array with a structure that results from casting the
-     * Query objects to an array:
+     * An array of Query objects
      *
      * ```php
      * $questions = array(
-     *     array(
-     *         'name' => 'reactphp.org',
-     *         'type' => Message::TYPE_A,
-     *         'class' => Message::CLASS_IN
+     *     new Query(
+     *         'reactphp.org',
+     *         Message::TYPE_A,
+     *         Message::CLASS_IN
      *     )
      * );
      * ```
      *
-     * @var array
-     * @see Query
+     * @var Query[]
      */
     public $questions = array();
 
@@ -139,16 +136,6 @@ class Message
      * @var Record[]
      */
     public $additional = array();
-
-    /**
-     * @deprecated still used internally for BC reasons, should not be used externally.
-     */
-    public $data = '';
-
-    /**
-     * @deprecated still used internally for BC reasons, should not be used externally.
-     */
-    public $consumed = 0;
 
     public function __construct()
     {

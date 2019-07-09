@@ -4,6 +4,7 @@ namespace React\Dns\Protocol;
 
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
+use React\Dns\Query\Query;
 use InvalidArgumentException;
 
 /**
@@ -22,27 +23,22 @@ class Parser
      */
     public function parseMessage($data)
     {
+        // create empty message with two additional, temporary properties for parser
         $message = new Message();
+        $message->data = $data;
+        $message->consumed = null;
+
         if ($this->parse($data, $message) !== $message) {
             throw new InvalidArgumentException('Unable to parse binary message');
         }
 
-        return $message;
-    }
+        unset($message->data, $message->consumed);
 
-    /**
-     * @deprecated unused, exists for BC only
-     * @codeCoverageIgnore
-     */
-    public function parseChunk($data, Message $message)
-    {
-        return $this->parse($data, $message);
+        return $message;
     }
 
     private function parse($data, Message $message)
     {
-        $message->data .= $data;
-
         if (!$message->header->get('id')) {
             if (!$this->parseHeader($message)) {
                 return;
@@ -88,7 +84,7 @@ class Parser
         return $message;
     }
 
-    public function parseHeader(Message $message)
+    private function parseHeader(Message $message)
     {
         if (!isset($message->data[12 - 1])) {
             return;
@@ -118,7 +114,7 @@ class Parser
         return $message;
     }
 
-    public function parseQuestion(Message $message)
+    private function parseQuestion(Message $message)
     {
         $consumed = $message->consumed;
 
@@ -133,38 +129,14 @@ class Parser
 
         $message->consumed = $consumed;
 
-        $message->questions[] = array(
-            'name' => implode('.', $labels),
-            'type' => $type,
-            'class' => $class,
+        $message->questions[] = new Query(
+            implode('.', $labels),
+            $type,
+            $class
         );
 
         if ($message->header->get('qdCount') != count($message->questions)) {
             return $this->parseQuestion($message);
-        }
-
-        return $message;
-    }
-
-    /**
-     * recursively parse all answers from the message data into message answer records
-     *
-     * @param Message $message
-     * @return ?Message returns the updated message on success or null if the data is invalid/incomplete
-     * @deprecated unused, exists for BC only
-     * @codeCoverageIgnore
-     */
-    public function parseAnswer(Message $message)
-    {
-        $record = $this->parseRecord($message);
-        if ($record === null) {
-            return null;
-        }
-
-        $message->answers[] = $record;
-
-        if ($message->header->get('anCount') != count($message->answers)) {
-            return $this->parseAnswer($message);
         }
 
         return $message;
@@ -336,60 +308,5 @@ class Parser
         }
 
         return array($labels, $consumed);
-    }
-
-    /**
-     * @deprecated unused, exists for BC only
-     * @codeCoverageIgnore
-     */
-    public function isEndOfLabels($data, $consumed)
-    {
-        $length = ord(substr($data, $consumed, 1));
-        return 0 === $length;
-    }
-
-    /**
-     * @deprecated unused, exists for BC only
-     * @codeCoverageIgnore
-     */
-    public function getCompressedLabel($data, $consumed)
-    {
-        list($nameOffset, $consumed) = $this->getCompressedLabelOffset($data, $consumed);
-        list($labels) = $this->readLabels($data, $nameOffset);
-
-        return array($labels, $consumed);
-    }
-
-    /**
-     * @deprecated unused, exists for BC only
-     * @codeCoverageIgnore
-     */
-    public function isCompressedLabel($data, $consumed)
-    {
-        $mask = 0xc000; // 1100000000000000
-        list($peek) = array_values(unpack('n', substr($data, $consumed, 2)));
-
-        return (bool) ($peek & $mask);
-    }
-
-    /**
-     * @deprecated unused, exists for BC only
-     * @codeCoverageIgnore
-     */
-    public function getCompressedLabelOffset($data, $consumed)
-    {
-        $mask = 0x3fff; // 0011111111111111
-        list($peek) = array_values(unpack('n', substr($data, $consumed, 2)));
-
-        return array($peek & $mask, $consumed + 2);
-    }
-
-    /**
-     * @deprecated unused, exists for BC only
-     * @codeCoverageIgnore
-     */
-    public function signedLongToUnsignedLong($i)
-    {
-        return $i & 0x80000000 ? $i - 0xffffffff : $i;
     }
 }

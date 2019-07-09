@@ -10,7 +10,7 @@ class MessageTest extends TestCase
 {
     public function testCreateRequestDesiresRecusion()
     {
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $request = Message::createRequestForQuery($query);
 
         $this->assertTrue($request->header->isQuery());
@@ -19,7 +19,7 @@ class MessageTest extends TestCase
 
     public function testCreateResponseWithNoAnswers()
     {
-        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN, 1345656451);
+        $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $answers = array();
         $request = Message::createResponseWithAnswersForQuery($query, $answers);
 

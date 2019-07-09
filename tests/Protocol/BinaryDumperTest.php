@@ -3,9 +3,10 @@
 namespace React\Tests\Dns\Protocol;
 
 use PHPUnit\Framework\TestCase;
-use React\Dns\Protocol\BinaryDumper;
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
+use React\Dns\Protocol\BinaryDumper;
+use React\Dns\Query\Query;
 
 class BinaryDumperTest extends TestCase
 {
@@ -22,10 +23,10 @@ class BinaryDumperTest extends TestCase
         $request->header->set('id', 0x7262);
         $request->header->set('rd', 1);
 
-        $request->questions[] = array(
-            'name'  => 'igor.io',
-            'type'  => Message::TYPE_A,
-            'class' => Message::CLASS_IN,
+        $request->questions[] = new Query(
+            'igor.io',
+            Message::TYPE_A,
+            Message::CLASS_IN
         );
 
         $request->prepare();
@@ -52,10 +53,10 @@ class BinaryDumperTest extends TestCase
         $request->header->set('id', 0x7262);
         $request->header->set('rd', 1);
 
-        $request->questions[] = array(
-            'name'  => 'igor.io',
-            'type'  => Message::TYPE_A,
-            'class' => Message::CLASS_IN,
+        $request->questions[] = new Query(
+            'igor.io',
+            Message::TYPE_A,
+            Message::CLASS_IN
         );
 
         $request->additional[] = new Record('', 41, 1000, 0, '');
@@ -83,10 +84,10 @@ class BinaryDumperTest extends TestCase
         $response->header->set('rd', 1);
         $response->header->set('rcode', Message::RCODE_OK);
 
-        $response->questions[] = array(
-            'name' => 'igor.io',
-            'type' => Message::TYPE_A,
-            'class' => Message::CLASS_IN
+        $response->questions[] = new Query(
+            'igor.io',
+            Message::TYPE_A,
+            Message::CLASS_IN
         );
 
         $response->prepare();
@@ -117,10 +118,10 @@ class BinaryDumperTest extends TestCase
         $response->header->set('rd', 1);
         $response->header->set('rcode', Message::RCODE_OK);
 
-        $response->questions[] = array(
-            'name' => 'igor.io',
-            'type' => Message::TYPE_SRV,
-            'class' => Message::CLASS_IN
+        $response->questions[] = new Query(
+            'igor.io',
+            Message::TYPE_SRV,
+            Message::CLASS_IN
         );
 
         $response->answers[] = new Record('igor.io', Message::TYPE_SRV, Message::CLASS_IN, 86400, array(
@@ -160,10 +161,10 @@ class BinaryDumperTest extends TestCase
         $response->header->set('rd', 1);
         $response->header->set('rcode', Message::RCODE_OK);
 
-        $response->questions[] = array(
-            'name' => 'igor.io',
-            'type' => Message::TYPE_SOA,
-            'class' => Message::CLASS_IN
+        $response->questions[] = new Query(
+            'igor.io',
+            Message::TYPE_SOA,
+            Message::CLASS_IN
         );
 
         $response->answers[] = new Record('igor.io', Message::TYPE_SOA, Message::CLASS_IN, 86400, array(
@@ -210,10 +211,10 @@ class BinaryDumperTest extends TestCase
         $response->header->set('rd', 1);
         $response->header->set('rcode', Message::RCODE_OK);
 
-        $response->questions[] = array(
-            'name' => 'igor.io',
-            'type' => Message::TYPE_ANY,
-            'class' => Message::CLASS_IN
+        $response->questions[] = new Query(
+            'igor.io',
+            Message::TYPE_ANY,
+            Message::CLASS_IN
         );
 
         $response->answers[] = new Record('igor.io', Message::TYPE_A, Message::CLASS_IN, 0, '127.0.0.1');
@@ -249,10 +250,10 @@ class BinaryDumperTest extends TestCase
         $response->header->set('rd', 1);
         $response->header->set('rcode', Message::RCODE_OK);
 
-        $response->questions[] = array(
-            'name' => 'igor.io',
-            'type' => Message::TYPE_NS,
-            'class' => Message::CLASS_IN
+        $response->questions[] = new Query(
+            'igor.io',
+            Message::TYPE_NS,
+            Message::CLASS_IN
         );
 
         $response->answers[] = new Record('igor.io', Message::TYPE_NS, Message::CLASS_IN, 0, 'example.com');
