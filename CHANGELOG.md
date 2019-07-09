@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.18 (2019-09-07)
+
+*   Feature / Fix: Implement `CachingExecutor` using cache TTL, deprecate old `CachedExecutor`,
+    respect TTL from response records when caching and do not cache truncated responses.
+    (#129 by @clue)
+
+*   Feature: Limit cache size to 256 last responses by default. 
+    (#127 by @clue)
+
+*   Feature: Cooperatively resolve hosts to avoid running same query concurrently.
+    (#125 by @clue)
+
 ## 0.4.17 (2019-04-01)
 
 *   Feature: Support parsing `authority` and `additional` records from DNS response.
