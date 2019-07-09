@@ -123,7 +123,7 @@ class UdpTransportExecutorTest extends TestCase
             $data = stream_socket_recvfrom($server, 512, 0, $peer);
 
             $message = $parser->parseMessage($data);
-            $message->header->set('id', 0);
+            $message->id = 0;
 
             stream_socket_sendto($server, $dumper->toBinary($message), 0, $peer);
         });
@@ -158,7 +158,7 @@ class UdpTransportExecutorTest extends TestCase
             $data = stream_socket_recvfrom($server, 512, 0, $peer);
 
             $message = $parser->parseMessage($data);
-            $message->header->set('tc', 1);
+            $message->tc = true;
 
             stream_socket_sendto($server, $dumper->toBinary($message), 0, $peer);
         });

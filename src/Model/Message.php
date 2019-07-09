@@ -4,6 +4,11 @@ namespace React\Dns\Model;
 
 use React\Dns\Query\Query;
 
+/**
+ * This class represents an outgoing query message or an incoming response message
+ *
+ * @link https://tools.ietf.org/html/rfc1035#section-4.1.1
+ */
 class Message
 {
     const TYPE_A = 1;
@@ -39,10 +44,9 @@ class Message
     public static function createRequestForQuery(Query $query)
     {
         $request = new Message();
-        $request->header->set('id', self::generateId());
-        $request->header->set('rd', 1);
+        $request->id = self::generateId();
+        $request->rd = true;
         $request->questions[] = $query;
-        $request->prepare();
 
         return $request;
     }
@@ -57,19 +61,15 @@ class Message
     public static function createResponseWithAnswersForQuery(Query $query, array $answers)
     {
         $response = new Message();
-        $response->header->set('id', self::generateId());
-        $response->header->set('qr', 1);
-        $response->header->set('opcode', Message::OPCODE_QUERY);
-        $response->header->set('rd', 1);
-        $response->header->set('rcode', Message::RCODE_OK);
+        $response->id = self::generateId();
+        $response->qr = true;
+        $response->rd = true;
 
         $response->questions[] = $query;
 
         foreach ($answers as $record) {
             $response->answers[] = $record;
         }
-
-        $response->prepare();
 
         return $response;
     }
@@ -101,9 +101,55 @@ class Message
     }
 
     /**
-     * @var HeaderBag
+     * The 16 bit message ID
+     *
+     * The response message ID has to match the request message ID. This allows
+     * the receiver to verify this is the correct response message. An outside
+     * attacker may try to inject fake responses by "guessing" the message ID,
+     * so this should use a proper CSPRNG to avoid possible cache poisoning.
+     *
+     * @var int 16 bit message ID
+     * @see self::generateId()
      */
-    public $header;
+    public $id = 0;
+
+    /**
+     * @var bool Query/Response flag, query=false or response=true
+     */
+    public $qr = false;
+
+    /**
+     * @var int specifies the kind of query (4 bit), see self::OPCODE_* constants
+     * @see self::OPCODE_QUERY
+     */
+    public $opcode = self::OPCODE_QUERY;
+
+    /**
+     *
+     * @var bool Authoritative Answer
+     */
+    public $aa = false;
+
+    /**
+     * @var bool TrunCation
+     */
+    public $tc = false;
+
+    /**
+     * @var bool Recursion Desired
+     */
+    public $rd = false;
+
+    /**
+     * @var bool Recursion Available
+     */
+    public $ra = false;
+
+    /**
+     * @var int response code (4 bit), see self::RCODE_* constants
+     * @see self::RCODE_OK
+     */
+    public $rcode = Message::RCODE_OK;
 
     /**
      * An array of Query objects
@@ -136,40 +182,4 @@ class Message
      * @var Record[]
      */
     public $additional = array();
-
-    public function __construct()
-    {
-        $this->header = new HeaderBag();
-    }
-
-    /**
-     * Returns the 16 bit message ID
-     *
-     * The response message ID has to match the request message ID. This allows
-     * the receiver to verify this is the correct response message. An outside
-     * attacker may try to inject fake responses by "guessing" the message ID,
-     * so this should use a proper CSPRNG to avoid possible cache poisoning.
-     *
-     * @return int
-     * @see self::generateId()
-     */
-    public function getId()
-    {
-        return $this->header->get('id');
-    }
-
-    /**
-     * Returns the response code (RCODE)
-     *
-     * @return int see self::RCODE_* constants
-     */
-    public function getResponseCode()
-    {
-        return $this->header->get('rcode');
-    }
-
-    public function prepare()
-    {
-        $this->header->populateCounts($this);
-    }
 }

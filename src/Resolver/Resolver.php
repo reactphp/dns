@@ -135,7 +135,7 @@ class Resolver
     public function extractValues(Query $query, Message $response)
     {
         // reject if response code indicates this is an error response message
-        $code = $response->getResponseCode();
+        $code = $response->rcode;
         if ($code !== Message::RCODE_OK) {
             switch ($code) {
                 case Message::RCODE_FORMAT_ERROR:

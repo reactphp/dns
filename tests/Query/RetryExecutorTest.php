@@ -339,10 +339,9 @@ class RetryExecutorTest extends TestCase
     protected function createStandardResponse()
     {
         $response = new Message();
-        $response->header->set('qr', 1);
+        $response->qr = true;
         $response->questions[] = new Record('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $response->answers[] = new Record('igor.io', Message::TYPE_A, Message::CLASS_IN, 3600, '178.79.169.131');
-        $response->prepare();
 
         return $response;
     }

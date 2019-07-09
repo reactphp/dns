@@ -20,16 +20,14 @@ class BinaryDumperTest extends TestCase
         $expected = $this->formatHexDump($data);
 
         $request = new Message();
-        $request->header->set('id', 0x7262);
-        $request->header->set('rd', 1);
+        $request->id = 0x7262;
+        $request->rd = true;
 
         $request->questions[] = new Query(
             'igor.io',
             Message::TYPE_A,
             Message::CLASS_IN
         );
-
-        $request->prepare();
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($request);
@@ -50,8 +48,8 @@ class BinaryDumperTest extends TestCase
         $expected = $this->formatHexDump($data);
 
         $request = new Message();
-        $request->header->set('id', 0x7262);
-        $request->header->set('rd', 1);
+        $request->id = 0x7262;
+        $request->rd = true;
 
         $request->questions[] = new Query(
             'igor.io',
@@ -60,8 +58,6 @@ class BinaryDumperTest extends TestCase
         );
 
         $request->additional[] = new Record('', 41, 1000, 0, '');
-
-        $request->prepare();
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($request);
@@ -80,17 +76,15 @@ class BinaryDumperTest extends TestCase
         $expected = $this->formatHexDump($data);
 
         $response = new Message();
-        $response->header->set('id', 0x7262);
-        $response->header->set('rd', 1);
-        $response->header->set('rcode', Message::RCODE_OK);
+        $response->id = 0x7262;
+        $response->rd = true;
+        $response->rcode = Message::RCODE_OK;
 
         $response->questions[] = new Query(
             'igor.io',
             Message::TYPE_A,
             Message::CLASS_IN
         );
-
-        $response->prepare();
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($response);
@@ -114,9 +108,9 @@ class BinaryDumperTest extends TestCase
         $expected = $this->formatHexDump($data);
 
         $response = new Message();
-        $response->header->set('id', 0x7262);
-        $response->header->set('rd', 1);
-        $response->header->set('rcode', Message::RCODE_OK);
+        $response->id = 0x7262;
+        $response->rd = true;
+        $response->rcode = Message::RCODE_OK;
 
         $response->questions[] = new Query(
             'igor.io',
@@ -130,7 +124,6 @@ class BinaryDumperTest extends TestCase
             'port' => 8080,
             'target' => 'test'
         ));
-        $response->prepare();
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($response);
@@ -157,9 +150,9 @@ class BinaryDumperTest extends TestCase
         $expected = $this->formatHexDump($data);
 
         $response = new Message();
-        $response->header->set('id', 0x7262);
-        $response->header->set('rd', 1);
-        $response->header->set('rcode', Message::RCODE_OK);
+        $response->id = 0x7262;
+        $response->rd = true;
+        $response->rcode = Message::RCODE_OK;
 
         $response->questions[] = new Query(
             'igor.io',
@@ -176,7 +169,6 @@ class BinaryDumperTest extends TestCase
             'expire' => 605800,
             'minimum' => 3600
         ));
-        $response->prepare();
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($response);
@@ -207,9 +199,9 @@ class BinaryDumperTest extends TestCase
         $expected = $this->formatHexDump($data);
 
         $response = new Message();
-        $response->header->set('id', 0x7262);
-        $response->header->set('rd', 1);
-        $response->header->set('rcode', Message::RCODE_OK);
+        $response->id = 0x7262;
+        $response->rd = true;
+        $response->rcode = Message::RCODE_OK;
 
         $response->questions[] = new Query(
             'igor.io',
@@ -221,7 +213,6 @@ class BinaryDumperTest extends TestCase
         $response->answers[] = new Record('igor.io', Message::TYPE_AAAA, Message::CLASS_IN, 0, '::1');
         $response->answers[] = new Record('igor.io', Message::TYPE_TXT, Message::CLASS_IN, 0, array('hello', 'world'));
         $response->answers[] = new Record('igor.io', Message::TYPE_MX, Message::CLASS_IN, 0, array('priority' => 0, 'target' => ''));
-        $response->prepare();
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($response);
@@ -246,9 +237,9 @@ class BinaryDumperTest extends TestCase
         $expected = $this->formatHexDump($data);
 
         $response = new Message();
-        $response->header->set('id', 0x7262);
-        $response->header->set('rd', 1);
-        $response->header->set('rcode', Message::RCODE_OK);
+        $response->id = 0x7262;
+        $response->rd = true;
+        $response->rcode = Message::RCODE_OK;
 
         $response->questions[] = new Query(
             'igor.io',
@@ -258,7 +249,6 @@ class BinaryDumperTest extends TestCase
 
         $response->answers[] = new Record('igor.io', Message::TYPE_NS, Message::CLASS_IN, 0, 'example.com');
         $response->additional[] = new Record('example.com', Message::TYPE_A, Message::CLASS_IN, 0, '127.0.0.1');
-        $response->prepare();
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($response);

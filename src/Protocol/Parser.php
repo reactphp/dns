@@ -39,20 +39,34 @@ class Parser
 
     private function parse($data, Message $message)
     {
-        if (!$message->header->get('id')) {
-            if (!$this->parseHeader($message)) {
-                return;
-            }
+        if (!isset($message->data[12 - 1])) {
+            return;
         }
 
-        if ($message->header->get('qdCount') != count($message->questions)) {
-            if (!$this->parseQuestion($message)) {
+        list($id, $fields, $qdCount, $anCount, $nsCount, $arCount) = array_values(unpack('n*', substr($message->data, 0, 12)));
+        $message->consumed += 12;
+
+        $message->id = $id;
+        $message->rcode = $fields & 0xf;
+        $message->ra = (($fields >> 7) & 1) === 1;
+        $message->rd = (($fields >> 8) & 1) === 1;
+        $message->tc = (($fields >> 9) & 1) === 1;
+        $message->aa = (($fields >> 10) & 1) === 1;
+        $message->opcode = ($fields >> 11) & 0xf;
+        $message->qr = (($fields >> 15) & 1) === 1;
+
+        // parse all questions
+        for ($i = $qdCount; $i > 0; --$i) {
+            $question = $this->parseQuestion($message);
+            if ($question === null) {
                 return;
+            } else {
+                $message->questions[] = $question;
             }
         }
 
         // parse all answer records
-        for ($i = $message->header->get('anCount'); $i > 0; --$i) {
+        for ($i = $anCount; $i > 0; --$i) {
             $record = $this->parseRecord($message);
             if ($record === null) {
                 return;
@@ -62,7 +76,7 @@ class Parser
         }
 
         // parse all authority records
-        for ($i = $message->header->get('nsCount'); $i > 0; --$i) {
+        for ($i = $nsCount; $i > 0; --$i) {
             $record = $this->parseRecord($message);
             if ($record === null) {
                 return;
@@ -72,7 +86,7 @@ class Parser
         }
 
         // parse all additional records
-        for ($i = $message->header->get('arCount'); $i > 0; --$i) {
+        for ($i = $arCount; $i > 0; --$i) {
             $record = $this->parseRecord($message);
             if ($record === null) {
                 return;
@@ -84,36 +98,10 @@ class Parser
         return $message;
     }
 
-    private function parseHeader(Message $message)
-    {
-        if (!isset($message->data[12 - 1])) {
-            return;
-        }
-
-        $header = substr($message->data, 0, 12);
-        $message->consumed += 12;
-
-        list($id, $fields, $qdCount, $anCount, $nsCount, $arCount) = array_values(unpack('n*', $header));
-
-        $rcode = $fields & bindec('1111');
-        $z = ($fields >> 4) & bindec('111');
-        $ra = ($fields >> 7) & 1;
-        $rd = ($fields >> 8) & 1;
-        $tc = ($fields >> 9) & 1;
-        $aa = ($fields >> 10) & 1;
-        $opcode = ($fields >> 11) & bindec('1111');
-        $qr = ($fields >> 15) & 1;
-
-        $vars = compact('id', 'qdCount', 'anCount', 'nsCount', 'arCount',
-                            'qr', 'opcode', 'aa', 'tc', 'rd', 'ra', 'z', 'rcode');
-
-        foreach ($vars as $name => $value) {
-            $message->header->set($name, $value);
-        }
-
-        return $message;
-    }
-
+    /**
+     * @param Message $message
+     * @return ?Query
+     */
     private function parseQuestion(Message $message)
     {
         $consumed = $message->consumed;
@@ -129,17 +117,11 @@ class Parser
 
         $message->consumed = $consumed;
 
-        $message->questions[] = new Query(
+        return new Query(
             implode('.', $labels),
             $type,
             $class
         );
-
-        if ($message->header->get('qdCount') != count($message->questions)) {
-            return $this->parseQuestion($message);
-        }
-
-        return $message;
     }
 
     /**
