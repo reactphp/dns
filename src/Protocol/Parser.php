@@ -4,6 +4,7 @@ namespace React\Dns\Protocol;
 
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
+use React\Dns\Query\Query;
 use InvalidArgumentException;
 
 /**
@@ -128,10 +129,10 @@ class Parser
 
         $message->consumed = $consumed;
 
-        $message->questions[] = array(
-            'name' => implode('.', $labels),
-            'type' => $type,
-            'class' => $class,
+        $message->questions[] = new Query(
+            implode('.', $labels),
+            $type,
+            $class
         );
 
         if ($message->header->get('qdCount') != count($message->questions)) {

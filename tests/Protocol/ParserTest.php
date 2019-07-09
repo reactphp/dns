@@ -61,9 +61,9 @@ class ParserTest extends TestCase
         $this->assertSame(Message::RCODE_OK, $header->get('rcode'));
 
         $this->assertCount(1, $request->questions);
-        $this->assertSame('igor.io', $request->questions[0]['name']);
-        $this->assertSame(Message::TYPE_A, $request->questions[0]['type']);
-        $this->assertSame(Message::CLASS_IN, $request->questions[0]['class']);
+        $this->assertSame('igor.io', $request->questions[0]->name);
+        $this->assertSame(Message::TYPE_A, $request->questions[0]->type);
+        $this->assertSame(Message::CLASS_IN, $request->questions[0]->class);
     }
 
     public function testParseResponse()
@@ -98,9 +98,9 @@ class ParserTest extends TestCase
         $this->assertSame(Message::RCODE_OK, $header->get('rcode'));
 
         $this->assertCount(1, $response->questions);
-        $this->assertSame('igor.io', $response->questions[0]['name']);
-        $this->assertSame(Message::TYPE_A, $response->questions[0]['type']);
-        $this->assertSame(Message::CLASS_IN, $response->questions[0]['class']);
+        $this->assertSame('igor.io', $response->questions[0]->name);
+        $this->assertSame(Message::TYPE_A, $response->questions[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->questions[0]->class);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('igor.io', $response->answers[0]->name);
@@ -124,12 +124,12 @@ class ParserTest extends TestCase
         $request = $this->parser->parseMessage($data);
 
         $this->assertCount(2, $request->questions);
-        $this->assertSame('igor.io', $request->questions[0]['name']);
-        $this->assertSame(Message::TYPE_A, $request->questions[0]['type']);
-        $this->assertSame(Message::CLASS_IN, $request->questions[0]['class']);
-        $this->assertSame('www.igor.io', $request->questions[1]['name']);
-        $this->assertSame(Message::TYPE_A, $request->questions[1]['type']);
-        $this->assertSame(Message::CLASS_IN, $request->questions[1]['class']);
+        $this->assertSame('igor.io', $request->questions[0]->name);
+        $this->assertSame(Message::TYPE_A, $request->questions[0]->type);
+        $this->assertSame(Message::CLASS_IN, $request->questions[0]->class);
+        $this->assertSame('www.igor.io', $request->questions[1]->name);
+        $this->assertSame(Message::TYPE_A, $request->questions[1]->type);
+        $this->assertSame(Message::CLASS_IN, $request->questions[1]->class);
     }
 
     public function testParseAnswerWithInlineData()
@@ -245,9 +245,9 @@ class ParserTest extends TestCase
         $response = $this->parser->parseMessage($data);
 
         $this->assertCount(1, $response->questions);
-        $this->assertSame('mail.google.com', $response->questions[0]['name']);
-        $this->assertSame(Message::TYPE_CNAME, $response->questions[0]['type']);
-        $this->assertSame(Message::CLASS_IN, $response->questions[0]['class']);
+        $this->assertSame('mail.google.com', $response->questions[0]->name);
+        $this->assertSame(Message::TYPE_CNAME, $response->questions[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->questions[0]->class);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('mail.google.com', $response->answers[0]->name);
@@ -289,9 +289,9 @@ class ParserTest extends TestCase
         $this->assertSame(Message::RCODE_OK, $header->get('rcode'));
 
         $this->assertCount(1, $response->questions);
-        $this->assertSame('google.com', $response->questions[0]['name']);
-        $this->assertSame(Message::TYPE_AAAA, $response->questions[0]['type']);
-        $this->assertSame(Message::CLASS_IN, $response->questions[0]['class']);
+        $this->assertSame('google.com', $response->questions[0]->name);
+        $this->assertSame(Message::TYPE_AAAA, $response->questions[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->questions[0]->class);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('google.com', $response->answers[0]->name);
@@ -408,9 +408,9 @@ class ParserTest extends TestCase
         $response = $this->parser->parseMessage($data);
 
         $this->assertCount(1, $response->questions);
-        $this->assertSame('io.whois-servers.net', $response->questions[0]['name']);
-        $this->assertSame(Message::TYPE_A, $response->questions[0]['type']);
-        $this->assertSame(Message::CLASS_IN, $response->questions[0]['class']);
+        $this->assertSame('io.whois-servers.net', $response->questions[0]->name);
+        $this->assertSame(Message::TYPE_A, $response->questions[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->questions[0]->class);
 
         $this->assertCount(2, $response->answers);
 
@@ -450,9 +450,9 @@ class ParserTest extends TestCase
         $response = $this->parser->parseMessage($data);
 
         $this->assertCount(1, $response->questions);
-        $this->assertSame('io.whois-servers.net', $response->questions[0]['name']);
-        $this->assertSame(Message::TYPE_A, $response->questions[0]['type']);
-        $this->assertSame(Message::CLASS_IN, $response->questions[0]['class']);
+        $this->assertSame('io.whois-servers.net', $response->questions[0]->name);
+        $this->assertSame(Message::TYPE_A, $response->questions[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->questions[0]->class);
 
         $this->assertCount(0, $response->answers);
 
@@ -494,9 +494,9 @@ class ParserTest extends TestCase
         $response = $this->parser->parseMessage($data);
 
         $this->assertCount(1, $response->questions);
-        $this->assertSame('io.whois-servers.net', $response->questions[0]['name']);
-        $this->assertSame(Message::TYPE_A, $response->questions[0]['type']);
-        $this->assertSame(Message::CLASS_IN, $response->questions[0]['class']);
+        $this->assertSame('io.whois-servers.net', $response->questions[0]->name);
+        $this->assertSame(Message::TYPE_A, $response->questions[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->questions[0]->class);
 
         $this->assertCount(1, $response->answers);
 
@@ -602,9 +602,9 @@ class ParserTest extends TestCase
         $this->assertSame(Message::RCODE_OK, $header->get('rcode'));
 
         $this->assertCount(1, $response->questions);
-        $this->assertSame('4.4.8.8.in-addr.arpa', $response->questions[0]['name']);
-        $this->assertSame(Message::TYPE_PTR, $response->questions[0]['type']);
-        $this->assertSame(Message::CLASS_IN, $response->questions[0]['class']);
+        $this->assertSame('4.4.8.8.in-addr.arpa', $response->questions[0]->name);
+        $this->assertSame(Message::TYPE_PTR, $response->questions[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->questions[0]->class);
 
         $this->assertCount(1, $response->answers);
         $this->assertSame('4.4.8.8.in-addr.arpa', $response->answers[0]->name);

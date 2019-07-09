@@ -5,6 +5,7 @@ namespace React\Dns\Protocol;
 use React\Dns\Model\HeaderBag;
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
+use React\Dns\Query\Query;
 
 class BinaryDumper
 {
@@ -26,7 +27,7 @@ class BinaryDumper
     }
 
     /**
-     * @param HeaderBag $header
+     * @param Message $message
      * @return string
      */
     private function headerToBinary(HeaderBag $header)
@@ -56,7 +57,7 @@ class BinaryDumper
     }
 
     /**
-     * @param array $questions
+     * @param Query[] $questions
      * @return string
      */
     private function questionToBinary(array $questions)
@@ -64,8 +65,8 @@ class BinaryDumper
         $data = '';
 
         foreach ($questions as $question) {
-            $data .= $this->domainNameToBinary($question['name']);
-            $data .= pack('n*', $question['type'], $question['class']);
+            $data .= $this->domainNameToBinary($question->name);
+            $data .= pack('n*', $question->type, $question->class);
         }
 
         return $data;
