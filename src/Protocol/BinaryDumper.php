@@ -31,20 +31,19 @@ class BinaryDumper
      */
     private function headerToBinary(Message $message)
     {
-        $header = $message->header;
         $data = '';
 
-        $data .= pack('n', $header->get('id'));
+        $data .= pack('n', $message->id);
 
         $flags = 0x00;
-        $flags = ($flags << 1) | $header->get('qr');
-        $flags = ($flags << 4) | $header->get('opcode');
-        $flags = ($flags << 1) | $header->get('aa');
-        $flags = ($flags << 1) | $header->get('tc');
-        $flags = ($flags << 1) | $header->get('rd');
-        $flags = ($flags << 1) | $header->get('ra');
-        $flags = ($flags << 3) | $header->get('z');
-        $flags = ($flags << 4) | $header->get('rcode');
+        $flags = ($flags << 1) | ($message->qr ? 1 : 0);
+        $flags = ($flags << 4) | $message->opcode;
+        $flags = ($flags << 1) | ($message->aa ? 1 : 0);
+        $flags = ($flags << 1) | ($message->tc ? 1 : 0);
+        $flags = ($flags << 1) | ($message->rd ? 1 : 0);
+        $flags = ($flags << 1) | ($message->ra ? 1 : 0);
+        $flags = ($flags << 3) | 0; // skip unused zero bit
+        $flags = ($flags << 4) | $message->rcode;
 
         $data .= pack('n', $flags);
 

@@ -46,15 +46,14 @@ class Parser
         list($id, $fields, $qdCount, $anCount, $nsCount, $arCount) = array_values(unpack('n*', substr($message->data, 0, 12)));
         $message->consumed += 12;
 
-        $message->header->set('id', $id);
-        $message->header->set('rcode', $fields & bindec('1111'));
-        $message->header->set('z', ($fields >> 4) & bindec('111'));
-        $message->header->set('ra', ($fields >> 7) & 1);
-        $message->header->set('rd', ($fields >> 8) & 1);
-        $message->header->set('tc', ($fields >> 9) & 1);
-        $message->header->set('aa', ($fields >> 10) & 1);
-        $message->header->set('opcode', ($fields >> 11) & bindec('1111'));
-        $message->header->set('qr', ($fields >> 15) & 1);
+        $message->id = $id;
+        $message->rcode = $fields & 0xf;
+        $message->ra = (($fields >> 7) & 1) === 1;
+        $message->rd = (($fields >> 8) & 1) === 1;
+        $message->tc = (($fields >> 9) & 1) === 1;
+        $message->aa = (($fields >> 10) & 1) === 1;
+        $message->opcode = ($fields >> 11) & 0xf;
+        $message->qr = (($fields >> 15) & 1) === 1;
 
         // parse all questions
         for ($i = $qdCount; $i > 0; --$i) {

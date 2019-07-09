@@ -107,7 +107,7 @@ class CachingExecutorTest extends TestCase
     public function testQueryWillReturnResolvedPromiseWhenCacheReturnsMissAndFallbackExecutorResolvesWithTruncatedResponseButShouldNotSaveTruncatedMessageToCache()
     {
         $message = new Message();
-        $message->header->set('tc', 1);
+        $message->tc = true;
         $fallback = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
         $fallback->expects($this->once())->method('query')->willReturn(\React\Promise\resolve($message));
 

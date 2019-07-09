@@ -160,7 +160,7 @@ class UdpTransportExecutor implements ExecutorInterface
 
             // ignore and await next if we received an unexpected response ID
             // this may as well be a fake response from an attacker (possible cache poisoning)
-            if ($response->getId() !== $request->getId()) {
+            if ($response->id !== $request->id) {
                 return;
             }
 
@@ -168,7 +168,7 @@ class UdpTransportExecutor implements ExecutorInterface
             $loop->removeReadStream($socket);
             \fclose($socket);
 
-            if ($response->header->isTruncated()) {
+            if ($response->tc) {
                 $deferred->reject(new \RuntimeException('DNS query for ' . $query->name . ' failed: The server returned a truncated result for a UDP query, but retrying via TCP is currently not supported'));
                 return;
             }

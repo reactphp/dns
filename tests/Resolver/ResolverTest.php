@@ -22,7 +22,7 @@ class ResolverTest extends TestCase
             ->with($this->anything(), $this->isInstanceOf('React\Dns\Query\Query'))
             ->will($this->returnCallback(function ($nameserver, $query) {
                 $response = new Message();
-                $response->header->set('qr', 1);
+                $response->qr = true;
                 $response->questions[] = new Record($query->name, $query->type, $query->class);
                 $response->answers[] = new Record($query->name, $query->type, $query->class, 3600, '178.79.169.131');
 
@@ -43,7 +43,7 @@ class ResolverTest extends TestCase
             ->with($this->anything(), $this->isInstanceOf('React\Dns\Query\Query'))
             ->will($this->returnCallback(function ($nameserver, $query) {
                 $response = new Message();
-                $response->header->set('qr', 1);
+                $response->qr = true;
                 $response->questions[] = new Record($query->name, $query->type, $query->class);
                 $response->answers[] = new Record($query->name, $query->type, $query->class, 3600, '::1');
 
@@ -64,7 +64,7 @@ class ResolverTest extends TestCase
             ->with($this->anything(), $this->isInstanceOf('React\Dns\Query\Query'))
             ->will($this->returnCallback(function ($nameserver, $query) {
                 $response = new Message();
-                $response->header->set('qr', 1);
+                $response->qr = true;
                 $response->questions[] = new Record($query->name, $query->type, $query->class);
                 $response->answers[] = new Record($query->name, Message::TYPE_TXT, $query->class, 3600, array('ignored'));
                 $response->answers[] = new Record($query->name, $query->type, $query->class, 3600, '::1');
@@ -86,7 +86,7 @@ class ResolverTest extends TestCase
             ->with($this->anything(), $this->isInstanceOf('React\Dns\Query\Query'))
             ->will($this->returnCallback(function ($nameserver, $query) {
                 $response = new Message();
-                $response->header->set('qr', 1);
+                $response->qr = true;
                 $response->questions[] = new Record($query->name, $query->type, $query->class);
                 $response->answers[] = new Record($query->name, Message::TYPE_CNAME, $query->class, 3600, 'example.com');
                 $response->answers[] = new Record('example.com', $query->type, $query->class, 3600, '::1');
@@ -111,7 +111,7 @@ class ResolverTest extends TestCase
             ->with($this->anything(), $this->isInstanceOf('React\Dns\Query\Query'))
             ->will($this->returnCallback(function ($nameserver, $query) {
                 $response = new Message();
-                $response->header->set('qr', 1);
+                $response->qr = true;
                 $response->questions[] = new Record('Blog.wyrihaximus.net', $query->type, $query->class);
                 $response->answers[] = new Record('Blog.wyrihaximus.net', $query->type, $query->class, 3600, '178.79.169.131');
 
@@ -132,7 +132,7 @@ class ResolverTest extends TestCase
             ->with($this->anything(), $this->isInstanceOf('React\Dns\Query\Query'))
             ->will($this->returnCallback(function ($nameserver, $query) {
                 $response = new Message();
-                $response->header->set('qr', 1);
+                $response->qr = true;
                 $response->questions[] = new Record($query->name, $query->type, $query->class);
                 $response->answers[] = new Record('foo.bar', $query->type, $query->class, 3600, '178.79.169.131');
 
@@ -157,7 +157,7 @@ class ResolverTest extends TestCase
             ->with($this->anything(), $this->isInstanceOf('React\Dns\Query\Query'))
             ->will($this->returnCallback(function ($nameserver, $query) {
                 $response = new Message();
-                $response->header->set('qr', 1);
+                $response->qr = true;
                 $response->questions[] = new Record($query->name, $query->type, $query->class);
 
                 return Promise\resolve($response);
@@ -214,8 +214,8 @@ class ResolverTest extends TestCase
             ->with($this->anything(), $this->isInstanceOf('React\Dns\Query\Query'))
             ->will($this->returnCallback(function ($nameserver, $query) use ($code) {
                 $response = new Message();
-                $response->header->set('qr', 1);
-                $response->header->set('rcode', $code);
+                $response->qr = true;
+                $response->rcode = $code;
                 $response->questions[] = new Record($query->name, $query->type, $query->class);
 
                 return Promise\resolve($response);

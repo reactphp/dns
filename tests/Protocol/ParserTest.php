@@ -45,16 +45,14 @@ class ParserTest extends TestCase
         $this->assertFalse(isset($request->data));
         $this->assertFalse(isset($request->consumed));
 
-        $header = $request->header;
-        $this->assertSame(0x7262, $header->get('id'));
-        $this->assertSame(0, $header->get('qr'));
-        $this->assertSame(Message::OPCODE_QUERY, $header->get('opcode'));
-        $this->assertSame(0, $header->get('aa'));
-        $this->assertSame(0, $header->get('tc'));
-        $this->assertSame(1, $header->get('rd'));
-        $this->assertSame(0, $header->get('ra'));
-        $this->assertSame(0, $header->get('z'));
-        $this->assertSame(Message::RCODE_OK, $header->get('rcode'));
+        $this->assertSame(0x7262, $request->id);
+        $this->assertSame(false, $request->qr);
+        $this->assertSame(Message::OPCODE_QUERY, $request->opcode);
+        $this->assertSame(false, $request->aa);
+        $this->assertSame(false, $request->tc);
+        $this->assertSame(true, $request->rd);
+        $this->assertSame(false, $request->ra);
+        $this->assertSame(Message::RCODE_OK, $request->rcode);
 
         $this->assertCount(1, $request->questions);
         $this->assertSame('igor.io', $request->questions[0]->name);
@@ -78,16 +76,14 @@ class ParserTest extends TestCase
 
         $response = $this->parser->parseMessage($data);
 
-        $header = $response->header;
-        $this->assertSame(0x7262, $header->get('id'));
-        $this->assertSame(1, $header->get('qr'));
-        $this->assertSame(Message::OPCODE_QUERY, $header->get('opcode'));
-        $this->assertSame(0, $header->get('aa'));
-        $this->assertSame(0, $header->get('tc'));
-        $this->assertSame(1, $header->get('rd'));
-        $this->assertSame(1, $header->get('ra'));
-        $this->assertSame(0, $header->get('z'));
-        $this->assertSame(Message::RCODE_OK, $header->get('rcode'));
+        $this->assertSame(0x7262, $response->id);
+        $this->assertSame(true, $response->qr);
+        $this->assertSame(Message::OPCODE_QUERY, $response->opcode);
+        $this->assertSame(false, $response->aa);
+        $this->assertSame(false, $response->tc);
+        $this->assertSame(true, $response->rd);
+        $this->assertSame(true, $response->ra);
+        $this->assertSame(Message::RCODE_OK, $response->rcode);
 
         $this->assertCount(1, $response->questions);
         $this->assertSame('igor.io', $response->questions[0]->name);
@@ -265,16 +261,14 @@ class ParserTest extends TestCase
 
         $response = $this->parser->parseMessage($data);
 
-        $header = $response->header;
-        $this->assertSame(0xcd72, $header->get('id'));
-        $this->assertSame(1, $header->get('qr'));
-        $this->assertSame(Message::OPCODE_QUERY, $header->get('opcode'));
-        $this->assertSame(0, $header->get('aa'));
-        $this->assertSame(0, $header->get('tc'));
-        $this->assertSame(1, $header->get('rd'));
-        $this->assertSame(1, $header->get('ra'));
-        $this->assertSame(0, $header->get('z'));
-        $this->assertSame(Message::RCODE_OK, $header->get('rcode'));
+        $this->assertSame(0xcd72, $response->id);
+        $this->assertSame(true, $response->qr);
+        $this->assertSame(Message::OPCODE_QUERY, $response->opcode);
+        $this->assertSame(false, $response->aa);
+        $this->assertSame(false, $response->tc);
+        $this->assertSame(true, $response->rd);
+        $this->assertSame(true, $response->ra);
+        $this->assertSame(Message::RCODE_OK, $response->rcode);
 
         $this->assertCount(1, $response->questions);
         $this->assertSame('google.com', $response->questions[0]->name);
@@ -574,16 +568,14 @@ class ParserTest extends TestCase
 
         $response = $this->parser->parseMessage($data);
 
-        $header = $response->header;
-        $this->assertSame(0x5dd8, $header->get('id'));
-        $this->assertSame(1, $header->get('qr'));
-        $this->assertSame(Message::OPCODE_QUERY, $header->get('opcode'));
-        $this->assertSame(0, $header->get('aa'));
-        $this->assertSame(0, $header->get('tc'));
-        $this->assertSame(1, $header->get('rd'));
-        $this->assertSame(1, $header->get('ra'));
-        $this->assertSame(0, $header->get('z'));
-        $this->assertSame(Message::RCODE_OK, $header->get('rcode'));
+        $this->assertSame(0x5dd8, $response->id);
+        $this->assertSame(true, $response->qr);
+        $this->assertSame(Message::OPCODE_QUERY, $response->opcode);
+        $this->assertSame(false, $response->aa);
+        $this->assertSame(false, $response->tc);
+        $this->assertSame(true, $response->rd);
+        $this->assertSame(true, $response->ra);
+        $this->assertSame(Message::RCODE_OK, $response->rcode);
 
         $this->assertCount(1, $response->questions);
         $this->assertSame('4.4.8.8.in-addr.arpa', $response->questions[0]->name);
