@@ -42,7 +42,6 @@ class Message
         $request->header->set('id', self::generateId());
         $request->header->set('rd', 1);
         $request->questions[] = $query;
-        $request->prepare();
 
         return $request;
     }
@@ -68,8 +67,6 @@ class Message
         foreach ($answers as $record) {
             $response->answers[] = $record;
         }
-
-        $response->prepare();
 
         return $response;
     }
@@ -166,10 +163,5 @@ class Message
     public function getResponseCode()
     {
         return $this->header->get('rcode');
-    }
-
-    public function prepare()
-    {
-        $this->header->populateCounts($this);
     }
 }

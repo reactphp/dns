@@ -91,7 +91,6 @@ class ResolverTest extends TestCase
                 $response->answers[] = new Record($query->name, Message::TYPE_CNAME, $query->class, 3600, 'example.com');
                 $response->answers[] = new Record('example.com', $query->type, $query->class, 3600, '::1');
                 $response->answers[] = new Record('example.com', $query->type, $query->class, 3600, '::2');
-                $response->prepare();
 
                 return Promise\resolve($response);
             }));

@@ -5,10 +5,6 @@ namespace React\Dns\Model;
 class HeaderBag
 {
     public $attributes = array(
-        'qdCount'   => 0,
-        'anCount'   => 0,
-        'nsCount'   => 0,
-        'arCount'   => 0,
         'qr'        => 0,
         'opcode'    => Message::OPCODE_QUERY,
         'aa'        => 0,
@@ -42,13 +38,5 @@ class HeaderBag
     public function isTruncated()
     {
         return 1 === $this->attributes['tc'];
-    }
-
-    public function populateCounts(Message $message)
-    {
-        $this->attributes['qdCount'] = count($message->questions);
-        $this->attributes['anCount'] = count($message->answers);
-        $this->attributes['nsCount'] = count($message->authority);
-        $this->attributes['arCount'] = count($message->additional);
     }
 }

@@ -29,8 +29,6 @@ class BinaryDumperTest extends TestCase
             Message::CLASS_IN
         );
 
-        $request->prepare();
-
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($request);
         $data = $this->convertBinaryToHexDump($data);
@@ -61,8 +59,6 @@ class BinaryDumperTest extends TestCase
 
         $request->additional[] = new Record('', 41, 1000, 0, '');
 
-        $request->prepare();
-
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($request);
         $data = $this->convertBinaryToHexDump($data);
@@ -89,8 +85,6 @@ class BinaryDumperTest extends TestCase
             Message::TYPE_A,
             Message::CLASS_IN
         );
-
-        $response->prepare();
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($response);
@@ -130,7 +124,6 @@ class BinaryDumperTest extends TestCase
             'port' => 8080,
             'target' => 'test'
         ));
-        $response->prepare();
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($response);
@@ -176,7 +169,6 @@ class BinaryDumperTest extends TestCase
             'expire' => 605800,
             'minimum' => 3600
         ));
-        $response->prepare();
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($response);
@@ -221,7 +213,6 @@ class BinaryDumperTest extends TestCase
         $response->answers[] = new Record('igor.io', Message::TYPE_AAAA, Message::CLASS_IN, 0, '::1');
         $response->answers[] = new Record('igor.io', Message::TYPE_TXT, Message::CLASS_IN, 0, array('hello', 'world'));
         $response->answers[] = new Record('igor.io', Message::TYPE_MX, Message::CLASS_IN, 0, array('priority' => 0, 'target' => ''));
-        $response->prepare();
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($response);
@@ -258,7 +249,6 @@ class BinaryDumperTest extends TestCase
 
         $response->answers[] = new Record('igor.io', Message::TYPE_NS, Message::CLASS_IN, 0, 'example.com');
         $response->additional[] = new Record('example.com', Message::TYPE_A, Message::CLASS_IN, 0, '127.0.0.1');
-        $response->prepare();
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($response);

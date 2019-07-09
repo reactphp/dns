@@ -47,10 +47,6 @@ class ParserTest extends TestCase
 
         $header = $request->header;
         $this->assertSame(0x7262, $header->get('id'));
-        $this->assertSame(1, $header->get('qdCount'));
-        $this->assertSame(0, $header->get('anCount'));
-        $this->assertSame(0, $header->get('nsCount'));
-        $this->assertSame(0, $header->get('arCount'));
         $this->assertSame(0, $header->get('qr'));
         $this->assertSame(Message::OPCODE_QUERY, $header->get('opcode'));
         $this->assertSame(0, $header->get('aa'));
@@ -84,10 +80,6 @@ class ParserTest extends TestCase
 
         $header = $response->header;
         $this->assertSame(0x7262, $header->get('id'));
-        $this->assertSame(1, $header->get('qdCount'));
-        $this->assertSame(1, $header->get('anCount'));
-        $this->assertSame(0, $header->get('nsCount'));
-        $this->assertSame(0, $header->get('arCount'));
         $this->assertSame(1, $header->get('qr'));
         $this->assertSame(Message::OPCODE_QUERY, $header->get('opcode'));
         $this->assertSame(0, $header->get('aa'));
@@ -275,10 +267,6 @@ class ParserTest extends TestCase
 
         $header = $response->header;
         $this->assertSame(0xcd72, $header->get('id'));
-        $this->assertSame(1, $header->get('qdCount'));
-        $this->assertSame(1, $header->get('anCount'));
-        $this->assertSame(0, $header->get('nsCount'));
-        $this->assertSame(0, $header->get('arCount'));
         $this->assertSame(1, $header->get('qr'));
         $this->assertSame(Message::OPCODE_QUERY, $header->get('opcode'));
         $this->assertSame(0, $header->get('aa'));
@@ -588,10 +576,6 @@ class ParserTest extends TestCase
 
         $header = $response->header;
         $this->assertSame(0x5dd8, $header->get('id'));
-        $this->assertSame(1, $header->get('qdCount'));
-        $this->assertSame(1, $header->get('anCount'));
-        $this->assertSame(0, $header->get('nsCount'));
-        $this->assertSame(0, $header->get('arCount'));
         $this->assertSame(1, $header->get('qr'));
         $this->assertSame(Message::OPCODE_QUERY, $header->get('opcode'));
         $this->assertSame(0, $header->get('aa'));

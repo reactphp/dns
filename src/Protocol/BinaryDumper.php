@@ -2,7 +2,6 @@
 
 namespace React\Dns\Protocol;
 
-use React\Dns\Model\HeaderBag;
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
 use React\Dns\Query\Query;
@@ -17,7 +16,7 @@ class BinaryDumper
     {
         $data = '';
 
-        $data .= $this->headerToBinary($message->header);
+        $data .= $this->headerToBinary($message);
         $data .= $this->questionToBinary($message->questions);
         $data .= $this->recordsToBinary($message->answers);
         $data .= $this->recordsToBinary($message->authority);
@@ -30,8 +29,9 @@ class BinaryDumper
      * @param Message $message
      * @return string
      */
-    private function headerToBinary(HeaderBag $header)
+    private function headerToBinary(Message $message)
     {
+        $header = $message->header;
         $data = '';
 
         $data .= pack('n', $header->get('id'));
@@ -48,10 +48,10 @@ class BinaryDumper
 
         $data .= pack('n', $flags);
 
-        $data .= pack('n', $header->get('qdCount'));
-        $data .= pack('n', $header->get('anCount'));
-        $data .= pack('n', $header->get('nsCount'));
-        $data .= pack('n', $header->get('arCount'));
+        $data .= pack('n', count($message->questions));
+        $data .= pack('n', count($message->answers));
+        $data .= pack('n', count($message->authority));
+        $data .= pack('n', count($message->additional));
 
         return $data;
     }
