@@ -205,4 +205,29 @@ class CoopExecutorTest extends TestCase
 
         $promise2->then(null, $this->expectCallableNever());
     }
+
+    public function testCancelQueryShouldNotCauseGarbageReferences()
+    {
+        if (class_exists('React\Promise\When')) {
+            $this->markTestSkipped('Not supported on legacy Promise v1 API');
+        }
+
+        $deferred = new Deferred(function () {
+            throw new \RuntimeException();
+        });
+
+        $base = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
+        $base->expects($this->once())->method('query')->willReturn($deferred->promise());
+        $connector = new CoopExecutor($base);
+
+        gc_collect_cycles();
+
+        $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
+
+        $promise = $connector->query('8.8.8.8', $query);
+        $promise->cancel();
+        $promise = null;
+
+        $this->assertEquals(0, gc_collect_cycles());
+    }
 }

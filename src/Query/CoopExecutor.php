@@ -75,10 +75,11 @@ class CoopExecutor implements ExecutorInterface
         $counts =& $this->counts;
         return new Promise(function ($resolve, $reject) use ($promise) {
             $promise->then($resolve, $reject);
-        }, function () use ($promise, $key, $query, &$pending, &$counts) {
+        }, function () use (&$promise, $key, $query, &$pending, &$counts) {
             if (--$counts[$key] < 1) {
                 unset($pending[$key], $counts[$key]);
                 $promise->cancel();
+                $promise = null;
             }
             throw new \RuntimeException('DNS query for ' . $query->name . ' has been cancelled');
         });
