@@ -52,10 +52,14 @@ class CachingExecutor implements ExecutorInterface
                         }
                     );
                 }
-            )->then($resolve, $reject);
+            )->then($resolve, function ($e) use ($reject, &$pending) {
+                $reject($e);
+                $pending = null;
+            });
         }, function ($_, $reject) use (&$pending, $query) {
             $reject(new \RuntimeException('DNS query for ' . $query->name . ' has been cancelled'));
             $pending->cancel();
+            $pending = null;
         });
     }
 
