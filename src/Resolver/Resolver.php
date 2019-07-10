@@ -10,12 +10,10 @@ use React\Promise\PromiseInterface;
 
 class Resolver
 {
-    private $nameserver;
     private $executor;
 
-    public function __construct($nameserver, ExecutorInterface $executor)
+    public function __construct(ExecutorInterface $executor)
     {
-        $this->nameserver = $nameserver;
         $this->executor = $executor;
     }
 
@@ -116,7 +114,6 @@ class Resolver
         $that = $this;
 
         return $this->executor->query(
-            $this->nameserver,
             $query
         )->then(function (Message $response) use ($query, $that) {
             return $that->extractValues($query, $response);

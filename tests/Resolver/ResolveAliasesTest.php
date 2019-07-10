@@ -22,7 +22,7 @@ class ResolveAliasesTest extends TestCase
         $executor = $this->createExecutorMock();
         $executor->expects($this->once())->method('query')->willReturn(\React\Promise\resolve($message));
 
-        $resolver = new Resolver('8.8.8.8:53', $executor);
+        $resolver = new Resolver($executor);
 
         $answers = $resolver->resolveAll($name, Message::TYPE_A);
 

@@ -24,13 +24,13 @@ class RetryExecutorTest extends TestCase
         $executor
             ->expects($this->once())
             ->method('query')
-            ->with('8.8.8.8', $this->isInstanceOf('React\Dns\Query\Query'))
+            ->with($this->isInstanceOf('React\Dns\Query\Query'))
             ->will($this->returnValue($this->expectPromiseOnce()));
 
         $retryExecutor = new RetryExecutor($executor, 2);
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $retryExecutor->query('8.8.8.8', $query);
+        $retryExecutor->query($query);
     }
 
     /**
@@ -45,12 +45,12 @@ class RetryExecutorTest extends TestCase
         $executor
             ->expects($this->exactly(2))
             ->method('query')
-            ->with('8.8.8.8', $this->isInstanceOf('React\Dns\Query\Query'))
+            ->with($this->isInstanceOf('React\Dns\Query\Query'))
             ->will($this->onConsecutiveCalls(
-                $this->returnCallback(function ($domain, $query) {
+                $this->returnCallback(function ($query) {
                     return Promise\reject(new TimeoutException("timeout"));
                 }),
-                $this->returnCallback(function ($domain, $query) use ($response) {
+                $this->returnCallback(function ($query) use ($response) {
                     return Promise\resolve($response);
                 })
             ));
@@ -66,7 +66,7 @@ class RetryExecutorTest extends TestCase
         $retryExecutor = new RetryExecutor($executor, 2);
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $retryExecutor->query('8.8.8.8', $query)->then($callback, $errorback);
+        $retryExecutor->query($query)->then($callback, $errorback);
     }
 
     /**
@@ -79,8 +79,8 @@ class RetryExecutorTest extends TestCase
         $executor
             ->expects($this->exactly(3))
             ->method('query')
-            ->with('8.8.8.8', $this->isInstanceOf('React\Dns\Query\Query'))
-            ->will($this->returnCallback(function ($domain, $query) {
+            ->with($this->isInstanceOf('React\Dns\Query\Query'))
+            ->will($this->returnCallback(function ($query) {
                 return Promise\reject(new TimeoutException("timeout"));
             }));
 
@@ -95,7 +95,7 @@ class RetryExecutorTest extends TestCase
         $retryExecutor = new RetryExecutor($executor, 2);
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $retryExecutor->query('8.8.8.8', $query)->then($callback, $errorback);
+        $retryExecutor->query($query)->then($callback, $errorback);
     }
 
     /**
@@ -108,8 +108,8 @@ class RetryExecutorTest extends TestCase
         $executor
             ->expects($this->once())
             ->method('query')
-            ->with('8.8.8.8', $this->isInstanceOf('React\Dns\Query\Query'))
-            ->will($this->returnCallback(function ($domain, $query) {
+            ->with($this->isInstanceOf('React\Dns\Query\Query'))
+            ->will($this->returnCallback(function ($query) {
                 return Promise\reject(new \Exception);
             }));
 
@@ -124,7 +124,7 @@ class RetryExecutorTest extends TestCase
         $retryExecutor = new RetryExecutor($executor, 2);
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $retryExecutor->query('8.8.8.8', $query)->then($callback, $errorback);
+        $retryExecutor->query($query)->then($callback, $errorback);
     }
 
     /**
@@ -139,8 +139,8 @@ class RetryExecutorTest extends TestCase
         $executor
             ->expects($this->once())
             ->method('query')
-            ->with('8.8.8.8', $this->isInstanceOf('React\Dns\Query\Query'))
-            ->will($this->returnCallback(function ($domain, $query) use (&$cancelled) {
+            ->with($this->isInstanceOf('React\Dns\Query\Query'))
+            ->will($this->returnCallback(function ($query) use (&$cancelled) {
                 $deferred = new Deferred(function ($resolve, $reject) use (&$cancelled) {
                     ++$cancelled;
                     $reject(new CancellationException('Cancelled'));
@@ -153,7 +153,7 @@ class RetryExecutorTest extends TestCase
         $retryExecutor = new RetryExecutor($executor, 2);
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $promise = $retryExecutor->query('8.8.8.8', $query);
+        $promise = $retryExecutor->query($query);
 
         $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
 
@@ -175,10 +175,10 @@ class RetryExecutorTest extends TestCase
         $executor
             ->expects($this->exactly(2))
             ->method('query')
-            ->with('8.8.8.8', $this->isInstanceOf('React\Dns\Query\Query'))
+            ->with($this->isInstanceOf('React\Dns\Query\Query'))
             ->will($this->onConsecutiveCalls(
                 $this->returnValue($deferred->promise()),
-                $this->returnCallback(function ($domain, $query) use (&$cancelled) {
+                $this->returnCallback(function ($query) use (&$cancelled) {
                     $deferred = new Deferred(function ($resolve, $reject) use (&$cancelled) {
                         ++$cancelled;
                         $reject(new CancellationException('Cancelled'));
@@ -191,7 +191,7 @@ class RetryExecutorTest extends TestCase
         $retryExecutor = new RetryExecutor($executor, 2);
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $promise = $retryExecutor->query('8.8.8.8', $query);
+        $promise = $retryExecutor->query($query);
 
         $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
 
@@ -217,14 +217,14 @@ class RetryExecutorTest extends TestCase
         $executor
             ->expects($this->once())
             ->method('query')
-            ->with('8.8.8.8', $this->isInstanceOf('React\Dns\Query\Query'))
+            ->with($this->isInstanceOf('React\Dns\Query\Query'))
             ->willReturn(Promise\resolve($this->createStandardResponse()));
 
         $retryExecutor = new RetryExecutor($executor, 0);
 
         gc_collect_cycles();
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $retryExecutor->query('8.8.8.8', $query);
+        $retryExecutor->query($query);
 
         $this->assertEquals(0, gc_collect_cycles());
     }
@@ -243,14 +243,14 @@ class RetryExecutorTest extends TestCase
         $executor
             ->expects($this->any())
             ->method('query')
-            ->with('8.8.8.8', $this->isInstanceOf('React\Dns\Query\Query'))
+            ->with($this->isInstanceOf('React\Dns\Query\Query'))
             ->willReturn(Promise\reject(new TimeoutException("timeout")));
 
         $retryExecutor = new RetryExecutor($executor, 0);
 
         gc_collect_cycles();
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $retryExecutor->query('8.8.8.8', $query);
+        $retryExecutor->query($query);
 
         $this->assertEquals(0, gc_collect_cycles());
     }
@@ -273,14 +273,14 @@ class RetryExecutorTest extends TestCase
         $executor
             ->expects($this->once())
             ->method('query')
-            ->with('8.8.8.8', $this->isInstanceOf('React\Dns\Query\Query'))
+            ->with($this->isInstanceOf('React\Dns\Query\Query'))
             ->willReturn($deferred->promise());
 
         $retryExecutor = new RetryExecutor($executor, 0);
 
         gc_collect_cycles();
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $promise = $retryExecutor->query('8.8.8.8', $query);
+        $promise = $retryExecutor->query($query);
         $promise->cancel();
         $promise = null;
 
@@ -301,8 +301,8 @@ class RetryExecutorTest extends TestCase
         $executor
             ->expects($this->once())
             ->method('query')
-            ->with('8.8.8.8', $this->isInstanceOf('React\Dns\Query\Query'))
-            ->will($this->returnCallback(function ($domain, $query) {
+            ->with($this->isInstanceOf('React\Dns\Query\Query'))
+            ->will($this->returnCallback(function ($query) {
                 return Promise\reject(new \Exception);
             }));
 
@@ -310,7 +310,7 @@ class RetryExecutorTest extends TestCase
 
         gc_collect_cycles();
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $retryExecutor->query('8.8.8.8', $query);
+        $retryExecutor->query($query);
 
         $this->assertEquals(0, gc_collect_cycles());
     }

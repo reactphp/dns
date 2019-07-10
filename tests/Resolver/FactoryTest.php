@@ -19,16 +19,16 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
     }
 
-    /** @test */
-    public function createWithoutPortShouldCreateResolverWithDefaultPort()
+    /**
+     * @test
+     * @expectedException InvalidArgumentException
+     */
+    public function createShouldThrowWhenNameserverIsInvalid()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
         $factory = new Factory();
-        $resolver = $factory->create('8.8.8.8', $loop);
-
-        $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
-        $this->assertSame('8.8.8.8:53', $this->getResolverPrivateMemberValue($resolver, 'nameserver'));
+        $factory->create('///', $loop);
     }
 
     /** @test */
@@ -60,33 +60,6 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf('React\Dns\Query\CachingExecutor', $executor);
         $cacheProperty = $this->getCachingExecutorPrivateMemberValue($executor, 'cache');
         $this->assertSame($cache, $cacheProperty);
-    }
-
-    /**
-     * @test
-     * @dataProvider factoryShouldAddDefaultPortProvider
-     */
-    public function factoryShouldAddDefaultPort($input, $expected)
-    {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
-
-        $factory = new Factory();
-        $resolver = $factory->create($input, $loop);
-
-        $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
-        $this->assertSame($expected, $this->getResolverPrivateMemberValue($resolver, 'nameserver'));
-    }
-
-    public static function factoryShouldAddDefaultPortProvider()
-    {
-        return array(
-            array('8.8.8.8',        '8.8.8.8:53'),
-            array('1.2.3.4:5',      '1.2.3.4:5'),
-            array('localhost',      'localhost:53'),
-            array('localhost:1234', 'localhost:1234'),
-            array('::1',            '[::1]:53'),
-            array('[::1]:53',       '[::1]:53')
-        );
     }
 
     private function getResolverPrivateExecutor($resolver)

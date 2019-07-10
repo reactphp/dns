@@ -9,13 +9,13 @@ use React\EventLoop\Factory;
 require __DIR__ . '/../vendor/autoload.php';
 
 $loop = Factory::create();
-$executor = new UdpTransportExecutor($loop);
+$executor = new UdpTransportExecutor('8.8.8.8:53', $loop);
 
 $name = isset($argv[1]) ? $argv[1] : 'google.com';
 
 $any = new Query($name, Message::TYPE_ANY, Message::CLASS_IN);
 
-$executor->query('8.8.8.8:53', $any)->then(function (Message $message) {
+$executor->query($any)->then(function (Message $message) {
     foreach ($message->answers as $answer) {
         /* @var $answer Record */
 

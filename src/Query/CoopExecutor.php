@@ -27,7 +27,7 @@ use React\Promise\Promise;
  * $executor = new CoopExecutor(
  *     new RetryExecutor(
  *         new TimeoutExecutor(
- *             new UdpTransportExecutor($loop),
+ *             new UdpTransportExecutor($nameserver, $loop),
  *             3.0,
  *             $loop
  *         )
@@ -46,7 +46,7 @@ class CoopExecutor implements ExecutorInterface
         $this->executor = $base;
     }
 
-    public function query($nameserver, Query $query)
+    public function query(Query $query)
     {
         $key = $this->serializeQueryToIdentity($query);
         if (isset($this->pending[$key])) {
@@ -55,7 +55,7 @@ class CoopExecutor implements ExecutorInterface
             ++$this->counts[$key];
         } else {
             // no such query pending, so start new query and keep reference until it's fulfilled or rejected
-            $promise = $this->executor->query($nameserver, $query);
+            $promise = $this->executor->query($query);
             $this->pending[$key] = $promise;
             $this->counts[$key] = 1;
 

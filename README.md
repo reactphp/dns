@@ -208,10 +208,9 @@ The following example looks up the `IPv6` address for `igor.io`.
 
 ```php
 $loop = Factory::create();
-$executor = new UdpTransportExecutor($loop);
+$executor = new UdpTransportExecutor('8.8.8.8:53', $loop);
 
 $executor->query(
-    '8.8.8.8:53', 
     new Query($name, Message::TYPE_AAAA, Message::CLASS_IN)
 )->then(function (Message $message) {
     foreach ($message->answers as $answer) {
@@ -229,7 +228,7 @@ want to use this in combination with a `TimeoutExecutor` like this:
 
 ```php
 $executor = new TimeoutExecutor(
-    new UdpTransportExecutor($loop),
+    new UdpTransportExecutor($nameserver, $loop),
     3.0,
     $loop
 );
@@ -242,7 +241,7 @@ combination with a `RetryExecutor` like this:
 ```php
 $executor = new RetryExecutor(
     new TimeoutExecutor(
-        new UdpTransportExecutor($loop),
+        new UdpTransportExecutor($nameserver, $loop),
         3.0,
         $loop
     )
@@ -261,7 +260,7 @@ a `CoopExecutor` like this:
 $executor = new CoopExecutor(
     new RetryExecutor(
         new TimeoutExecutor(
-            new UdpTransportExecutor($loop),
+            new UdpTransportExecutor($nameserver, $loop),
             3.0,
             $loop
         )
@@ -284,11 +283,10 @@ use this code:
 ```php
 $hosts = \React\Dns\Config\HostsFile::loadFromPathBlocking();
 
-$executor = new UdpTransportExecutor($loop);
+$executor = new UdpTransportExecutor('8.8.8.8:53', $loop);
 $executor = new HostsFileExecutor($hosts, $executor);
 
 $executor->query(
-    '8.8.8.8:53', 
     new Query('localhost', Message::TYPE_A, Message::CLASS_IN)
 );
 ```
