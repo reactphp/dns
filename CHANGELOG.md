@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.19 (2019-07-10)
+
+*   Feature: Avoid garbage references when DNS resolution rejects on legacy PHP <= 5.6.
+    (#133 by @clue)
+
 ## 0.4.18 (2019-09-07)
 
 *   Feature / Fix: Implement `CachingExecutor` using cache TTL, deprecate old `CachedExecutor`,
