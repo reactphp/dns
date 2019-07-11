@@ -1,5 +1,36 @@
 # Changelog
 
+## 1.0.0 (2019-07-11)
+
+*   First stable LTS release, now following [SemVer](https://semver.org/).
+    We'd like to emphasize that this component is production ready and battle-tested.
+    We plan to support all long-term support (LTS) releases for at least 24 months,
+    so you have a rock-solid foundation to build on top of.
+
+This update involves a number of BC breaks due to dropped support for
+deprecated functionality and some internal API cleanup. We've tried hard to
+avoid BC breaks where possible and minimize impact otherwise. We expect that
+most consumers of this package will actually not be affected by any BC
+breaks, see below for more details:
+
+*   BC break: Delete all deprecated APIs, use `Query` objects for `Message` questions
+    instead of nested arrays and increase code coverage to 100%.
+    (#130 by @clue)
+
+*   BC break: Move `$nameserver` from `ExecutorInterface` to `UdpTransportExecutor`,
+    remove advanced/internal `UdpTransportExecutor` args for `Parser`/`BinaryDumper` and
+    add API documentation for `ExecutorInterface`.
+    (#135, #137 and #138 by @clue)
+
+*   BC break: Replace `HeaderBag` attributes with simple `Message` properties.
+    (#132 by @clue)
+
+*   BC break: Mark all `Record` attributes as required, add documentation vs `Query`.
+    (#136 by @clue)
+
+*   BC break: Mark all classes as final to discourage inheritance
+    (#134 by @WyriHaximus)
+
 ## 0.4.19 (2019-07-10)
 
 *   Feature: Avoid garbage references when DNS resolution rejects on legacy PHP <= 5.6.
