@@ -57,12 +57,9 @@ class UdpTransportExecutorTest extends TestCase
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->never())->method('addReadStream');
 
-        $dumper = $this->getMockBuilder('React\Dns\Protocol\BinaryDumper')->getMock();
-        $dumper->expects($this->once())->method('toBinary')->willReturn(str_repeat('.', 513));
+        $executor = new UdpTransportExecutor('8.8.8.8:53', $loop);
 
-        $executor = new UdpTransportExecutor('8.8.8.8:53', $loop, null, $dumper);
-
-        $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
+        $query = new Query('google.' . str_repeat('.com', 200), Message::TYPE_A, Message::CLASS_IN);
         $promise = $executor->query($query);
 
         $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
@@ -173,7 +170,7 @@ class UdpTransportExecutorTest extends TestCase
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new UdpTransportExecutor($address, $loop, $parser, $dumper);
+        $executor = new UdpTransportExecutor($address, $loop);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -208,7 +205,7 @@ class UdpTransportExecutorTest extends TestCase
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new UdpTransportExecutor($address, $loop, $parser, $dumper);
+        $executor = new UdpTransportExecutor($address, $loop);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -247,7 +244,7 @@ class UdpTransportExecutorTest extends TestCase
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new UdpTransportExecutor($address, $loop, $parser, $dumper);
+        $executor = new UdpTransportExecutor($address, $loop);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 

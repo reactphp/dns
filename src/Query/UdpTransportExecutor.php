@@ -92,20 +92,11 @@ class UdpTransportExecutor implements ExecutorInterface
     private $dumper;
 
     /**
-     * @param string            $nameserver
-     * @param LoopInterface     $loop
-     * @param null|Parser       $parser optional/advanced: DNS protocol parser to use
-     * @param null|BinaryDumper $dumper optional/advanced: DNS protocol dumper to use
+     * @param string        $nameserver
+     * @param LoopInterface $loop
      */
-    public function __construct($nameserver, LoopInterface $loop, Parser $parser = null, BinaryDumper $dumper = null)
+    public function __construct($nameserver, LoopInterface $loop)
     {
-        if ($parser === null) {
-            $parser = new Parser();
-        }
-        if ($dumper === null) {
-            $dumper = new BinaryDumper();
-        }
-
         if (strpos($nameserver, '[') === false && substr_count($nameserver, ':') >= 2) {
             // several colons, but not enclosed in square brackets => enclose IPv6 address in square brackets
             $nameserver = '[' . $nameserver . ']';
@@ -118,8 +109,8 @@ class UdpTransportExecutor implements ExecutorInterface
 
         $this->nameserver = 'udp://' . $parts['host'] . ':' . (isset($parts['port']) ? $parts['port'] : 53);
         $this->loop = $loop;
-        $this->parser = $parser;
-        $this->dumper = $dumper;
+        $this->parser = new Parser();
+        $this->dumper = new BinaryDumper();
     }
 
     public function query(Query $query)
