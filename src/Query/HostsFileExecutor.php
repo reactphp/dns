@@ -25,7 +25,7 @@ class HostsFileExecutor implements ExecutorInterface
         $this->fallback = $fallback;
     }
 
-    public function query($nameserver, Query $query)
+    public function query(Query $query)
     {
         if ($query->class === Message::CLASS_IN && ($query->type === Message::TYPE_A || $query->type === Message::TYPE_AAAA)) {
             // forward lookup for type A or AAAA
@@ -61,7 +61,7 @@ class HostsFileExecutor implements ExecutorInterface
             }
         }
 
-        return $this->fallback->query($nameserver, $query);
+        return $this->fallback->query($query);
     }
 
     private function getIpFromHost($host)

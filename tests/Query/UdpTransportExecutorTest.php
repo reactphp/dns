@@ -12,6 +12,46 @@ use React\Tests\Dns\TestCase;
 
 class UdpTransportExecutorTest extends TestCase
 {
+    /**
+     * @dataProvider provideDefaultPortProvider
+     * @param string $input
+     * @param strings $expected
+     */
+    public function testCtorShouldAcceptNameserverAddresses($input, $expected)
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+
+        $executor = new UdpTransportExecutor($input, $loop);
+
+        $ref = new \ReflectionProperty($executor, 'nameserver');
+        $ref->setAccessible(true);
+        $value = $ref->getValue($executor);
+
+        $this->assertEquals($expected, $value);
+    }
+
+    public static function provideDefaultPortProvider()
+    {
+        return array(
+            array('8.8.8.8',        'udp://8.8.8.8:53'),
+            array('1.2.3.4:5',      'udp://1.2.3.4:5'),
+            array('localhost',      'udp://localhost:53'),
+            array('localhost:1234', 'udp://localhost:1234'),
+            array('::1',            'udp://[::1]:53'),
+            array('[::1]:53',       'udp://[::1]:53')
+        );
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testCtorShouldThrowWhenNameserverAddressIsInvalid()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+
+        new UdpTransportExecutor('///', $loop);
+    }
+
     public function testQueryRejectsIfMessageExceedsUdpSize()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
@@ -20,10 +60,10 @@ class UdpTransportExecutorTest extends TestCase
         $dumper = $this->getMockBuilder('React\Dns\Protocol\BinaryDumper')->getMock();
         $dumper->expects($this->once())->method('toBinary')->willReturn(str_repeat('.', 513));
 
-        $executor = new UdpTransportExecutor($loop, null, $dumper);
+        $executor = new UdpTransportExecutor('8.8.8.8:53', $loop, null, $dumper);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
-        $promise = $executor->query('8.8.8.8:53', $query);
+        $promise = $executor->query($query);
 
         $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
         $promise->then(null, $this->expectCallableOnce());
@@ -34,10 +74,14 @@ class UdpTransportExecutorTest extends TestCase
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->never())->method('addReadStream');
 
-        $executor = new UdpTransportExecutor($loop);
+        $executor = new UdpTransportExecutor('::1', $loop);
+
+        $ref = new \ReflectionProperty($executor, 'nameserver');
+        $ref->setAccessible(true);
+        $ref->setValue($executor, '///');
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
-        $promise = $executor->query('///', $query);
+        $promise = $executor->query($query);
 
         $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
         $promise->then(null, $this->expectCallableOnce());
@@ -52,10 +96,10 @@ class UdpTransportExecutorTest extends TestCase
         $loop->expects($this->once())->method('addReadStream');
         $loop->expects($this->once())->method('removeReadStream');
 
-        $executor = new UdpTransportExecutor($loop);
+        $executor = new UdpTransportExecutor('8.8.8.8:53', $loop);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
-        $promise = $executor->query('8.8.8.8:53', $query);
+        $promise = $executor->query($query);
         $promise->cancel();
 
         $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
@@ -66,12 +110,12 @@ class UdpTransportExecutorTest extends TestCase
     {
         $loop = Factory::create();
 
-        $executor = new UdpTransportExecutor($loop);
+        $executor = new UdpTransportExecutor('127.0.0.1:1', $loop);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
         $wait = true;
-        $promise = $executor->query('127.0.0.1:1', $query)->then(
+        $promise = $executor->query($query)->then(
             null,
             function ($e) use (&$wait) {
                 $wait = false;
@@ -94,12 +138,12 @@ class UdpTransportExecutorTest extends TestCase
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new UdpTransportExecutor($loop);
+        $executor = new UdpTransportExecutor($address, $loop);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
         $wait = true;
-        $promise = $executor->query($address, $query)->then(
+        $promise = $executor->query($query)->then(
             null,
             function ($e) use (&$wait) {
                 $wait = false;
@@ -129,12 +173,12 @@ class UdpTransportExecutorTest extends TestCase
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new UdpTransportExecutor($loop, $parser, $dumper);
+        $executor = new UdpTransportExecutor($address, $loop, $parser, $dumper);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
         $wait = true;
-        $promise = $executor->query($address, $query)->then(
+        $promise = $executor->query($query)->then(
             null,
             function ($e) use (&$wait) {
                 $wait = false;
@@ -164,12 +208,12 @@ class UdpTransportExecutorTest extends TestCase
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new UdpTransportExecutor($loop, $parser, $dumper);
+        $executor = new UdpTransportExecutor($address, $loop, $parser, $dumper);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
         $wait = true;
-        $promise = $executor->query($address, $query)->then(
+        $promise = $executor->query($query)->then(
             null,
             function ($e) use (&$wait) {
                 $wait = false;
@@ -203,11 +247,11 @@ class UdpTransportExecutorTest extends TestCase
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new UdpTransportExecutor($loop, $parser, $dumper);
+        $executor = new UdpTransportExecutor($address, $loop, $parser, $dumper);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
-        $promise = $executor->query($address, $query);
+        $promise = $executor->query($query);
         $response = \Clue\React\Block\await($promise, $loop, 0.2);
 
         $this->assertInstanceOf('React\Dns\Model\Message', $response);

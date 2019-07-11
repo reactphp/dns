@@ -24,7 +24,7 @@ class CachingExecutorTest extends TestCase
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
-        $promise = $executor->query('8.8.8.8', $query);
+        $promise = $executor->query($query);
 
         $promise->then($this->expectCallableNever(), $this->expectCallableNever());
     }
@@ -34,14 +34,14 @@ class CachingExecutorTest extends TestCase
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
         $fallback = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
-        $fallback->expects($this->once())->method('query')->with('8.8.8.8', $query)->willReturn(new Promise(function () { }));
+        $fallback->expects($this->once())->method('query')->with($query)->willReturn(new Promise(function () { }));
 
         $cache = $this->getMockBuilder('React\Cache\CacheInterface')->getMock();
         $cache->expects($this->once())->method('get')->willReturn(\React\Promise\resolve(null));
 
         $executor = new CachingExecutor($fallback, $cache);
 
-        $promise = $executor->query('8.8.8.8', $query);
+        $promise = $executor->query($query);
 
         $promise->then($this->expectCallableNever(), $this->expectCallableNever());
     }
@@ -59,7 +59,7 @@ class CachingExecutorTest extends TestCase
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
-        $promise = $executor->query('8.8.8.8', $query);
+        $promise = $executor->query($query);
 
         $promise->then($this->expectCallableOnceWith($message), $this->expectCallableNever());
     }
@@ -80,7 +80,7 @@ class CachingExecutorTest extends TestCase
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
-        $promise = $executor->query('8.8.8.8', $query);
+        $promise = $executor->query($query);
 
         $promise->then($this->expectCallableOnceWith($message), $this->expectCallableNever());
     }
@@ -99,7 +99,7 @@ class CachingExecutorTest extends TestCase
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
-        $promise = $executor->query('8.8.8.8', $query);
+        $promise = $executor->query($query);
 
         $promise->then($this->expectCallableOnceWith($message), $this->expectCallableNever());
     }
@@ -119,7 +119,7 @@ class CachingExecutorTest extends TestCase
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
-        $promise = $executor->query('8.8.8.8', $query);
+        $promise = $executor->query($query);
 
         $promise->then($this->expectCallableOnceWith($message), $this->expectCallableNever());
     }
@@ -136,7 +136,7 @@ class CachingExecutorTest extends TestCase
 
         $executor = new CachingExecutor($fallback, $cache);
 
-        $promise = $executor->query('8.8.8.8', $query);
+        $promise = $executor->query($query);
 
         $promise->then($this->expectCallableNever(), $this->expectCallableOnceWith($this->isInstanceOf('RuntimeException')));
     }
@@ -154,7 +154,7 @@ class CachingExecutorTest extends TestCase
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
-        $promise = $executor->query('8.8.8.8', $query);
+        $promise = $executor->query($query);
         $promise->cancel();
 
         $promise->then($this->expectCallableNever(), $this->expectCallableOnceWith($this->isInstanceOf('RuntimeException')));
@@ -174,7 +174,7 @@ class CachingExecutorTest extends TestCase
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
-        $promise = $executor->query('8.8.8.8', $query);
+        $promise = $executor->query($query);
         $deferred->resolve(null);
         $promise->cancel();
 

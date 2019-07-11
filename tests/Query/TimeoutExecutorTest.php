@@ -29,7 +29,7 @@ class TimeoutExecutorTest extends TestCase
         $this->wrapped
             ->expects($this->once())
             ->method('query')
-            ->will($this->returnCallback(function ($domain, $query) use (&$cancelled) {
+            ->will($this->returnCallback(function ($query) use (&$cancelled) {
                 $deferred = new Deferred(function ($resolve, $reject) use (&$cancelled) {
                     ++$cancelled;
                     $reject(new CancellationException('Cancelled'));
@@ -39,7 +39,7 @@ class TimeoutExecutorTest extends TestCase
             }));
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $promise = $this->executor->query('8.8.8.8:53', $query);
+        $promise = $this->executor->query($query);
 
         $this->assertEquals(0, $cancelled);
         $promise->cancel();
@@ -56,7 +56,7 @@ class TimeoutExecutorTest extends TestCase
             ->willReturn(Promise\resolve('0.0.0.0'));
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $promise = $this->executor->query('8.8.8.8:53', $query);
+        $promise = $this->executor->query($query);
 
         $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
     }
@@ -69,7 +69,7 @@ class TimeoutExecutorTest extends TestCase
             ->willReturn(Promise\reject(new \RuntimeException()));
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $promise = $this->executor->query('8.8.8.8:53', $query);
+        $promise = $this->executor->query($query);
 
         $promise->then($this->expectCallableNever(), $this->expectCallableOnceWith(new \RuntimeException()));
     }
@@ -83,7 +83,7 @@ class TimeoutExecutorTest extends TestCase
         $this->wrapped
             ->expects($this->once())
             ->method('query')
-            ->will($this->returnCallback(function ($domain, $query) use (&$cancelled) {
+            ->will($this->returnCallback(function ($query) use (&$cancelled) {
                 $deferred = new Deferred(function ($resolve, $reject) use (&$cancelled) {
                     ++$cancelled;
                     $reject(new CancellationException('Cancelled'));
@@ -104,7 +104,7 @@ class TimeoutExecutorTest extends TestCase
             ));
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $this->executor->query('8.8.8.8:53', $query)->then($callback, $errorback);
+        $this->executor->query($query)->then($callback, $errorback);
 
         $this->assertEquals(0, $cancelled);
 

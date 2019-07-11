@@ -18,10 +18,9 @@ class Factory
 {
     public function create($nameserver, LoopInterface $loop)
     {
-        $nameserver = $this->addPortToServerIfMissing($nameserver);
-        $executor = $this->decorateHostsFileExecutor($this->createRetryExecutor($loop));
+        $executor = $this->decorateHostsFileExecutor($this->createRetryExecutor($nameserver, $loop));
 
-        return new Resolver($nameserver, $executor);
+        return new Resolver($executor);
     }
 
     public function createCached($nameserver, LoopInterface $loop, CacheInterface $cache = null)
@@ -31,10 +30,9 @@ class Factory
             $cache = new ArrayCache(256);
         }
 
-        $nameserver = $this->addPortToServerIfMissing($nameserver);
-        $executor = $this->decorateHostsFileExecutor($this->createCachedExecutor($loop, $cache));
+        $executor = $this->decorateHostsFileExecutor($this->createCachedExecutor($nameserver, $loop, $cache));
 
-        return new Resolver($nameserver, $executor);
+        return new Resolver($executor);
     }
 
     /**
@@ -67,36 +65,25 @@ class Factory
         return $executor;
     }
 
-    protected function createExecutor(LoopInterface $loop)
+    protected function createExecutor($nameserver, LoopInterface $loop)
     {
         return new TimeoutExecutor(
-            new UdpTransportExecutor($loop),
+            new UdpTransportExecutor(
+                $nameserver,
+                $loop
+            ),
             5.0,
             $loop
         );
     }
 
-    protected function createRetryExecutor(LoopInterface $loop)
+    protected function createRetryExecutor($namserver, LoopInterface $loop)
     {
-        return new CoopExecutor(new RetryExecutor($this->createExecutor($loop)));
+        return new CoopExecutor(new RetryExecutor($this->createExecutor($namserver, $loop)));
     }
 
-    protected function createCachedExecutor(LoopInterface $loop, CacheInterface $cache)
+    protected function createCachedExecutor($namserver, LoopInterface $loop, CacheInterface $cache)
     {
-        return new CachingExecutor($this->createRetryExecutor($loop), $cache);
-    }
-
-    protected function addPortToServerIfMissing($nameserver)
-    {
-        if (strpos($nameserver, '[') === false && substr_count($nameserver, ':') >= 2) {
-            // several colons, but not enclosed in square brackets => enclose IPv6 address in square brackets
-            $nameserver = '[' . $nameserver . ']';
-        }
-        // assume a dummy scheme when checking for the port, otherwise parse_url() fails
-        if (parse_url('dummy://' . $nameserver, PHP_URL_PORT) === null) {
-            $nameserver .= ':53';
-        }
-
-        return $nameserver;
+        return new CachingExecutor($this->createRetryExecutor($namserver, $loop), $cache);
     }
 }

@@ -14,10 +14,10 @@ class CoopExecutorTest extends TestCase
         $pending = new Promise(function () { });
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
         $base = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
-        $base->expects($this->once())->method('query')->with('8.8.8.8', $query)->willReturn($pending);
+        $base->expects($this->once())->method('query')->with($query)->willReturn($pending);
         $connector = new CoopExecutor($base);
 
-        $connector->query('8.8.8.8', $query);
+        $connector->query($query);
     }
 
     public function testQueryOnceWillResolveWhenBaseExecutorResolves()
@@ -29,7 +29,7 @@ class CoopExecutorTest extends TestCase
         $connector = new CoopExecutor($base);
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
-        $promise = $connector->query('8.8.8.8', $query);
+        $promise = $connector->query($query);
 
         $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
 
@@ -45,7 +45,7 @@ class CoopExecutorTest extends TestCase
         $connector = new CoopExecutor($base);
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
-        $promise = $connector->query('8.8.8.8', $query);
+        $promise = $connector->query($query);
 
         $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
 
@@ -59,13 +59,13 @@ class CoopExecutorTest extends TestCase
         $query2 = new Query('reactphp.org', Message::TYPE_AAAA, Message::CLASS_IN);
         $base = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
         $base->expects($this->exactly(2))->method('query')->withConsecutive(
-            array('8.8.8.8', $query1),
-            array('8.8.8.8', $query2)
+            array($query1),
+            array($query2)
         )->willReturn($pending);
         $connector = new CoopExecutor($base);
 
-        $connector->query('8.8.8.8', $query1);
-        $connector->query('8.8.8.8', $query2);
+        $connector->query($query1);
+        $connector->query($query2);
     }
 
     public function testQueryTwiceWillPassExactQueryToBaseExecutorOnceWhenQueryIsStillPending()
@@ -73,11 +73,11 @@ class CoopExecutorTest extends TestCase
         $pending = new Promise(function () { });
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
         $base = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
-        $base->expects($this->once())->method('query')->with('8.8.8.8', $query)->willReturn($pending);
+        $base->expects($this->once())->method('query')->with($query)->willReturn($pending);
         $connector = new CoopExecutor($base);
 
-        $connector->query('8.8.8.8', $query);
-        $connector->query('8.8.8.8', $query);
+        $connector->query($query);
+        $connector->query($query);
     }
 
     public function testQueryTwiceWillPassExactQueryToBaseExecutorTwiceWhenFirstQueryIsAlreadyResolved()
@@ -86,15 +86,15 @@ class CoopExecutorTest extends TestCase
         $pending = new Promise(function () { });
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
         $base = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
-        $base->expects($this->exactly(2))->method('query')->with('8.8.8.8', $query)->willReturnOnConsecutiveCalls($deferred->promise(), $pending);
+        $base->expects($this->exactly(2))->method('query')->with($query)->willReturnOnConsecutiveCalls($deferred->promise(), $pending);
 
         $connector = new CoopExecutor($base);
 
-        $connector->query('8.8.8.8', $query);
+        $connector->query($query);
 
         $deferred->resolve(new Message());
 
-        $connector->query('8.8.8.8', $query);
+        $connector->query($query);
     }
 
     public function testQueryTwiceWillPassExactQueryToBaseExecutorTwiceWhenFirstQueryIsAlreadyRejected()
@@ -103,15 +103,15 @@ class CoopExecutorTest extends TestCase
         $pending = new Promise(function () { });
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
         $base = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
-        $base->expects($this->exactly(2))->method('query')->with('8.8.8.8', $query)->willReturnOnConsecutiveCalls($deferred->promise(), $pending);
+        $base->expects($this->exactly(2))->method('query')->with($query)->willReturnOnConsecutiveCalls($deferred->promise(), $pending);
 
         $connector = new CoopExecutor($base);
 
-        $connector->query('8.8.8.8', $query);
+        $connector->query($query);
 
         $deferred->reject(new RuntimeException());
 
-        $connector->query('8.8.8.8', $query);
+        $connector->query($query);
     }
 
     public function testCancelQueryWillCancelPromiseFromBaseExecutorAndReject()
@@ -123,7 +123,7 @@ class CoopExecutorTest extends TestCase
         $connector = new CoopExecutor($base);
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
-        $promise = $connector->query('8.8.8.8', $query);
+        $promise = $connector->query($query);
 
         $promise->cancel();
 
@@ -139,8 +139,8 @@ class CoopExecutorTest extends TestCase
         $connector = new CoopExecutor($base);
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
-        $promise1 = $connector->query('8.8.8.8', $query);
-        $promise2 = $connector->query('8.8.8.8', $query);
+        $promise1 = $connector->query($query);
+        $promise2 = $connector->query($query);
 
         $promise1->cancel();
 
@@ -157,8 +157,8 @@ class CoopExecutorTest extends TestCase
         $connector = new CoopExecutor($base);
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
-        $promise1 = $connector->query('8.8.8.8', $query);
-        $promise2 = $connector->query('8.8.8.8', $query);
+        $promise1 = $connector->query($query);
+        $promise2 = $connector->query($query);
 
         $promise2->cancel();
 
@@ -175,8 +175,8 @@ class CoopExecutorTest extends TestCase
         $connector = new CoopExecutor($base);
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
-        $promise1 = $connector->query('8.8.8.8', $query);
-        $promise2 = $connector->query('8.8.8.8', $query);
+        $promise1 = $connector->query($query);
+        $promise2 = $connector->query($query);
 
         $promise1->cancel();
         $promise2->cancel();
@@ -196,10 +196,10 @@ class CoopExecutorTest extends TestCase
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
-        $promise1 = $connector->query('8.8.8.8', $query);
+        $promise1 = $connector->query($query);
         $promise1->cancel();
 
-        $promise2 = $connector->query('8.8.8.8', $query);
+        $promise2 = $connector->query($query);
 
         $promise1->then(null, $this->expectCallableOnce());
 
@@ -224,7 +224,7 @@ class CoopExecutorTest extends TestCase
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
-        $promise = $connector->query('8.8.8.8', $query);
+        $promise = $connector->query($query);
         $promise->cancel();
         $promise = null;
 

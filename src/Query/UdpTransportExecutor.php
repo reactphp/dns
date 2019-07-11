@@ -19,10 +19,9 @@ use React\Promise\Deferred;
  *
  * ```php
  * $loop = Factory::create();
- * $executor = new UdpTransportExecutor($loop);
+ * $executor = new UdpTransportExecutor('8.8.8.8:53', $loop);
  *
  * $executor->query(
- *     '8.8.8.8:53',
  *     new Query($name, Message::TYPE_AAAA, Message::CLASS_IN)
  * )->then(function (Message $message) {
  *     foreach ($message->answers as $answer) {
@@ -40,7 +39,7 @@ use React\Promise\Deferred;
  *
  * ```php
  * $executor = new TimeoutExecutor(
- *     new UdpTransportExecutor($loop),
+ *     new UdpTransportExecutor($nameserver, $loop),
  *     3.0,
  *     $loop
  * );
@@ -53,7 +52,7 @@ use React\Promise\Deferred;
  * ```php
  * $executor = new RetryExecutor(
  *     new TimeoutExecutor(
- *         new UdpTransportExecutor($loop),
+ *         new UdpTransportExecutor($nameserver, $loop),
  *         3.0,
  *         $loop
  *     )
@@ -72,7 +71,7 @@ use React\Promise\Deferred;
  * $executor = new CoopExecutor(
  *     new RetryExecutor(
  *         new TimeoutExecutor(
- *             new UdpTransportExecutor($loop),
+ *             new UdpTransportExecutor($nameserver, $loop),
  *             3.0,
  *             $loop
  *         )
@@ -93,11 +92,12 @@ class UdpTransportExecutor implements ExecutorInterface
     private $dumper;
 
     /**
+     * @param string            $nameserver
      * @param LoopInterface     $loop
      * @param null|Parser       $parser optional/advanced: DNS protocol parser to use
      * @param null|BinaryDumper $dumper optional/advanced: DNS protocol dumper to use
      */
-    public function __construct(LoopInterface $loop, Parser $parser = null, BinaryDumper $dumper = null)
+    public function __construct($nameserver, LoopInterface $loop, Parser $parser = null, BinaryDumper $dumper = null)
     {
         if ($parser === null) {
             $parser = new Parser();
@@ -106,12 +106,23 @@ class UdpTransportExecutor implements ExecutorInterface
             $dumper = new BinaryDumper();
         }
 
+        if (strpos($nameserver, '[') === false && substr_count($nameserver, ':') >= 2) {
+            // several colons, but not enclosed in square brackets => enclose IPv6 address in square brackets
+            $nameserver = '[' . $nameserver . ']';
+        }
+
+        $parts = parse_url('udp://' . $nameserver);
+        if (!isset($parts['scheme'], $parts['host']) || $parts['scheme'] !== 'udp') {
+            throw new \InvalidArgumentException('Invalid nameserver address given');
+        }
+
+        $this->nameserver = 'udp://' . $parts['host'] . ':' . (isset($parts['port']) ? $parts['port'] : 53);
         $this->loop = $loop;
         $this->parser = $parser;
         $this->dumper = $dumper;
     }
 
-    public function query($nameserver, Query $query)
+    public function query(Query $query)
     {
         $request = Message::createRequestForQuery($query);
 
@@ -123,7 +134,7 @@ class UdpTransportExecutor implements ExecutorInterface
         }
 
         // UDP connections are instant, so try connection without a loop or timeout
-        $socket = @\stream_socket_client("udp://$nameserver", $errno, $errstr, 0);
+        $socket = @\stream_socket_client($this->nameserver, $errno, $errstr, 0);
         if ($socket === false) {
             return \React\Promise\reject(new \RuntimeException(
                 'DNS query for ' . $query->name . ' failed: Unable to connect to DNS server ('  . $errstr . ')',
