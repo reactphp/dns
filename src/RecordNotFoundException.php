@@ -2,6 +2,6 @@
 
 namespace React\Dns;
 
-class RecordNotFoundException extends \Exception
+final class RecordNotFoundException extends \Exception
 {
 }

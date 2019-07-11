@@ -14,7 +14,7 @@ use React\Promise;
  * DNS executor. If the host is not found in the hosts file, it will be passed
  * to the DNS executor as a fallback.
  */
-class HostsFileExecutor implements ExecutorInterface
+final class HostsFileExecutor implements ExecutorInterface
 {
     private $hosts;
     private $fallback;

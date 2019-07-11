@@ -6,7 +6,7 @@ use React\Cache\CacheInterface;
 use React\Dns\Model\Message;
 use React\Promise\Promise;
 
-class CachingExecutor implements ExecutorInterface
+final class CachingExecutor implements ExecutorInterface
 {
     /**
      * Default TTL for negative responses (NXDOMAIN etc.).

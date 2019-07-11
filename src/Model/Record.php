@@ -11,7 +11,7 @@ namespace React\Dns\Model;
  * @link https://tools.ietf.org/html/rfc1035#section-4.1.3
  * @see \React\Dns\Query\Query
  */
-class Record
+final class Record
 {
     /**
      * @var string hostname without trailing dot, for example "reactphp.org"

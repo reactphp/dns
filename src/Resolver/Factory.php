@@ -14,7 +14,7 @@ use React\Dns\Query\TimeoutExecutor;
 use React\Dns\Query\UdpTransportExecutor;
 use React\EventLoop\LoopInterface;
 
-class Factory
+final class Factory
 {
     public function create($nameserver, LoopInterface $loop)
     {

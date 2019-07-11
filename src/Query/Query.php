@@ -11,7 +11,7 @@ namespace React\Dns\Query;
  * @link https://tools.ietf.org/html/rfc1035#section-4.1.2
  * @see \React\Dns\Message\Record
  */
-class Query
+final class Query
 {
     /**
      * @var string query name, i.e. hostname to look up
