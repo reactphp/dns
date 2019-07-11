@@ -7,7 +7,7 @@ use React\Promise\Deferred;
 use React\Promise\CancellablePromiseInterface;
 use React\Promise\Timer;
 
-class TimeoutExecutor implements ExecutorInterface
+final class TimeoutExecutor implements ExecutorInterface
 {
     private $executor;
     private $loop;

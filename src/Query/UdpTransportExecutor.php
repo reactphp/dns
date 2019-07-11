@@ -85,7 +85,7 @@ use React\Promise\Deferred;
  *   packages. Higher-level components should take advantage of the Datagram
  *   component instead of reimplementing this socket logic from scratch.
  */
-class UdpTransportExecutor implements ExecutorInterface
+final class UdpTransportExecutor implements ExecutorInterface
 {
     private $loop;
     private $parser;

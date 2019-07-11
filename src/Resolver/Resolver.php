@@ -8,7 +8,7 @@ use React\Dns\Query\Query;
 use React\Dns\RecordNotFoundException;
 use React\Promise\PromiseInterface;
 
-class Resolver
+final class Resolver
 {
     private $executor;
 

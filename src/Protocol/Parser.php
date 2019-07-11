@@ -12,7 +12,7 @@ use InvalidArgumentException;
  *
  * Obsolete and uncommon types and classes are not implemented.
  */
-class Parser
+final class Parser
 {
     /**
      * Parses the given raw binary message into a Message object

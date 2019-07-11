@@ -6,7 +6,7 @@ use React\Dns\Model\Message;
 use React\Dns\Model\Record;
 use React\Dns\Query\Query;
 
-class BinaryDumper
+final class BinaryDumper
 {
     /**
      * @param Message $message

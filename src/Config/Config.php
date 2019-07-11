@@ -4,7 +4,7 @@ namespace React\Dns\Config;
 
 use RuntimeException;
 
-class Config
+final class Config
 {
     /**
      * Loads the system DNS configuration

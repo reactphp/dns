@@ -5,7 +5,7 @@ namespace React\Dns\Query;
 use React\Promise\CancellablePromiseInterface;
 use React\Promise\Deferred;
 
-class RetryExecutor implements ExecutorInterface
+final class RetryExecutor implements ExecutorInterface
 {
     private $executor;
     private $retries;

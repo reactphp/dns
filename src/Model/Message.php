@@ -9,7 +9,7 @@ use React\Dns\Query\Query;
  *
  * @link https://tools.ietf.org/html/rfc1035#section-4.1.1
  */
-class Message
+final class Message
 {
     const TYPE_A = 1;
     const TYPE_NS = 2;

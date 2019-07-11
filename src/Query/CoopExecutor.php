@@ -35,7 +35,7 @@ use React\Promise\Promise;
  * );
  * ```
  */
-class CoopExecutor implements ExecutorInterface
+final class CoopExecutor implements ExecutorInterface
 {
     private $executor;
     private $pending = array();
