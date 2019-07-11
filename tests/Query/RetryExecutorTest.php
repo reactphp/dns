@@ -340,7 +340,7 @@ class RetryExecutorTest extends TestCase
     {
         $response = new Message();
         $response->qr = true;
-        $response->questions[] = new Record('igor.io', Message::TYPE_A, Message::CLASS_IN);
+        $response->questions[] = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $response->answers[] = new Record('igor.io', Message::TYPE_A, Message::CLASS_IN, 3600, '178.79.169.131');
 
         return $response;

@@ -23,7 +23,7 @@ class ResolverTest extends TestCase
             ->will($this->returnCallback(function ($query) {
                 $response = new Message();
                 $response->qr = true;
-                $response->questions[] = new Record($query->name, $query->type, $query->class);
+                $response->questions[] = new Query($query->name, $query->type, $query->class);
                 $response->answers[] = new Record($query->name, $query->type, $query->class, 3600, '178.79.169.131');
 
                 return Promise\resolve($response);
@@ -44,7 +44,7 @@ class ResolverTest extends TestCase
             ->will($this->returnCallback(function ($query) {
                 $response = new Message();
                 $response->qr = true;
-                $response->questions[] = new Record($query->name, $query->type, $query->class);
+                $response->questions[] = new Query($query->name, $query->type, $query->class);
                 $response->answers[] = new Record($query->name, $query->type, $query->class, 3600, '::1');
 
                 return Promise\resolve($response);
@@ -65,7 +65,7 @@ class ResolverTest extends TestCase
             ->will($this->returnCallback(function ($query) {
                 $response = new Message();
                 $response->qr = true;
-                $response->questions[] = new Record($query->name, $query->type, $query->class);
+                $response->questions[] = new Query($query->name, $query->type, $query->class);
                 $response->answers[] = new Record($query->name, Message::TYPE_TXT, $query->class, 3600, array('ignored'));
                 $response->answers[] = new Record($query->name, $query->type, $query->class, 3600, '::1');
 
@@ -87,7 +87,7 @@ class ResolverTest extends TestCase
             ->will($this->returnCallback(function ($query) {
                 $response = new Message();
                 $response->qr = true;
-                $response->questions[] = new Record($query->name, $query->type, $query->class);
+                $response->questions[] = new Query($query->name, $query->type, $query->class);
                 $response->answers[] = new Record($query->name, Message::TYPE_CNAME, $query->class, 3600, 'example.com');
                 $response->answers[] = new Record('example.com', $query->type, $query->class, 3600, '::1');
                 $response->answers[] = new Record('example.com', $query->type, $query->class, 3600, '::2');
@@ -112,7 +112,7 @@ class ResolverTest extends TestCase
             ->will($this->returnCallback(function ($query) {
                 $response = new Message();
                 $response->qr = true;
-                $response->questions[] = new Record('Blog.wyrihaximus.net', $query->type, $query->class);
+                $response->questions[] = new Query('Blog.wyrihaximus.net', $query->type, $query->class);
                 $response->answers[] = new Record('Blog.wyrihaximus.net', $query->type, $query->class, 3600, '178.79.169.131');
 
                 return Promise\resolve($response);
@@ -133,7 +133,7 @@ class ResolverTest extends TestCase
             ->will($this->returnCallback(function ($query) {
                 $response = new Message();
                 $response->qr = true;
-                $response->questions[] = new Record($query->name, $query->type, $query->class);
+                $response->questions[] = new Query($query->name, $query->type, $query->class);
                 $response->answers[] = new Record('foo.bar', $query->type, $query->class, 3600, '178.79.169.131');
 
                 return Promise\resolve($response);
@@ -158,7 +158,7 @@ class ResolverTest extends TestCase
             ->will($this->returnCallback(function ($query) {
                 $response = new Message();
                 $response->qr = true;
-                $response->questions[] = new Record($query->name, $query->type, $query->class);
+                $response->questions[] = new Query($query->name, $query->type, $query->class);
 
                 return Promise\resolve($response);
             }));
@@ -216,7 +216,7 @@ class ResolverTest extends TestCase
                 $response = new Message();
                 $response->qr = true;
                 $response->rcode = $code;
-                $response->questions[] = new Record($query->name, $query->type, $query->class);
+                $response->questions[] = new Query($query->name, $query->type, $query->class);
 
                 return Promise\resolve($response);
             }));

@@ -2,6 +2,15 @@
 
 namespace React\Dns\Model;
 
+/**
+ * This class represents a single resulting record in a response message
+ *
+ * It uses a structure similar to `\React\Dns\Query\Query`, but does include
+ * fields for resulting TTL and resulting record data (IPs etc.).
+ *
+ * @link https://tools.ietf.org/html/rfc1035#section-4.1.3
+ * @see \React\Dns\Query\Query
+ */
 class Record
 {
     /**
@@ -94,7 +103,7 @@ class Record
      * @param int                   $ttl
      * @param string|string[]|array $data
      */
-    public function __construct($name, $type, $class, $ttl = 0, $data = null)
+    public function __construct($name, $type, $class, $ttl, $data)
     {
         $this->name     = $name;
         $this->type     = $type;
