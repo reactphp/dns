@@ -13,7 +13,7 @@ easily be used to create a DNS server.
 * [Basic usage](#basic-usage)
 * [Caching](#caching)
   * [Custom cache adapter](#custom-cache-adapter)
-* [Resolver](#resolver)
+* [ResolverInterface](#resolverinterface)
   * [resolve()](#resolve)
   * [resolveAll()](#resolveall)
 * [Advanced usage](#advanced-usage)
@@ -111,7 +111,9 @@ $dns = $factory->createCached('8.8.8.8', $loop, $cache);
 
 See also the wiki for possible [cache implementations](https://github.com/reactphp/react/wiki/Users#cache-implementations).
 
-## Resolver
+## ResolverInterface
+
+<a id="resolver"><!-- legacy reference --></a>
 
 ### resolve()
 

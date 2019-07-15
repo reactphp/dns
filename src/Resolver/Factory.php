@@ -16,6 +16,11 @@ use React\EventLoop\LoopInterface;
 
 final class Factory
 {
+    /**
+     * @param string        $nameserver
+     * @param LoopInterface $loop
+     * @return \React\Dns\Resolver\ResolverInterface
+     */
     public function create($nameserver, LoopInterface $loop)
     {
         $executor = $this->decorateHostsFileExecutor($this->createRetryExecutor($nameserver, $loop));
@@ -23,6 +28,12 @@ final class Factory
         return new Resolver($executor);
     }
 
+    /**
+     * @param string          $nameserver
+     * @param LoopInterface   $loop
+     * @param ?CacheInterface $cache
+     * @return \React\Dns\Resolver\ResolverInterface
+     */
     public function createCached($nameserver, LoopInterface $loop, CacheInterface $cache = null)
     {
         // default to keeping maximum of 256 responses in cache unless explicitly given
@@ -65,7 +76,7 @@ final class Factory
         return $executor;
     }
 
-    protected function createExecutor($nameserver, LoopInterface $loop)
+    private function createExecutor($nameserver, LoopInterface $loop)
     {
         return new TimeoutExecutor(
             new UdpTransportExecutor(
@@ -77,12 +88,12 @@ final class Factory
         );
     }
 
-    protected function createRetryExecutor($namserver, LoopInterface $loop)
+    private function createRetryExecutor($namserver, LoopInterface $loop)
     {
         return new CoopExecutor(new RetryExecutor($this->createExecutor($namserver, $loop)));
     }
 
-    protected function createCachedExecutor($namserver, LoopInterface $loop, CacheInterface $cache)
+    private function createCachedExecutor($namserver, LoopInterface $loop, CacheInterface $cache)
     {
         return new CachingExecutor($this->createRetryExecutor($namserver, $loop), $cache);
     }
