@@ -73,6 +73,8 @@ class HostsFile
         return new self($contents);
     }
 
+    private $contents;
+
     /**
      * Instantiate new hosts file with the given hosts file contents
      *
