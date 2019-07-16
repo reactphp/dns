@@ -58,6 +58,11 @@ $executor->query($any)->then(function (Message $message) {
                 $type = 'SOA';
                 $data = json_encode($data);
                 break;
+            case Message::TYPE_CAA:
+                // CAA records contains flag, tag and value
+                $type = 'CAA';
+                $data = $data['flag'] . ' ' . $data['tag'] . ' "' . $data['value'] . '"';
+                break;
             default:
                 // unknown type uses HEX format
                 $type = 'Type ' . $answer->type;
