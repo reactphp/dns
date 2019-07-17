@@ -180,7 +180,7 @@ class BinaryDumperTest extends TestCase
     public function testToBinaryForResponseWithMultipleAnswerRecords()
     {
         $data = "";
-        $data .= "72 62 01 00 00 01 00 05 00 00 00 00"; // header
+        $data .= "72 62 01 00 00 01 00 06 00 00 00 00"; // header
         $data .= "04 69 67 6f 72 02 69 6f 00";          // question: igor.io
         $data .= "00 ff 00 01";                         // question: type ANY, class IN
 
@@ -205,6 +205,10 @@ class BinaryDumperTest extends TestCase
         $data .= "00 05 69 73 73 75 65";                // answer: 0 issue …
         $data .= "6c 65 74 73 65 6e 63 72 79 70 74 2e 6f 72 67"; // answer: … letsencrypt.org
 
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io …
+        $data .= "00 2c 00 01 00 00 00 00 00 06";       // answer: type SSHFP, class IN, TTL 0, 6 bytes
+        $data .= "01 01 69 ac 09 0c";                   // answer: algorithm 1 (RSA), type 1 (SHA-1), fingerprint "69ac090c"
+
         $expected = $this->formatHexDump($data);
 
         $response = new Message();
@@ -223,6 +227,7 @@ class BinaryDumperTest extends TestCase
         $response->answers[] = new Record('igor.io', Message::TYPE_TXT, Message::CLASS_IN, 0, array('hello', 'world'));
         $response->answers[] = new Record('igor.io', Message::TYPE_MX, Message::CLASS_IN, 0, array('priority' => 0, 'target' => ''));
         $response->answers[] = new Record('igor.io', Message::TYPE_CAA, Message::CLASS_IN, 0, array('flag' => 0, 'tag' => 'issue', 'value' => 'letsencrypt.org'));
+        $response->answers[] = new Record('igor.io', Message::TYPE_SSHFP, Message::CLASS_IN, 0, array('algorithm' => 1, 'type' => '1', 'fingerprint' => '69ac090c'));
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($response);
