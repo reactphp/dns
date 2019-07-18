@@ -87,6 +87,7 @@ use React\Promise\Deferred;
  */
 final class UdpTransportExecutor implements ExecutorInterface
 {
+    private $nameserver;
     private $loop;
     private $parser;
     private $dumper;
