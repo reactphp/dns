@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.1.0 (2019-07-18)
+
+*   Feature: Support parsing `CAA` and `SSHFP` records.
+    (#141 and #142 by @clue)
+
+*   Feature: Add `ResolverInterface` as common interface for `Resolver` class.
+    (#139 by @clue)
+
+*   Fix: Add missing private property definitions and
+    remove unneeded dependency on `react/stream`.
+    (#140 and #143 by @clue)
+
 ## 1.0.0 (2019-07-11)
 
 *   First stable LTS release, now following [SemVer](https://semver.org/).
