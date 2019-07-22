@@ -18,6 +18,7 @@ easily be used to create a DNS server.
   * [resolveAll()](#resolveall)
 * [Advanced usage](#advanced-usage)
   * [UdpTransportExecutor](#udptransportexecutor)
+  * [TcpTransportExecutor](#tcptransportexecutor)
   * [HostsFileExecutor](#hostsfileexecutor)
 * [Install](#install)
 * [Tests](#tests)
@@ -274,6 +275,71 @@ $executor = new CoopExecutor(
   of [react/datagram](https://github.com/reactphp/datagram) purely for
   organizational reasons to avoid a cyclic dependency between the two
   packages. Higher-level components should take advantage of the Datagram
+  component instead of reimplementing this socket logic from scratch.
+
+### TcpTransportExecutor
+
+The `TcpTransportExecutor` class can be used to
+send DNS queries over a TCP/IP stream transport.
+
+This is one of the main classes that send a DNS query to your DNS server.
+
+For more advanced usages one can utilize this class directly.
+The following example looks up the `IPv6` address for `reactphp.org`.
+
+```php
+$loop = Factory::create();
+$executor = new TcpTransportExecutor('8.8.8.8:53', $loop);
+
+$executor->query(
+    new Query($name, Message::TYPE_AAAA, Message::CLASS_IN)
+)->then(function (Message $message) {
+    foreach ($message->answers as $answer) {
+        echo 'IPv6: ' . $answer->data . PHP_EOL;
+    }
+}, 'printf');
+
+$loop->run();
+```
+
+See also [example #92](examples).
+
+Note that this executor does not implement a timeout, so you will very likely
+want to use this in combination with a `TimeoutExecutor` like this:
+
+```php
+$executor = new TimeoutExecutor(
+    new TcpTransportExecutor($nameserver, $loop),
+    3.0,
+    $loop
+);
+```
+
+Unlike the `UdpTransportExecutor`, this class uses a reliable TCP/IP
+transport, so you do not necessarily have to implement any retry logic.
+
+Note that this executor is entirely async and as such allows you to execute
+any number of queries concurrently. You should probably limit the number of
+concurrent queries in your application or you're very likely going to face
+rate limitations and bans on the resolver end. For many common applications,
+you may want to avoid sending the same query multiple times when the first
+one is still pending, so you will likely want to use this in combination with
+a `CoopExecutor` like this:
+
+```php
+$executor = new CoopExecutor(
+    new TimeoutExecutor(
+        new TcpTransportExecutor($nameserver, $loop),
+        3.0,
+        $loop
+    )
+);
+```
+
+> Internally, this class uses PHP's TCP/IP sockets and does not take advantage
+  of [react/socket](https://github.com/reactphp/socket) purely for
+  organizational reasons to avoid a cyclic dependency between the two
+  packages. Higher-level components should take advantage of the Socket
   component instead of reimplementing this socket logic from scratch.
 
 ### HostsFileExecutor

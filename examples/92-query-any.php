@@ -1,15 +1,18 @@
 <?php
 
+// $ php examples/92-query-any.php mailbox.org
+// $ php examples/92-query-any.php _carddav._tcp.mailbox.org
+
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
 use React\Dns\Query\Query;
-use React\Dns\Query\UdpTransportExecutor;
+use React\Dns\Query\TcpTransportExecutor;
 use React\EventLoop\Factory;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $loop = Factory::create();
-$executor = new UdpTransportExecutor('8.8.8.8:53', $loop);
+$executor = new TcpTransportExecutor('8.8.8.8:53', $loop);
 
 $name = isset($argv[1]) ? $argv[1] : 'google.com';
 

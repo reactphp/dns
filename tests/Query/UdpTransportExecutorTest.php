@@ -15,7 +15,7 @@ class UdpTransportExecutorTest extends TestCase
     /**
      * @dataProvider provideDefaultPortProvider
      * @param string $input
-     * @param strings $expected
+     * @param string $expected
      */
     public function testCtorShouldAcceptNameserverAddresses($input, $expected)
     {
@@ -124,7 +124,7 @@ class UdpTransportExecutorTest extends TestCase
         $this->assertTrue($wait);
     }
 
-    public function testQueryKeepsPendingIfServerSendInvalidMessage()
+    public function testQueryKeepsPendingIfServerSendsInvalidMessage()
     {
         $loop = Factory::create();
 
@@ -152,7 +152,7 @@ class UdpTransportExecutorTest extends TestCase
         $this->assertTrue($wait);
     }
 
-    public function testQueryKeepsPendingIfServerSendInvalidId()
+    public function testQueryKeepsPendingIfServerSendsInvalidId()
     {
         $parser = new Parser();
         $dumper = new BinaryDumper();
