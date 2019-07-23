@@ -629,6 +629,36 @@ class ParserTest extends TestCase
         $this->assertSame('google-public-dns-b.google.com', $response->answers[0]->data);
     }
 
+    public function testParsePTRResponseWithSpecialCharactersEscaped()
+    {
+        $data = "";
+        $data .= "5d d8 81 80 00 01 00 01 00 00 00 00";             // header
+        $data .= "08 5f 70 72 69 6e 74 65 72 04 5f 74 63 70 06 64 6e 73 2d 73 64 03 6f 72 67 00"; // question: _printer._tcp.dns-sd.org
+        $data .= "00 0c 00 01";                                     // question: type PTR, class IN
+        $data .= "c0 0c";                                           // answer: offset pointer to rdata
+        $data .= "00 0c 00 01";                                     // answer: type PTR, class IN
+        $data .= "00 01 51 7f";                                     // answer: ttl 86399
+        $data .= "00 17";                                           // answer: rdlength 23
+        $data .= "14 33 72 64 2e 20 46 6c 6f 6f 72 20 43 6f 70 79 20 52 6f 6f 6d"; // answer: rdata "3rd. Floor Copy Room" …
+        $data .= "c0 0c";                                           // answer: offset pointer to rdata
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $response = $this->parser->parseMessage($data);
+
+        $this->assertCount(1, $response->questions);
+        $this->assertSame('_printer._tcp.dns-sd.org', $response->questions[0]->name);
+        $this->assertSame(Message::TYPE_PTR, $response->questions[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->questions[0]->class);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('_printer._tcp.dns-sd.org', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_PTR, $response->answers[0]->type);
+        $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
+        $this->assertSame(86399, $response->answers[0]->ttl);
+        $this->assertSame('3rd\.\ Floor\ Copy\ Room._printer._tcp.dns-sd.org', $response->answers[0]->data);
+    }
+
     /**
      * @expectedException InvalidArgumentException
      */
