@@ -33,10 +33,30 @@ class TcpTransportExecutorTest extends TestCase
     public static function provideDefaultPortProvider()
     {
         return array(
-            array('8.8.8.8',        '8.8.8.8:53'),
-            array('1.2.3.4:5',      '1.2.3.4:5'),
-            array('::1',            '[::1]:53'),
-            array('[::1]:53',       '[::1]:53')
+            array(
+                '8.8.8.8',
+                '8.8.8.8:53'
+            ),
+            array(
+                '1.2.3.4:5',
+                '1.2.3.4:5'
+            ),
+            array(
+                'tcp://1.2.3.4',
+                '1.2.3.4:53'
+            ),
+            array(
+                'tcp://1.2.3.4:53',
+                '1.2.3.4:53'
+            ),
+            array(
+                '::1',
+                '[::1]:53'
+            ),
+            array(
+                '[::1]:53',
+                '[::1]:53'
+            )
         );
     }
 
@@ -58,6 +78,16 @@ class TcpTransportExecutorTest extends TestCase
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
         new TcpTransportExecutor('localhost', $loop);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testCtorShouldThrowWhenNameserverSchemeIsInvalid()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+
+        new TcpTransportExecutor('udp://1.2.3.4', $loop);
     }
 
     public function testQueryRejectsIfMessageExceedsMaximumMessageSize()

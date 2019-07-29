@@ -47,6 +47,34 @@ class FunctionalTest extends TestCase
     /**
      * @group internet
      */
+    public function testResolveGoogleOverUdpResolves()
+    {
+        $factory = new Factory($this->loop);
+        $this->resolver = $factory->create('udp://8.8.8.8', $this->loop);
+
+        $promise = $this->resolver->resolve('google.com');
+        $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
+
+        $this->loop->run();
+    }
+
+    /**
+     * @group internet
+     */
+    public function testResolveGoogleOverTcpResolves()
+    {
+        $factory = new Factory($this->loop);
+        $this->resolver = $factory->create('tcp://8.8.8.8', $this->loop);
+
+        $promise = $this->resolver->resolve('google.com');
+        $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
+
+        $this->loop->run();
+    }
+
+    /**
+     * @group internet
+     */
     public function testResolveAllGoogleMxResolvesWithCache()
     {
         $factory = new Factory();

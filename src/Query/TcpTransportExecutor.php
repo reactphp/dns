@@ -84,13 +84,13 @@ class TcpTransportExecutor implements ExecutorInterface
      */
     public function __construct($nameserver, LoopInterface $loop)
     {
-        if (\strpos($nameserver, '[') === false && \substr_count($nameserver, ':') >= 2) {
+        if (\strpos($nameserver, '[') === false && \substr_count($nameserver, ':') >= 2 && \strpos($nameserver, '://') === false) {
             // several colons, but not enclosed in square brackets => enclose IPv6 address in square brackets
             $nameserver = '[' . $nameserver . ']';
         }
 
-        $parts = \parse_url('tcp://' . $nameserver);
-        if (!isset($parts['scheme'], $parts['host']) || !\filter_var(\trim($parts['host'], '[]'), \FILTER_VALIDATE_IP)) {
+        $parts = \parse_url((\strpos($nameserver, '://') === false ? 'tcp://' : '') . $nameserver);
+        if (!isset($parts['scheme'], $parts['host']) || $parts['scheme'] !== 'tcp' || !\filter_var(\trim($parts['host'], '[]'), \FILTER_VALIDATE_IP)) {
             throw new \InvalidArgumentException('Invalid nameserver address given');
         }
 
