@@ -319,12 +319,20 @@ Unlike the `UdpTransportExecutor`, this class uses a reliable TCP/IP
 transport, so you do not necessarily have to implement any retry logic.
 
 Note that this executor is entirely async and as such allows you to execute
-any number of queries concurrently. You should probably limit the number of
-concurrent queries in your application or you're very likely going to face
-rate limitations and bans on the resolver end. For many common applications,
-you may want to avoid sending the same query multiple times when the first
-one is still pending, so you will likely want to use this in combination with
-a `CoopExecutor` like this:
+queries concurrently. The first query will establish a TCP/IP socket
+connection to the DNS server which will be kept open for a short period.
+Additional queries will automatically reuse this existing socket connection
+to the DNS server, will pipeline multiple requests over this single
+connection and will keep an idle connection open for a short period. The
+initial TCP/IP connection overhead may incur a slight delay if you only send
+occasional queries – when sending a larger number of concurrent queries over
+an existing connection, it becomes increasingly more efficient and avoids
+creating many concurrent sockets like the UDP-based executor. You may still
+want to limit the number of (concurrent) queries in your application or you
+may be facing rate limitations and bans on the resolver end. For many common
+applications, you may want to avoid sending the same query multiple times
+when the first one is still pending, so you will likely want to use this in
+combination with a `CoopExecutor` like this:
 
 ```php
 $executor = new CoopExecutor(

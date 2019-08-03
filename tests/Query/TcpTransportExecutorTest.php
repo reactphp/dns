@@ -63,7 +63,7 @@ class TcpTransportExecutorTest extends TestCase
     public function testQueryRejectsIfMessageExceedsMaximumMessageSize()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
-        $loop->expects($this->never())->method('addReadStream');
+        $loop->expects($this->never())->method('addWriteStream');
 
         $executor = new TcpTransportExecutor('8.8.8.8:53', $loop);
 
@@ -77,7 +77,7 @@ class TcpTransportExecutorTest extends TestCase
     public function testQueryRejectsIfServerConnectionFails()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
-        $loop->expects($this->never())->method('addReadStream');
+        $loop->expects($this->never())->method('addWriteStream');
 
         $executor = new TcpTransportExecutor('::1', $loop);
 
@@ -92,18 +92,22 @@ class TcpTransportExecutorTest extends TestCase
         $promise->then(null, $this->expectCallableOnce());
     }
 
-    /**
-     * @group internet
-     */
-    public function testQueryRejectsOnCancellation()
+    public function testQueryRejectsOnCancellationWithoutClosingSocketButStartsIdleTimer()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->once())->method('addWriteStream');
-        $loop->expects($this->once())->method('removeWriteStream');
-        $loop->expects($this->once())->method('addReadStream');
-        $loop->expects($this->once())->method('removeReadStream');
+        $loop->expects($this->never())->method('removeWriteStream');
+        $loop->expects($this->never())->method('addReadStream');
+        $loop->expects($this->never())->method('removeReadStream');
 
-        $executor = new TcpTransportExecutor('8.8.8.8:53', $loop);
+        $timer = $this->getMockBuilder('React\EventLoop\TimerInterface')->getMock();
+        $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything())->willReturn($timer);
+        $loop->expects($this->never())->method('cancelTimer');
+
+        $server = stream_socket_server('tcp://127.0.0.1:0');
+        $address = stream_socket_get_name($server, false);
+
+        $executor = new TcpTransportExecutor($address, $loop);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
         $promise = $executor->query($query);
@@ -111,6 +115,85 @@ class TcpTransportExecutorTest extends TestCase
 
         $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
         $promise->then(null, $this->expectCallableOnce());
+    }
+
+    public function testTriggerIdleTimerAfterQueryRejectedOnCancellationWillCloseSocket()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        $loop->expects($this->once())->method('addWriteStream');
+        $loop->expects($this->once())->method('removeWriteStream');
+        $loop->expects($this->never())->method('addReadStream');
+        $loop->expects($this->never())->method('removeReadStream');
+
+        $timer = $this->getMockBuilder('React\EventLoop\TimerInterface')->getMock();
+        $timerCallback = null;
+        $loop->expects($this->once())->method('addTimer')->with(0.001, $this->callback(function ($cb) use (&$timerCallback) {
+            $timerCallback = $cb;
+            return true;
+        }))->willReturn($timer);
+        $loop->expects($this->once())->method('cancelTimer')->with($timer);
+
+        $server = stream_socket_server('tcp://127.0.0.1:0');
+        $address = stream_socket_get_name($server, false);
+
+        $executor = new TcpTransportExecutor($address, $loop);
+
+        $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
+        $promise = $executor->query($query);
+        $promise->cancel();
+
+        $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
+        $promise->then(null, $this->expectCallableOnce());
+
+        // trigger idle timer
+        $this->assertNotNull($timerCallback);
+        $timerCallback();
+    }
+
+    public function testQueryRejectsOnCancellationWithoutClosingSocketAndWithoutStartingIdleTimerWhenOtherQueryIsStillPending()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        $loop->expects($this->once())->method('addWriteStream');
+        $loop->expects($this->never())->method('removeWriteStream');
+        $loop->expects($this->never())->method('addReadStream');
+        $loop->expects($this->never())->method('removeReadStream');
+
+        $timer = $this->getMockBuilder('React\EventLoop\TimerInterface')->getMock();
+        $loop->expects($this->never())->method('addTimer');
+        $loop->expects($this->never())->method('cancelTimer');
+
+        $server = stream_socket_server('tcp://127.0.0.1:0');
+        $address = stream_socket_get_name($server, false);
+
+        $executor = new TcpTransportExecutor($address, $loop);
+
+        $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
+        $promise1 = $executor->query($query);
+        $promise2 = $executor->query($query);
+        $promise2->cancel();
+
+        $promise1->then($this->expectCallableNever(), $this->expectCallableNever());
+        $promise2->then(null, $this->expectCallableOnce());
+    }
+
+    public function testQueryAgainAfterPreviousWasCancelledReusesExistingSocket()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        $loop->expects($this->once())->method('addWriteStream');
+        $loop->expects($this->never())->method('removeWriteStream');
+        $loop->expects($this->never())->method('addReadStream');
+        $loop->expects($this->never())->method('removeReadStream');
+
+        $server = stream_socket_server('tcp://127.0.0.1:0');
+        $address = stream_socket_get_name($server, false);
+
+        $executor = new TcpTransportExecutor($address, $loop);
+
+        $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
+        $promise = $executor->query($query);
+        $promise->cancel();
+
+        $executor->query($query);
     }
 
     public function testQueryRejectsWhenServerIsNotListening()
@@ -138,7 +221,7 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertFalse($wait);
     }
 
-    public function testQueryRejectsWhenClientCanNotSendExcessiveMessageInOneChunk()
+    public function testQueryStaysPendingWhenClientCanNotSendExcessiveMessageInOneChunkWhenServerClosesSocket()
     {
         $writableCallback = null;
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
@@ -147,28 +230,30 @@ class TcpTransportExecutorTest extends TestCase
             return true;
         }));
         $loop->expects($this->once())->method('addReadStream');
-        $loop->expects($this->once())->method('removeWriteStream');
-        $loop->expects($this->once())->method('removeReadStream');
+        $loop->expects($this->never())->method('removeWriteStream');
+        $loop->expects($this->never())->method('removeReadStream');
 
         $server = stream_socket_server('tcp://127.0.0.1:0');
 
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address, $loop);
 
-        $query = new Query('google.' . str_repeat('.com', 1000), Message::TYPE_A, Message::CLASS_IN);
+        $query = new Query('google' . str_repeat('.com', 10000), Message::TYPE_A, Message::CLASS_IN);
 
         $promise = $executor->query($query);
 
-        // create new dummy socket and fill its outgoing write buffer
-        $socket = stream_socket_client($address);
-        stream_set_blocking($socket, false);
-        @fwrite($socket, str_repeat('.', 10000000));
+        $client = stream_socket_accept($server);
+        fclose($client);
 
-        // then manually invoke writable handler with dummy socket
-        $this->assertNotNull($writableCallback);
-        $writableCallback($socket);
+        $executor->handleWritable();
 
-        $promise->then(null, $this->expectCallableOnce());
+        $promise->then($this->expectCallableNever(), $this->expectCallableNever());
+
+        $ref = new \ReflectionProperty($executor, 'writePending');
+        $ref->setAccessible(true);
+        $writePending = $ref->getValue($executor);
+
+        $this->assertTrue($writePending);
     }
 
     public function testQueryRejectsWhenServerClosesConnection()
@@ -433,5 +518,264 @@ class TcpTransportExecutorTest extends TestCase
         $response = \Clue\React\Block\await($promise, $loop, 0.2);
 
         $this->assertInstanceOf('React\Dns\Model\Message', $response);
+    }
+
+    public function testQueryRejectsIfSocketIsClosedAfterPreviousQueryThatWasStillPending()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        $loop->expects($this->exactly(2))->method('addWriteStream');
+        $loop->expects($this->exactly(2))->method('removeWriteStream');
+        $loop->expects($this->once())->method('addReadStream');
+        $loop->expects($this->once())->method('removeReadStream');
+
+        $loop->expects($this->never())->method('addTimer');
+        $loop->expects($this->never())->method('cancelTimer');
+
+        $server = stream_socket_server('tcp://127.0.0.1:0');
+        $address = stream_socket_get_name($server, false);
+        $executor = new TcpTransportExecutor($address, $loop);
+
+        $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
+
+        $promise1 = $executor->query($query);
+
+        $client = stream_socket_accept($server);
+
+        $executor->handleWritable();
+
+        // manually close socket before processing second write
+        $ref = new \ReflectionProperty($executor, 'socket');
+        $ref->setAccessible(true);
+        $socket = $ref->getValue($executor);
+        fclose($socket);
+        fclose($client);
+
+        $promise2 = $executor->query($query);
+
+        $executor->handleWritable();
+
+        $promise1->then(null, $this->expectCallableOnce());
+        $promise2->then(null, $this->expectCallableOnce());
+    }
+
+    public function testQueryResolvesIfServerSendsBackResponseMessageAndWillStartIdleTimer()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        $loop->expects($this->once())->method('addWriteStream');
+        $loop->expects($this->once())->method('removeWriteStream');
+        $loop->expects($this->once())->method('addReadStream');
+        $loop->expects($this->never())->method('removeReadStream');
+
+        $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything());
+        $loop->expects($this->never())->method('cancelTimer');
+
+        $server = stream_socket_server('tcp://127.0.0.1:0');
+        $address = stream_socket_get_name($server, false);
+        $executor = new TcpTransportExecutor($address, $loop);
+
+        $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
+
+        $promise = $executor->query($query);
+
+        // use outgoing buffer as response message
+        $ref = new \ReflectionProperty($executor, 'writeBuffer');
+        $ref->setAccessible(true);
+        $data = $ref->getValue($executor);
+
+        $client = stream_socket_accept($server);
+        fwrite($client, $data);
+
+        $executor->handleWritable();
+        $executor->handleRead();
+
+        $promise->then($this->expectCallableOnce());
+    }
+
+    public function testQueryResolvesIfServerSendsBackResponseMessageAfterCancellingQueryAndWillStartIdleTimer()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        $loop->expects($this->once())->method('addWriteStream');
+        $loop->expects($this->once())->method('removeWriteStream');
+        $loop->expects($this->once())->method('addReadStream');
+        $loop->expects($this->never())->method('removeReadStream');
+
+        $timer = $this->getMockBuilder('React\EventLoop\TimerInterface')->getMock();
+        $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything())->willReturn($timer);
+        $loop->expects($this->never())->method('cancelTimer');
+
+        $server = stream_socket_server('tcp://127.0.0.1:0');
+        $address = stream_socket_get_name($server, false);
+        $executor = new TcpTransportExecutor($address, $loop);
+
+        $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
+
+        $promise = $executor->query($query);
+        $promise->cancel();
+
+        // use outgoing buffer as response message
+        $ref = new \ReflectionProperty($executor, 'writeBuffer');
+        $ref->setAccessible(true);
+        $data = $ref->getValue($executor);
+
+        $client = stream_socket_accept($server);
+        fwrite($client, $data);
+
+        $executor->handleWritable();
+        $executor->handleRead();
+
+        //$promise->then(null, $this->expectCallableOnce());
+    }
+
+    public function testQueryResolvesIfServerSendsBackResponseMessageAfterCancellingOtherQueryAndWillStartIdleTimer()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        $loop->expects($this->once())->method('addWriteStream');
+        $loop->expects($this->once())->method('removeWriteStream');
+        $loop->expects($this->once())->method('addReadStream');
+        $loop->expects($this->never())->method('removeReadStream');
+
+        $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything());
+        $loop->expects($this->never())->method('cancelTimer');
+
+        $server = stream_socket_server('tcp://127.0.0.1:0');
+        $address = stream_socket_get_name($server, false);
+        $executor = new TcpTransportExecutor($address, $loop);
+
+        $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
+
+        $promise = $executor->query($query);
+
+        // use outgoing buffer as response message
+        $ref = new \ReflectionProperty($executor, 'writeBuffer');
+        $ref->setAccessible(true);
+        $data = $ref->getValue($executor);
+
+        $client = stream_socket_accept($server);
+        fwrite($client, $data);
+
+        $another = $executor->query($query);
+        $another->cancel();
+
+        $executor->handleWritable();
+        $executor->handleRead();
+
+        $promise->then($this->expectCallableOnce());
+    }
+
+    public function testTriggerIdleTimerAfterPreviousQueryResolvedWillCloseIdleSocketConnection()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        $loop->expects($this->once())->method('addWriteStream');
+        $loop->expects($this->once())->method('removeWriteStream');
+        $loop->expects($this->once())->method('addReadStream');
+        $loop->expects($this->once())->method('removeReadStream');
+
+        $timer = $this->getMockBuilder('React\EventLoop\TimerInterface')->getMock();
+        $timerCallback = null;
+        $loop->expects($this->once())->method('addTimer')->with(0.001, $this->callback(function ($cb) use (&$timerCallback) {
+            $timerCallback = $cb;
+            return true;
+        }))->willReturn($timer);
+        $loop->expects($this->once())->method('cancelTimer')->with($timer);
+
+        $server = stream_socket_server('tcp://127.0.0.1:0');
+        $address = stream_socket_get_name($server, false);
+        $executor = new TcpTransportExecutor($address, $loop);
+
+        $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
+
+        $promise = $executor->query($query);
+
+        // use outgoing buffer as response message
+        $ref = new \ReflectionProperty($executor, 'writeBuffer');
+        $ref->setAccessible(true);
+        $data = $ref->getValue($executor);
+
+        $client = stream_socket_accept($server);
+        fwrite($client, $data);
+
+        $executor->handleWritable();
+        $executor->handleRead();
+
+        $promise->then($this->expectCallableOnce());
+
+        // trigger idle timer
+        $this->assertNotNull($timerCallback);
+        $timerCallback();
+    }
+
+    public function testClosingConnectionAfterPreviousQueryResolvedWillCancelIdleTimer()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        $loop->expects($this->once())->method('addWriteStream');
+        $loop->expects($this->once())->method('removeWriteStream');
+        $loop->expects($this->once())->method('addReadStream');
+        $loop->expects($this->once())->method('removeReadStream');
+
+        $timer = $this->getMockBuilder('React\EventLoop\TimerInterface')->getMock();
+        $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything())->willReturn($timer);
+        $loop->expects($this->once())->method('cancelTimer')->with($timer);
+
+        $server = stream_socket_server('tcp://127.0.0.1:0');
+        $address = stream_socket_get_name($server, false);
+        $executor = new TcpTransportExecutor($address, $loop);
+
+        $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
+
+        $promise = $executor->query($query);
+
+        // use outgoing buffer as response message
+        $ref = new \ReflectionProperty($executor, 'writeBuffer');
+        $ref->setAccessible(true);
+        $data = $ref->getValue($executor);
+
+        $client = stream_socket_accept($server);
+        fwrite($client, $data);
+
+        $executor->handleWritable();
+        $executor->handleRead();
+
+        $promise->then($this->expectCallableOnce());
+
+        // trigger connection close condition
+        fclose($client);
+        $executor->handleRead();
+    }
+
+    public function testQueryAgainAfterPreviousQueryResolvedWillReuseSocketAndCancelIdleTimer()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        $loop->expects($this->exactly(2))->method('addWriteStream');
+        $loop->expects($this->once())->method('removeWriteStream');
+        $loop->expects($this->once())->method('addReadStream');
+        $loop->expects($this->never())->method('removeReadStream');
+
+        $timer = $this->getMockBuilder('React\EventLoop\TimerInterface')->getMock();
+        $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything())->willReturn($timer);
+        $loop->expects($this->once())->method('cancelTimer')->with($timer);
+
+        $server = stream_socket_server('tcp://127.0.0.1:0');
+        $address = stream_socket_get_name($server, false);
+        $executor = new TcpTransportExecutor($address, $loop);
+
+        $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
+
+        $promise = $executor->query($query);
+
+        // use outgoing buffer as response message
+        $ref = new \ReflectionProperty($executor, 'writeBuffer');
+        $ref->setAccessible(true);
+        $data = $ref->getValue($executor);
+
+        $client = stream_socket_accept($server);
+        fwrite($client, $data);
+
+        $executor->handleWritable();
+        $executor->handleRead();
+
+        $promise->then($this->expectCallableOnce());
+
+        // trigger second query
+        $executor->query($query);
     }
 }
