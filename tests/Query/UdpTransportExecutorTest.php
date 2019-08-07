@@ -101,7 +101,14 @@ class UdpTransportExecutorTest extends TestCase
         $promise = $executor->query($query);
 
         $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
-        $promise->then(null, $this->expectCallableOnce());
+
+        $exception = null;
+        $promise->then(null, function ($reason) use (&$exception) {
+            $exception = $reason;
+        });
+
+        $this->setExpectedException('RuntimeException', '', defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90);
+        throw $exception;
     }
 
     public function testQueryRejectsIfServerConnectionFails()
@@ -247,22 +254,10 @@ class UdpTransportExecutorTest extends TestCase
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
-        $wait = true;
-        $promise = $executor->query($query)->then(
-            null,
-            function ($e) use (&$wait) {
-                $wait = false;
-                throw $e;
-            }
-        );
+        $promise = $executor->query($query);
 
-        // run loop for short period to ensure we detect connection ICMP rejection error
-        \Clue\React\Block\sleep(0.01, $loop);
-        if ($wait) {
-            \Clue\React\Block\sleep(0.2, $loop);
-        }
-
-        $this->assertFalse($wait);
+        $this->setExpectedException('RuntimeException', '', defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90);
+        \Clue\React\Block\await($promise, $loop, 0.1);
     }
 
     public function testQueryResolvesIfServerSendsValidResponse()
