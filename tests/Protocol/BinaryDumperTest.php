@@ -177,6 +177,47 @@ class BinaryDumperTest extends TestCase
         $this->assertSame($expected, $data);
     }
 
+    public function testToBinaryForResponseWithPTRRecordWithSpecialCharactersEscaped()
+    {
+        $data = "";
+        $data .= "72 62 01 00 00 01 00 01 00 00 00 00"; // header
+        $data .= "08 5f 70 72 69 6e 74 65 72 04 5f 74 63 70 06 64 6e 73 2d 73 64 03 6f 72 67 00"; // question: _printer._tcp.dns-sd.org
+        $data .= "00 0c 00 01";                         // question: type PTR, class IN
+        $data .= "08 5f 70 72 69 6e 74 65 72 04 5f 74 63 70 06 64 6e 73 2d 73 64 03 6f 72 67 00"; // answer: _printer._tcp.dns-sd.org
+        $data .= "00 0c 00 01";                         // answer: type PTR, class IN
+        $data .= "00 01 51 80";                         // answer: ttl 86400
+        $data .= "00 2f";                               // answer: rdlength 47
+        $data .= "14 33 72 64 2e 20 46 6c 6f 6f 72 20 43 6f 70 79 20 52 6f 6f 6d"; // answer: answer: rdata "3rd. Floor Copy Room" …
+        $data .= "08 5f 70 72 69 6e 74 65 72 04 5f 74 63 70 06 64 6e 73 2d 73 64 03 6f 72 67 00"; // answer: … "._printer._tcp.dns-sd.org"
+
+        $expected = $this->formatHexDump($data);
+
+        $response = new Message();
+        $response->id = 0x7262;
+        $response->rd = true;
+        $response->rcode = Message::RCODE_OK;
+
+        $response->questions[] = new Query(
+            '_printer._tcp.dns-sd.org',
+            Message::TYPE_PTR,
+            Message::CLASS_IN
+        );
+
+        $response->answers[] = new Record(
+            '_printer._tcp.dns-sd.org',
+            Message::TYPE_PTR,
+            Message::CLASS_IN,
+            86400,
+            '3rd\.\ Floor\ Copy\ Room._printer._tcp.dns-sd.org'
+        );
+
+        $dumper = new BinaryDumper();
+        $data = $dumper->toBinary($response);
+        $data = $this->convertBinaryToHexDump($data);
+
+        $this->assertSame($expected, $data);
+    }
+
     public function testToBinaryForResponseWithMultipleAnswerRecords()
     {
         $data = "";

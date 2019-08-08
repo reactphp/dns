@@ -175,6 +175,15 @@ final class BinaryDumper
             return "\0";
         }
 
-        return $this->textsToBinary(\explode('.', $host . '.'));
+        // break up domain name at each dot that is not preceeded by a backslash (escaped notation)
+        return $this->textsToBinary(
+            \array_map(
+                'stripcslashes',
+                \preg_split(
+                    '/(?<!\\\\)\./',
+                    $host . '.'
+                )
+            )
+        );
     }
 }
