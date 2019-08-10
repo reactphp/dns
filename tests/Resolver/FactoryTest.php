@@ -19,6 +19,100 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
     }
 
+
+    /** @test */
+    public function createWithoutSchemeShouldCreateResolverWithUdpExecutorStack()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+
+        $factory = new Factory();
+        $resolver = $factory->create('8.8.8.8:53', $loop);
+
+        $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
+
+        $coopExecutor = $this->getResolverPrivateExecutor($resolver);
+
+        $this->assertInstanceOf('React\Dns\Query\CoopExecutor', $coopExecutor);
+
+        $ref = new \ReflectionProperty($coopExecutor, 'executor');
+        $ref->setAccessible(true);
+        $retryExecutor = $ref->getValue($coopExecutor);
+
+        $this->assertInstanceOf('React\Dns\Query\RetryExecutor', $retryExecutor);
+
+        $ref = new \ReflectionProperty($retryExecutor, 'executor');
+        $ref->setAccessible(true);
+        $timeoutExecutor = $ref->getValue($retryExecutor);
+
+        $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
+
+        $ref = new \ReflectionProperty($timeoutExecutor, 'executor');
+        $ref->setAccessible(true);
+        $udpExecutor = $ref->getValue($timeoutExecutor);
+
+        $this->assertInstanceOf('React\Dns\Query\UdpTransportExecutor', $udpExecutor);
+    }
+
+    /** @test */
+    public function createWithUdpSchemeShouldCreateResolverWithUdpExecutorStack()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+
+        $factory = new Factory();
+        $resolver = $factory->create('udp://8.8.8.8:53', $loop);
+
+        $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
+
+        $coopExecutor = $this->getResolverPrivateExecutor($resolver);
+
+        $this->assertInstanceOf('React\Dns\Query\CoopExecutor', $coopExecutor);
+
+        $ref = new \ReflectionProperty($coopExecutor, 'executor');
+        $ref->setAccessible(true);
+        $retryExecutor = $ref->getValue($coopExecutor);
+
+        $this->assertInstanceOf('React\Dns\Query\RetryExecutor', $retryExecutor);
+
+        $ref = new \ReflectionProperty($retryExecutor, 'executor');
+        $ref->setAccessible(true);
+        $timeoutExecutor = $ref->getValue($retryExecutor);
+
+        $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
+
+        $ref = new \ReflectionProperty($timeoutExecutor, 'executor');
+        $ref->setAccessible(true);
+        $udpExecutor = $ref->getValue($timeoutExecutor);
+
+        $this->assertInstanceOf('React\Dns\Query\UdpTransportExecutor', $udpExecutor);
+    }
+
+    /** @test */
+    public function createWithTcpSchemeShouldCreateResolverWithTcpExecutorStack()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+
+        $factory = new Factory();
+        $resolver = $factory->create('tcp://8.8.8.8:53', $loop);
+
+        $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
+
+        $coopExecutor = $this->getResolverPrivateExecutor($resolver);
+
+        $this->assertInstanceOf('React\Dns\Query\CoopExecutor', $coopExecutor);
+
+        $ref = new \ReflectionProperty($coopExecutor, 'executor');
+        $ref->setAccessible(true);
+        $timeoutExecutor = $ref->getValue($coopExecutor);
+
+        $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
+
+        $ref = new \ReflectionProperty($timeoutExecutor, 'executor');
+        $ref->setAccessible(true);
+        $tcpExecutor = $ref->getValue($timeoutExecutor);
+
+        $this->assertInstanceOf('React\Dns\Query\TcpTransportExecutor', $tcpExecutor);
+    }
+
     /**
      * @test
      * @expectedException InvalidArgumentException

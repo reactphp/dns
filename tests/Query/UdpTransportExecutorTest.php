@@ -33,12 +33,30 @@ class UdpTransportExecutorTest extends TestCase
     public static function provideDefaultPortProvider()
     {
         return array(
-            array('8.8.8.8',        'udp://8.8.8.8:53'),
-            array('1.2.3.4:5',      'udp://1.2.3.4:5'),
-            array('localhost',      'udp://localhost:53'),
-            array('localhost:1234', 'udp://localhost:1234'),
-            array('::1',            'udp://[::1]:53'),
-            array('[::1]:53',       'udp://[::1]:53')
+            array(
+                '8.8.8.8',
+                'udp://8.8.8.8:53'
+            ),
+            array(
+                '1.2.3.4:5',
+                'udp://1.2.3.4:5'
+            ),
+            array(
+                'udp://1.2.3.4',
+                'udp://1.2.3.4:53'
+            ),
+            array(
+                'udp://1.2.3.4:53',
+                'udp://1.2.3.4:53'
+            ),
+            array(
+                '::1',
+                'udp://[::1]:53'
+            ),
+            array(
+                '[::1]:53',
+                'udp://[::1]:53'
+            )
         );
     }
 
@@ -50,6 +68,26 @@ class UdpTransportExecutorTest extends TestCase
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
         new UdpTransportExecutor('///', $loop);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testCtorShouldThrowWhenNameserverAddressContainsHostname()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+
+        new UdpTransportExecutor('localhost', $loop);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testCtorShouldThrowWhenNameserverSchemeIsInvalid()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+
+        new UdpTransportExecutor('tcp://1.2.3.4', $loop);
     }
 
     public function testQueryRejectsIfMessageExceedsUdpSize()
