@@ -21,7 +21,7 @@ class FactoryTest extends TestCase
 
 
     /** @test */
-    public function createWithoutSchemeShouldCreateResolverWithUdpExecutorStack()
+    public function createWithoutSchemeShouldCreateResolverWithSelectiveUdpAndTcpExecutorStack()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
@@ -36,7 +36,15 @@ class FactoryTest extends TestCase
 
         $ref = new \ReflectionProperty($coopExecutor, 'executor');
         $ref->setAccessible(true);
-        $retryExecutor = $ref->getValue($coopExecutor);
+        $selectiveExecutor = $ref->getValue($coopExecutor);
+
+        $this->assertInstanceOf('React\Dns\Query\SelectiveTransportExecutor', $selectiveExecutor);
+
+        // udp below:
+
+        $ref = new \ReflectionProperty($selectiveExecutor, 'datagramExecutor');
+        $ref->setAccessible(true);
+        $retryExecutor = $ref->getValue($selectiveExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\RetryExecutor', $retryExecutor);
 
@@ -51,6 +59,20 @@ class FactoryTest extends TestCase
         $udpExecutor = $ref->getValue($timeoutExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\UdpTransportExecutor', $udpExecutor);
+
+        // tcp below:
+
+        $ref = new \ReflectionProperty($selectiveExecutor, 'streamExecutor');
+        $ref->setAccessible(true);
+        $timeoutExecutor = $ref->getValue($selectiveExecutor);
+
+        $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
+
+        $ref = new \ReflectionProperty($timeoutExecutor, 'executor');
+        $ref->setAccessible(true);
+        $tcpExecutor = $ref->getValue($timeoutExecutor);
+
+        $this->assertInstanceOf('React\Dns\Query\TcpTransportExecutor', $tcpExecutor);
     }
 
     /** @test */

@@ -121,7 +121,8 @@ final class UdpTransportExecutor implements ExecutorInterface
         $queryData = $this->dumper->toBinary($request);
         if (isset($queryData[512])) {
             return \React\Promise\reject(new \RuntimeException(
-                'DNS query for ' . $query->name . ' failed: Query too large for UDP transport'
+                'DNS query for ' . $query->name . ' failed: Query too large for UDP transport',
+                \defined('SOCKET_EMSGSIZE') ? \SOCKET_EMSGSIZE : 90
             ));
         }
 
@@ -172,7 +173,10 @@ final class UdpTransportExecutor implements ExecutorInterface
             \fclose($socket);
 
             if ($response->tc) {
-                $deferred->reject(new \RuntimeException('DNS query for ' . $query->name . ' failed: The server returned a truncated result for a UDP query, but retrying via TCP is currently not supported'));
+                $deferred->reject(new \RuntimeException(
+                    'DNS query for ' . $query->name . ' failed: The server returned a truncated result for a UDP query',
+                    \defined('SOCKET_EMSGSIZE') ? \SOCKET_EMSGSIZE : 90
+                ));
                 return;
             }
 
