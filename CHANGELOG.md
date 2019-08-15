@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.0 (2019-08-15)
+
+*   Feature: Add `TcpTransportExecutor` to send DNS queries over TCP/IP connection,
+    add `SelectiveTransportExecutor` to retry with TCP if UDP is truncated and
+    automatically select transport protocol when no explicit `udp://` or `tcp://` scheme is given in `Factory`.
+    (#145, #146, #147 and #148 by @clue)
+
+*   Feature: Support escaping literal dots and special characters in domain names.
+    (#144 by @clue)
+
 ## 1.1.0 (2019-07-18)
 
 *   Feature: Support parsing `CAA` and `SSHFP` records.
