@@ -323,7 +323,7 @@ class RetryExecutorTest extends TestCase
         $mock
             ->expects($this->once())
             ->method('then')
-            ->will($this->returnValue($return));
+            ->will($this->returnValue(Promise\resolve($return)));
 
         return $mock;
     }

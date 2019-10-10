@@ -3,8 +3,6 @@
 namespace React\Dns\Query;
 
 use React\EventLoop\LoopInterface;
-use React\Promise\Deferred;
-use React\Promise\CancellablePromiseInterface;
 use React\Promise\Timer;
 
 final class TimeoutExecutor implements ExecutorInterface
