@@ -1,16 +1,5 @@
 language: php
 
-php:
-# - 5.3 # requires old distro, see below
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
-  - 7.1
-  - 7.2
-  - 7.3
-# - hhvm # requires legacy phpunit & ignore errors, see below
-
 # lock distro so new future defaults will not break the build
 dist: trusty
 
@@ -18,10 +7,18 @@ matrix:
   include:
     - php: 5.3
       dist: precise
-    - php: hhvm
-      install: composer require phpunit/phpunit:^5 --dev --no-interaction
+    - php: 5.4
+    - php: 5.5
+    - php: 5.6
+    - php: 7.0
+    - php: 7.1
+    - php: 7.2
+    - php: 7.3
+    - php: 7.4
+    - php: hhvm-3.18
+      install: composer require phpunit/phpunit:^5 --dev --no-interaction # requires legacy phpunit
   allow_failures:
-    - php: hhvm
+    - php: hhvm-3.18
 
 sudo: false
 
