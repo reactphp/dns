@@ -234,7 +234,16 @@ final class Parser
             $rdata = array();
             while (isset($message->data[$consumed + 4 - 1])) {
                 list($code, $length) = array_values(unpack('n*', substr($message->data, $consumed, 4)));
-                $rdata[$code] = (string) substr($message->data, $consumed + 4, $length);
+                $value = (string) substr($message->data, $consumed + 4, $length);
+                if ($code === Message::OPT_TCP_KEEPALIVE && $value === '') {
+                    $value = null;
+                } elseif ($code === Message::OPT_TCP_KEEPALIVE && $length === 2) {
+                    list($value) = array_values(unpack('n', $value));
+                    $value = round($value * 0.1, 1);
+                } elseif ($code === Message::OPT_TCP_KEEPALIVE) {
+                    break;
+                }
+                $rdata[$code] = $value;
                 $consumed += 4 + $length;
             }
         } elseif (Message::TYPE_CAA === $type) {

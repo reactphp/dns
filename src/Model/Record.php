@@ -114,8 +114,14 @@ final class Record
      *
      * - OPT:
      *   Special pseudo-type for EDNS0. Includes an array of additional opt codes
-     *   with a binary string value in the form `[10=>"\x00",15=>"abc"]`. See
-     *   also [RFC 6891](https://tools.ietf.org/html/rfc6891) for more details.
+     *   with a value according to the respective OPT code. See `Message::OPT_*`
+     *   for list of supported OPT codes. Any other OPT code not currently
+     *   supported will be an opaque binary string containing the raw data
+     *   as transported in the DNS record. For forwards compatibility, you should
+     *   not rely on this format for unknown types. Future versions may add
+     *   support for new types and this may then parse the payload data
+     *   appropriately - this will not be considered a BC break. See also
+     *   [RFC 6891](https://tools.ietf.org/html/rfc6891) for more details.
      *
      * - Any other unknown type:
      *   An opaque binary string containing the RDATA as transported in the DNS

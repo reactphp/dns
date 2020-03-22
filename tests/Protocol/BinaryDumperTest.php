@@ -96,6 +96,105 @@ class BinaryDumperTest extends TestCase
         $this->assertSame($expected, $data);
     }
 
+    public function testToBinaryRequestMessageWithAdditionalOptForEdns0WithOptTcpKeepAliveDesired()
+    {
+        $data = "";
+        $data .= "72 62 01 00 00 01 00 00 00 00 00 01"; // header
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // question: igor.io
+        $data .= "00 01 00 01";                         // question: type A, class IN
+        $data .= "00";                                  // additional: (empty hostname)
+        $data .= "00 29 03 e8 00 00 00 00 00 04 ";      // additional: type OPT, class 1000 UDP size, TTL 0, 4 bytes RDATA
+        $data .= "00 0b 00 00";                         // OPT_TCP_KEEPALIVE=null encoded
+
+        $expected = $this->formatHexDump($data);
+
+        $request = new Message();
+        $request->id = 0x7262;
+        $request->rd = true;
+
+        $request->questions[] = new Query(
+            'igor.io',
+            Message::TYPE_A,
+            Message::CLASS_IN
+        );
+
+        $request->additional[] = new Record('', Message::TYPE_OPT, 1000, 0, array(
+            Message::OPT_TCP_KEEPALIVE => null,
+        ));
+
+        $dumper = new BinaryDumper();
+        $data = $dumper->toBinary($request);
+        $data = $this->convertBinaryToHexDump($data);
+
+        $this->assertSame($expected, $data);
+    }
+
+    public function testToBinaryRequestMessageWithAdditionalOptForEdns0WithOptTcpKeepAliveGiven()
+    {
+        $data = "";
+        $data .= "72 62 01 00 00 01 00 00 00 00 00 01"; // header
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // question: igor.io
+        $data .= "00 01 00 01";                         // question: type A, class IN
+        $data .= "00";                                  // additional: (empty hostname)
+        $data .= "00 29 03 e8 00 00 00 00 00 06 ";      // additional: type OPT, class 1000 UDP size, TTL 0, 6 bytes RDATA
+        $data .= "00 0b 00 02 00 0c";                   // OPT_TCP_KEEPALIVE=1.2 encoded
+
+        $expected = $this->formatHexDump($data);
+
+        $request = new Message();
+        $request->id = 0x7262;
+        $request->rd = true;
+
+        $request->questions[] = new Query(
+            'igor.io',
+            Message::TYPE_A,
+            Message::CLASS_IN
+        );
+
+        $request->additional[] = new Record('', Message::TYPE_OPT, 1000, 0, array(
+            Message::OPT_TCP_KEEPALIVE => 1.2,
+        ));
+
+        $dumper = new BinaryDumper();
+        $data = $dumper->toBinary($request);
+        $data = $this->convertBinaryToHexDump($data);
+
+        $this->assertSame($expected, $data);
+    }
+
+    public function testToBinaryRequestMessageWithAdditionalOptForEdns0WithOptPadding()
+    {
+        $data = "";
+        $data .= "72 62 01 00 00 01 00 00 00 00 00 01"; // header
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // question: igor.io
+        $data .= "00 01 00 01";                         // question: type A, class IN
+        $data .= "00";                                  // additional: (empty hostname)
+        $data .= "00 29 03 e8 00 00 00 00 00 06 ";      // additional: type OPT, class 1000 UDP size, TTL 0, 6 bytes RDATA
+        $data .= "00 0c 00 02 00 00 ";                  // OPT_PADDING=0x0000 encoded
+
+        $expected = $this->formatHexDump($data);
+
+        $request = new Message();
+        $request->id = 0x7262;
+        $request->rd = true;
+
+        $request->questions[] = new Query(
+            'igor.io',
+            Message::TYPE_A,
+            Message::CLASS_IN
+        );
+
+        $request->additional[] = new Record('', Message::TYPE_OPT, 1000, 0, array(
+            Message::OPT_PADDING => "\x00\x00"
+        ));
+
+        $dumper = new BinaryDumper();
+        $data = $dumper->toBinary($request);
+        $data = $this->convertBinaryToHexDump($data);
+
+        $this->assertSame($expected, $data);
+    }
+
     public function testToBinaryRequestMessageWithAdditionalOptForEdns0WithCustomOptCodes()
     {
         $data = "";
@@ -121,7 +220,7 @@ class BinaryDumperTest extends TestCase
 
         $request->additional[] = new Record('', Message::TYPE_OPT, 1000, 0, array(
             0xa0 => 'foo',
-            0x01 => "\x00\00"
+            0x01 => "\x00\x00"
         ));
 
         $dumper = new BinaryDumper();

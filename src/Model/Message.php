@@ -51,6 +51,26 @@ final class Message
     const RCODE_REFUSED = 5;
 
     /**
+     * The edns-tcp-keepalive EDNS0 Option
+     *
+     * Option value contains a `?float` with timeout in seconds (in 0.1s steps)
+     * for DNS response or `null` for DNS query.
+     *
+     * @link https://tools.ietf.org/html/rfc7828
+     */
+    const OPT_TCP_KEEPALIVE = 11;
+
+    /**
+     * The EDNS(0) Padding Option
+     *
+     * Option value contains a `string` with binary data (usually variable
+     * number of null bytes)
+     *
+     * @link https://tools.ietf.org/html/rfc7830
+     */
+    const OPT_PADDING = 12;
+
+    /**
      * Creates a new request message for the given query
      *
      * @param Query $query

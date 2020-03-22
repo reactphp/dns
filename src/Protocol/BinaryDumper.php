@@ -142,6 +142,9 @@ final class BinaryDumper
                 case Message::TYPE_OPT:
                     $binary = '';
                     foreach ($record->data as $opt => $value) {
+                        if ($opt === Message::OPT_TCP_KEEPALIVE && $value !== null) {
+                            $value = \pack('n', round($value * 10));
+                        }
                         $binary .= \pack('n*', $opt, \strlen($value)) . $value;
                     }
                     break;
