@@ -536,6 +536,82 @@ class ParserTest extends TestCase
         $this->assertSame(array('algorithm' => 1, 'type' => 1, 'fingerprint' => '69ac090c'), $response->answers[0]->data);
     }
 
+    public function testParseOptResponseWithoutOptions()
+    {
+        $data = "";
+        $data .= "00";                                  // answer: empty domain
+        $data .= "00 29 03 e8";                         // answer: type OPT, class 1000 UDP size
+        $data .= "00 00 00 00";                         // answer: ttl 0
+        $data .= "00 00";                               // answer: rdlength 0
+
+        $response = $this->parseAnswer($data);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_OPT, $response->answers[0]->type);
+        $this->assertSame(1000, $response->answers[0]->class);
+        $this->assertSame(0, $response->answers[0]->ttl);
+        $this->assertSame(array(), $response->answers[0]->data);
+    }
+
+    public function testParseOptResponseWithOptTcpKeepaliveDesired()
+    {
+        $data = "";
+        $data .= "00";                                  // answer: empty domain
+        $data .= "00 29 03 e8";                         // answer: type OPT, class 1000 UDP size
+        $data .= "00 00 00 00";                         // answer: ttl 0
+        $data .= "00 04";                               // answer: rdlength 4
+        $data .= "00 0b 00 00";                         // OPT_TCP_KEEPALIVE=null encoded
+
+        $response = $this->parseAnswer($data);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_OPT, $response->answers[0]->type);
+        $this->assertSame(1000, $response->answers[0]->class);
+        $this->assertSame(0, $response->answers[0]->ttl);
+        $this->assertSame(array(Message::OPT_TCP_KEEPALIVE => null), $response->answers[0]->data);
+    }
+
+    public function testParseOptResponseWithOptTcpKeepaliveGiven()
+    {
+        $data = "";
+        $data .= "00";                                  // answer: empty domain
+        $data .= "00 29 03 e8";                         // answer: type OPT, class 1000 UDP size
+        $data .= "00 00 00 00";                         // answer: ttl 0
+        $data .= "00 06";                               // answer: rdlength 4
+        $data .= "00 0b 00 02 00 0c";                   // OPT_TCP_KEEPALIVE=1.2s encoded
+
+        $response = $this->parseAnswer($data);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_OPT, $response->answers[0]->type);
+        $this->assertSame(1000, $response->answers[0]->class);
+        $this->assertSame(0, $response->answers[0]->ttl);
+        $this->assertSame(array(Message::OPT_TCP_KEEPALIVE => 1.2), $response->answers[0]->data);
+    }
+
+    public function testParseOptResponseWithCustomOptions()
+    {
+        $data = "";
+        $data .= "00";                                  // answer: empty domain
+        $data .= "00 29 03 e8";                         // answer: type OPT, class 1000 UDP size
+        $data .= "00 00 00 00";                         // answer: ttl 0
+        $data .= "00 0b";                               // answer: rdlength 11
+        $data .= "00 a0 00 03 66 6f 6f";                // OPT code 0xa0 encoded
+        $data .= "00 01 00 00 ";                        // OPT code 0x01 encoded
+
+        $response = $this->parseAnswer($data);
+
+        $this->assertCount(1, $response->answers);
+        $this->assertSame('', $response->answers[0]->name);
+        $this->assertSame(Message::TYPE_OPT, $response->answers[0]->type);
+        $this->assertSame(1000, $response->answers[0]->class);
+        $this->assertSame(0, $response->answers[0]->ttl);
+        $this->assertSame(array(0xa0 => 'foo', 0x01 => ''), $response->answers[0]->data);
+    }
+
     public function testParseSOAResponse()
     {
         $data = "";
@@ -953,6 +1029,36 @@ class ParserTest extends TestCase
         $data .= "00 01 51 80";                         // answer: ttl 86400
         $data .= "00 02";                               // answer: rdlength 2
         $data .= "01 01";                               // answer: algorithm 1 (RSA), type 1 (SHA), missing fingerprint
+
+        $this->parseAnswer($data);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseInvalidOPTResponseWhereRecordIsTooSmall()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 29 03 e8";                         // answer: type OPT, 1000 bytes max size
+        $data .= "00 00 00 00";                         // answer: ttl 0
+        $data .= "00 03";                               // answer: rdlength 3
+        $data .= "00 00 00";                            // answer: type 0, length incomplete
+
+        $this->parseAnswer($data);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testParseInvalidOPTResponseWhereRecordLengthDoesNotMatchOptType()
+    {
+        $data = "";
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 29 03 e8";                         // answer: type OPT, 1000 bytes max size
+        $data .= "00 00 00 00";                         // answer: ttl 0
+        $data .= "00 07";                               // answer: rdlength 7
+        $data .= "00 0b 00 03 01 02 03";                // answer: type OPT_TCP_KEEPALIVE, length 3 instead of 2
 
         $this->parseAnswer($data);
     }

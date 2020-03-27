@@ -24,13 +24,23 @@ final class Record
     public $type;
 
     /**
+     * Defines the network class, usually `Message::CLASS_IN`.
+     *
+     * For `OPT` records (EDNS0), this defines the maximum message size instead.
+     *
      * @var int see Message::CLASS_IN constant (UINT16)
+     * @see Message::CLASS_IN
      */
     public $class;
 
     /**
+     * Defines the maximum time-to-live (TTL) in seconds
+     *
+     * For `OPT` records (EDNS0), this defines additional flags instead.
+     *
      * @var int maximum TTL in seconds (UINT32, most significant bit always unset)
      * @link https://tools.ietf.org/html/rfc2181#section-8
+     * @link https://tools.ietf.org/html/rfc6891#section-6.1.3 for `OPT` records (EDNS0)
      */
     public $ttl;
 
@@ -101,6 +111,17 @@ final class Record
      * - CAA:
      *   Includes flag (UNIT8), tag string and value string, for example:
      *   `{"flag":128,"tag":"issue","value":"letsencrypt.org"}`
+     *
+     * - OPT:
+     *   Special pseudo-type for EDNS0. Includes an array of additional opt codes
+     *   with a value according to the respective OPT code. See `Message::OPT_*`
+     *   for list of supported OPT codes. Any other OPT code not currently
+     *   supported will be an opaque binary string containing the raw data
+     *   as transported in the DNS record. For forwards compatibility, you should
+     *   not rely on this format for unknown types. Future versions may add
+     *   support for new types and this may then parse the payload data
+     *   appropriately - this will not be considered a BC break. See also
+     *   [RFC 6891](https://tools.ietf.org/html/rfc6891) for more details.
      *
      * - Any other unknown type:
      *   An opaque binary string containing the RDATA as transported in the DNS

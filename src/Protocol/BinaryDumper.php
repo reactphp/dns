@@ -139,6 +139,15 @@ final class BinaryDumper
                         $record->data['fingerprint']
                     );
                     break;
+                case Message::TYPE_OPT:
+                    $binary = '';
+                    foreach ($record->data as $opt => $value) {
+                        if ($opt === Message::OPT_TCP_KEEPALIVE && $value !== null) {
+                            $value = \pack('n', round($value * 10));
+                        }
+                        $binary .= \pack('n*', $opt, \strlen($value)) . $value;
+                    }
+                    break;
                 default:
                     // RDATA is already stored as binary value for unknown record types
                     $binary = $record->data;
