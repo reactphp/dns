@@ -102,6 +102,28 @@ class ResolverTest extends TestCase
     }
 
     /** @test */
+    public function resolveShouldReturnChaosRecord()
+    {
+        $executor = $this->createExecutorMock();
+        $executor
+            ->expects($this->once())
+            ->method('query')
+            ->with($this->isInstanceOf('React\Dns\Query\Query'))
+            ->will($this->returnCallback(function ($query) {
+                $response = new Message();
+                $response->qr = true;
+                $response->questions[] = new Query($query->name, $query->type, $query->class);
+                $response->answers[] = new Record($query->name, $query->type, $query->class, 60, 'FRA');
+
+                return Promise\resolve($response);
+            }));
+
+        $resolver = new Resolver($executor);
+        $resolver->resolve('server.id', Message::TYPE_TXT, Message::CLASS_CH)
+            ->then($this->expectCallableOnceWith('FRA'));
+    }
+
+    /** @test */
     public function resolveShouldQueryARecordsAndIgnoreCase()
     {
         $executor = $this->createExecutorMock();

@@ -19,16 +19,16 @@ final class Resolver implements ResolverInterface
         $this->executor = $executor;
     }
 
-    public function resolve($domain)
+    public function resolve($domain, $type = Message::TYPE_A, $class = Message::CLASS_IN)
     {
-        return $this->resolveAll($domain, Message::TYPE_A)->then(function (array $ips) {
+        return $this->resolveAll($domain, $type, $class)->then(function (array $ips) {
             return $ips[array_rand($ips)];
         });
     }
 
-    public function resolveAll($domain, $type)
+    public function resolveAll($domain, $type = Message::TYPE_A, $class = Message::CLASS_IN)
     {
-        $query = new Query($domain, $type, Message::CLASS_IN);
+        $query = new Query($domain, $type, $class);
         $that = $this;
 
         return $this->executor->query(

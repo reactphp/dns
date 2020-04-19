@@ -37,7 +37,9 @@ final class Message
     const TYPE_ANY = 255;
     const TYPE_CAA = 257;
 
-    const CLASS_IN = 1;
+    const CLASS_IN = 1; // Internet
+    const CLASS_CH = 3; // Chaos
+    const CLASS_HS = 4; // Hesiod
 
     const OPCODE_QUERY = 0;
     const OPCODE_IQUERY = 1; // inverse query

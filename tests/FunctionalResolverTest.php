@@ -102,6 +102,20 @@ class FunctionalTest extends TestCase
     /**
      * @group internet
      */
+    public function testResolveKRootServerId()
+    {
+        $factory = new Factory($this->loop);
+        $this->resolver = $factory->create('udp://193.0.14.129', $this->loop);
+
+        $promise = $this->resolver->resolve('id.server', Message::TYPE_TXT, Message::CLASS_CH);
+        $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
+
+        $this->loop->run();
+    }
+
+    /**
+     * @group internet
+     */
     public function testResolveInvalidRejects()
     {
         $ex = $this->callback(function ($param) {
