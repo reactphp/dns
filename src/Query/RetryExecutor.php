@@ -4,6 +4,7 @@ namespace React\Dns\Query;
 
 use React\Promise\CancellablePromiseInterface;
 use React\Promise\Deferred;
+use React\Promise\PromiseInterface;
 
 final class RetryExecutor implements ExecutorInterface
 {
@@ -24,7 +25,7 @@ final class RetryExecutor implements ExecutorInterface
     public function tryQuery(Query $query, $retries)
     {
         $deferred = new Deferred(function () use (&$promise) {
-            if ($promise instanceof CancellablePromiseInterface) {
+            if ($promise instanceof CancellablePromiseInterface || (!\interface_exists('React\Promise\CancellablePromiseInterface') && \method_exists($promise, 'cancel'))) {
                 $promise->cancel();
             }
         });
