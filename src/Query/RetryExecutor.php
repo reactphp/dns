@@ -53,13 +53,19 @@ final class RetryExecutor implements ExecutorInterface
                 $r = new \ReflectionProperty('Exception', 'trace');
                 $r->setAccessible(true);
                 $trace = $r->getValue($e);
+
+                // Exception trace arguments are not available on some PHP 7.4 installs
+                // @codeCoverageIgnoreStart
                 foreach ($trace as &$one) {
-                    foreach ($one['args'] as &$arg) {
-                        if ($arg instanceof \Closure) {
-                            $arg = 'Object(' . \get_class($arg) . ')';
+                    if (isset($one['args'])) {
+                        foreach ($one['args'] as &$arg) {
+                            if ($arg instanceof \Closure) {
+                                $arg = 'Object(' . \get_class($arg) . ')';
+                            }
                         }
                     }
                 }
+                // @codeCoverageIgnoreEnd
                 $r->setValue($e, $trace);
             } else {
                 --$retries;
