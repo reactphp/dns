@@ -34,6 +34,7 @@ final class Message
      * The OPT record uses the "ttl" field to store additional flags.
      */
     const TYPE_OPT = 41;
+    const TYPE_SPF = 99; // Sender Policy Framework (SPF) - https://tools.ietf.org/html/rfc4408#section-3.1.1
     const TYPE_ANY = 255;
     const TYPE_CAA = 257;
 
