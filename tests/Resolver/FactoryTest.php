@@ -19,7 +19,6 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
     }
 
-
     /** @test */
     public function createWithoutSchemeShouldCreateResolverWithSelectiveUdpAndTcpExecutorStack()
     {
@@ -135,15 +134,13 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf('React\Dns\Query\TcpTransportExecutor', $tcpExecutor);
     }
 
-    /**
-     * @test
-     * @expectedException InvalidArgumentException
-     */
+    /** @test */
     public function createShouldThrowWhenNameserverIsInvalid()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
         $factory = new Factory();
+        $this->setExpectedException('InvalidArgumentException');
         $factory->create('///', $loop);
     }
 

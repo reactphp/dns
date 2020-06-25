@@ -2,13 +2,16 @@
 
 namespace React\Tests\Dns\Protocol;
 
-use PHPUnit\Framework\TestCase;
-use React\Dns\Protocol\Parser;
 use React\Dns\Model\Message;
+use React\Dns\Protocol\Parser;
+use React\Tests\Dns\TestCase;
 
 class ParserTest extends TestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function setUpParser()
     {
         $this->parser = new Parser();
     }
@@ -735,9 +738,6 @@ class ParserTest extends TestCase
         $this->assertSame('3rd\.\ Floor\ Copy\ Room._printer._tcp.dns-sd.org', $response->answers[0]->data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseIncompleteQuestionThrows()
     {
         $data = "";
@@ -747,12 +747,10 @@ class ParserTest extends TestCase
 
         $data = $this->convertTcpDumpToBinary($data);
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parser->parseMessage($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseIncompleteQuestionLabelThrows()
     {
         $data = "";
@@ -761,12 +759,10 @@ class ParserTest extends TestCase
 
         $data = $this->convertTcpDumpToBinary($data);
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parser->parseMessage($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseIncompleteQuestionNameThrows()
     {
         $data = "";
@@ -775,12 +771,10 @@ class ParserTest extends TestCase
 
         $data = $this->convertTcpDumpToBinary($data);
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parser->parseMessage($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseIncompleteOffsetPointerInQuestionNameThrows()
     {
         $data = "";
@@ -789,12 +783,10 @@ class ParserTest extends TestCase
 
         $data = $this->convertTcpDumpToBinary($data);
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parser->parseMessage($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidOffsetPointerInQuestionNameThrows()
     {
         $data = "";
@@ -803,12 +795,10 @@ class ParserTest extends TestCase
 
         $data = $this->convertTcpDumpToBinary($data);
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parser->parseMessage($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidOffsetPointerToSameLabelInQuestionNameThrows()
     {
         $data = "";
@@ -817,12 +807,10 @@ class ParserTest extends TestCase
 
         $data = $this->convertTcpDumpToBinary($data);
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parser->parseMessage($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidOffsetPointerToStartOfMessageInQuestionNameThrows()
     {
         $data = "";
@@ -831,12 +819,10 @@ class ParserTest extends TestCase
 
         $data = $this->convertTcpDumpToBinary($data);
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parser->parseMessage($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseIncompleteAnswerFieldsThrows()
     {
         $data = "";
@@ -847,12 +833,10 @@ class ParserTest extends TestCase
 
         $data = $this->convertTcpDumpToBinary($data);
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parser->parseMessage($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseMessageResponseWithIncompleteAuthorityRecordThrows()
     {
         $data = "";
@@ -863,12 +847,10 @@ class ParserTest extends TestCase
 
         $data = $this->convertTcpDumpToBinary($data);
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parser->parseMessage($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseMessageResponseWithIncompleteAdditionalRecordThrows()
     {
         $data = "";
@@ -879,12 +861,10 @@ class ParserTest extends TestCase
 
         $data = $this->convertTcpDumpToBinary($data);
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parser->parseMessage($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseIncompleteAnswerRecordDataThrows()
     {
         $data = "";
@@ -898,12 +878,10 @@ class ParserTest extends TestCase
 
         $data = $this->convertTcpDumpToBinary($data);
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parser->parseMessage($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidNSResponseWhereDomainNameIsMissing()
     {
         $data = "";
@@ -912,12 +890,10 @@ class ParserTest extends TestCase
         $data .= "00 01 51 80";                         // answer: ttl 86400
         $data .= "00 00";                               // answer: rdlength 0
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parseAnswer($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidAResponseWhereIPIsMissing()
     {
         $data = "";
@@ -926,12 +902,10 @@ class ParserTest extends TestCase
         $data .= "00 01 51 80";                         // answer: ttl 86400
         $data .= "00 00";                               // answer: rdlength 0
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parseAnswer($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidAAAAResponseWhereIPIsMissing()
     {
         $data = "";
@@ -940,12 +914,10 @@ class ParserTest extends TestCase
         $data .= "00 01 51 80";                         // answer: ttl 86400
         $data .= "00 00";                               // answer: rdlength 0
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parseAnswer($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidTXTResponseWhereTxtChunkExceedsLimit()
     {
         $data = "";
@@ -955,12 +927,10 @@ class ParserTest extends TestCase
         $data .= "00 06";                               // answer: rdlength 6
         $data .= "06 68 65 6c 6c 6f 6f";                // answer: rdata length 6: helloo
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parseAnswer($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidMXResponseWhereDomainNameIsIncomplete()
     {
         $data = "";
@@ -970,12 +940,10 @@ class ParserTest extends TestCase
         $data .= "00 08";                               // answer: rdlength 8
         $data .= "00 0a 05 68 65 6c 6c 6f";             // answer: rdata priority 10: hello (missing label end)
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parseAnswer($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidMXResponseWhereDomainNameIsMissing()
     {
         $data = "";
@@ -985,12 +953,10 @@ class ParserTest extends TestCase
         $data .= "00 02";                               // answer: rdlength 2
         $data .= "00 0a";                               // answer: rdata priority 10
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parseAnswer($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidSRVResponseWhereDomainNameIsIncomplete()
     {
         $data = "";
@@ -1000,12 +966,10 @@ class ParserTest extends TestCase
         $data .= "00 0b";                               // answer: rdlength 11
         $data .= "00 0a 00 14 1F 90 04 74 65 73 74";    // answer: rdata priority 10, weight 20, port 8080 test (missing label end)
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parseAnswer($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidSRVResponseWhereDomainNameIsMissing()
     {
         $data = "";
@@ -1015,12 +979,10 @@ class ParserTest extends TestCase
         $data .= "00 06";                               // answer: rdlength 6
         $data .= "00 0a 00 14 1F 90";                   // answer: rdata priority 10, weight 20, port 8080
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parseAnswer($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidSSHFPResponseWhereRecordIsTooSmall()
     {
         $data = "";
@@ -1030,12 +992,10 @@ class ParserTest extends TestCase
         $data .= "00 02";                               // answer: rdlength 2
         $data .= "01 01";                               // answer: algorithm 1 (RSA), type 1 (SHA), missing fingerprint
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parseAnswer($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidOPTResponseWhereRecordIsTooSmall()
     {
         $data = "";
@@ -1045,12 +1005,10 @@ class ParserTest extends TestCase
         $data .= "00 03";                               // answer: rdlength 3
         $data .= "00 00 00";                            // answer: type 0, length incomplete
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parseAnswer($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidOPTResponseWhereRecordLengthDoesNotMatchOptType()
     {
         $data = "";
@@ -1060,12 +1018,10 @@ class ParserTest extends TestCase
         $data .= "00 07";                               // answer: rdlength 7
         $data .= "00 0b 00 03 01 02 03";                // answer: type OPT_TCP_KEEPALIVE, length 3 instead of 2
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parseAnswer($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidSOAResponseWhereFlagsAreMissing()
     {
         $data = "";
@@ -1076,12 +1032,10 @@ class ParserTest extends TestCase
         $data .= "02 6e 73 05 68 65 6c 6c 6f 00";       // answer: rdata ns.hello (mname)
         $data .= "01 65 05 68 65 6c 6c 6f 00";          // answer: rdata e.hello (rname)
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parseAnswer($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidCAAResponseEmtpyData()
     {
         $data = "";
@@ -1090,12 +1044,10 @@ class ParserTest extends TestCase
         $data .= "00 01 51 80";                         // answer: ttl 86400
         $data .= "00 00";                               // answer: rdlength 0
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parseAnswer($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidCAAResponseMissingValue()
     {
         $data = "";
@@ -1105,12 +1057,10 @@ class ParserTest extends TestCase
         $data .= "00 07";                               // answer: rdlength 22
         $data .= "00 05 69 73 73 75 65";                // answer: rdata 0, issue
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parseAnswer($data);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testParseInvalidCAAResponseIncompleteTag()
     {
         $data = "";
@@ -1121,6 +1071,7 @@ class ParserTest extends TestCase
         $data .= "00 ff 69 73 73 75 65";                // answer: rdata 0, issue (incomplete due to invalid tag length)
         $data .= "68 65 6c 6c 6f";                      // answer: hello
 
+        $this->setExpectedException('InvalidArgumentException');
         $this->parseAnswer($data);
     }
 

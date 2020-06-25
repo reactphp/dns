@@ -60,33 +60,27 @@ class TcpTransportExecutorTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testCtorShouldThrowWhenNameserverAddressIsInvalid()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
+        $this->setExpectedException('InvalidArgumentException');
         new TcpTransportExecutor('///', $loop);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testCtorShouldThrowWhenNameserverAddressContainsHostname()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
+        $this->setExpectedException('InvalidArgumentException');
         new TcpTransportExecutor('localhost', $loop);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testCtorShouldThrowWhenNameserverSchemeIsInvalid()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
+        $this->setExpectedException('InvalidArgumentException');
         new TcpTransportExecutor('udp://1.2.3.4', $loop);
     }
 

@@ -13,7 +13,10 @@ class HostsFileExecutorTest extends TestCase
     private $fallback;
     private $executor;
 
-    public function setUp()
+    /**
+     * @before
+     */
+    public function setUpMocks()
     {
         $this->hosts = $this->getMockBuilder('React\Dns\Config\HostsFile')->disableOriginalConstructor()->getMock();
         $this->fallback = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();

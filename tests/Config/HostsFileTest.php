@@ -25,11 +25,9 @@ class HostsFileTest extends TestCase
         $this->assertContains('127.0.0.1', $hosts->getIpsForHost('localhost'));
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
     public function testLoadThrowsForInvalidPath()
     {
+        $this->setExpectedException('RuntimeException');
         HostsFile::loadFromPathBlocking('does/not/exist');
     }
 
