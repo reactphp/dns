@@ -32,11 +32,9 @@ class ConfigTest extends TestCase
         $this->assertEquals(array('8.8.8.8'), $config->nameservers);
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
     public function testLoadThrowsWhenPathIsInvalid()
     {
+        $this->setExpectedException('RuntimeException');
         Config::loadResolvConfBlocking(__DIR__ . '/invalid.conf');
     }
 

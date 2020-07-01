@@ -11,7 +11,10 @@ use React\Tests\Dns\TestCase;
 
 class SelectiveTransportExecutorTest extends TestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function setUpMocks()
     {
         $this->datagram = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
         $this->stream = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();

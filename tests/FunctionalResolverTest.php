@@ -9,7 +9,10 @@ use React\Dns\Model\Message;
 
 class FunctionalTest extends TestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function setUpResolver()
     {
         $this->loop = LoopFactory::create();
 

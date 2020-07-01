@@ -39,7 +39,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function createCallableMock()
     {
-        return $this->getMockBuilder('React\Tests\Dns\CallableStub')->getMock();
+        return $this->getMockBuilder('stdClass')->setMethods(array('__invoke'))->getMock();
     }
 
     public function setExpectedException($exception, $exceptionMessage = '', $exceptionCode = null)

@@ -2,18 +2,22 @@
 
 namespace React\Tests\Dns\Query;
 
-use React\Dns\Query\TimeoutExecutor;
-use React\Dns\Query\Query;
 use React\Dns\Model\Message;
-use React\Promise\Deferred;
 use React\Dns\Query\CancellationException;
-use React\Tests\Dns\TestCase;
+use React\Dns\Query\Query;
+use React\Dns\Query\TimeoutException;
+use React\Dns\Query\TimeoutExecutor;
 use React\EventLoop\Factory;
 use React\Promise;
+use React\Promise\Deferred;
+use React\Tests\Dns\TestCase;
 
 class TimeoutExecutorTest extends TestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function setUpExecutor()
     {
         $this->loop = Factory::create();
 
@@ -92,23 +96,17 @@ class TimeoutExecutorTest extends TestCase
                 return $deferred->promise();
             }));
 
-        $callback = $this->expectCallableNever();
-
-        $errorback = $this->createCallableMock();
-        $errorback
-            ->expects($this->once())
-            ->method('__invoke')
-            ->with($this->logicalAnd(
-                $this->isInstanceOf('React\Dns\Query\TimeoutException'),
-                $this->attribute($this->equalTo('DNS query for igor.io timed out'), 'message')
-            ));
-
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $this->executor->query($query)->then($callback, $errorback);
+        $promise = $this->executor->query($query);
 
         $this->assertEquals(0, $cancelled);
 
-        $this->loop->run();
+        try {
+            \Clue\React\Block\await($promise, $this->loop);
+            $this->fail();
+        } catch (TimeoutException $exception) {
+            $this->assertEquals('DNS query for igor.io timed out' , $exception->getMessage());
+        }
 
         $this->assertEquals(1, $cancelled);
     }
