@@ -251,6 +251,8 @@ class RetryExecutorTest extends TestCase
         $retryExecutor = new RetryExecutor($executor, 0);
 
         gc_collect_cycles();
+        gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
+
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $retryExecutor->query($query);
 
@@ -281,6 +283,8 @@ class RetryExecutorTest extends TestCase
         $retryExecutor = new RetryExecutor($executor, 0);
 
         gc_collect_cycles();
+        gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
+
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $promise = $retryExecutor->query($query);
         $promise->cancel();
@@ -311,6 +315,8 @@ class RetryExecutorTest extends TestCase
         $retryExecutor = new RetryExecutor($executor, 2);
 
         gc_collect_cycles();
+        gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
+
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $retryExecutor->query($query);
 

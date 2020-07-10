@@ -7,7 +7,7 @@ use React\Dns\Resolver\Factory;
 use React\Dns\RecordNotFoundException;
 use React\Dns\Model\Message;
 
-class FunctionalTest extends TestCase
+class FunctionalResolverTest extends TestCase
 {
     /**
      * @before
@@ -171,6 +171,7 @@ class FunctionalTest extends TestCase
         $this->resolver = $factory->createCached('255.255.255.255', $this->loop);
 
         gc_collect_cycles();
+        gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
 
         $promise = $this->resolver->resolve('google.com');
         unset($promise);
@@ -207,6 +208,7 @@ class FunctionalTest extends TestCase
         $this->resolver = $factory->createCached('127.0.0.1', $this->loop);
 
         gc_collect_cycles();
+        gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
 
         $promise = $this->resolver->resolve('google.com');
         $promise->cancel();

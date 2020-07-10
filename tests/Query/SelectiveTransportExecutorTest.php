@@ -159,6 +159,8 @@ class SelectiveTransportExecutorTest extends TestCase
             }));
 
         gc_collect_cycles();
+        gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
+
         $promise = $this->executor->query($query);
         $promise->cancel();
         unset($promise);
@@ -190,6 +192,8 @@ class SelectiveTransportExecutorTest extends TestCase
             }));
 
         gc_collect_cycles();
+        gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
+
         $promise = $this->executor->query($query);
         $deferred->reject(new \RuntimeException('', defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90));
         $promise->cancel();
@@ -215,6 +219,8 @@ class SelectiveTransportExecutorTest extends TestCase
             ->willReturn(\React\Promise\reject(new \RuntimeException()));
 
         gc_collect_cycles();
+        gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
+
         $promise = $this->executor->query($query);
         unset($promise);
 
