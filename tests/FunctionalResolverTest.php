@@ -188,6 +188,7 @@ class FunctionalTest extends TestCase
         $this->resolver = $factory->create('127.0.0.1', $this->loop);
 
         gc_collect_cycles();
+        gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
 
         $promise = $this->resolver->resolve('google.com');
         $promise->cancel();
