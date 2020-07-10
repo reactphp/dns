@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.3.0 (2020-07-10)
+
+*   Feature: Forward compatibility with react/promise v3.
+    (#153 by @WyriHaximus)
+
+*   Feature: Support parsing `OPT` records (EDNS0).
+    (#157 by @clue)
+
+*   Fix: Avoid PHP warnings due to lack of args in exception trace on PHP 7.4.
+    (#160 by @clue)
+
+*   Improve test suite and add `.gitattributes` to exclude dev files from exports.
+    Run tests on PHPUnit 9 and PHP 7.4 and clean up test suite.
+    (#154 by @reedy, #156 by @clue and #163 by @SimonFrings)
+
 ## 1.2.0 (2019-08-15)
 
 *   Feature: Add `TcpTransportExecutor` to send DNS queries over TCP/IP connection,
