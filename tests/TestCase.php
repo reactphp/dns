@@ -39,7 +39,13 @@ abstract class TestCase extends BaseTestCase
 
     protected function createCallableMock()
     {
-        return $this->getMockBuilder('stdClass')->setMethods(array('__invoke'))->getMock();
+        if (method_exists('PHPUnit\Framework\MockObject\MockBuilder', 'addMethods')) {
+            // PHPUnit 9+
+            return $this->getMockBuilder('stdClass')->addMethods(array('__invoke'))->getMock();
+        } else {
+            // legacy PHPUnit 4 - PHPUnit 9
+            return $this->getMockBuilder('stdClass')->setMethods(array('__invoke'))->getMock();
+        }
     }
 
     public function setExpectedException($exception, $exceptionMessage = '', $exceptionCode = null)

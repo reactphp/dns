@@ -247,6 +247,10 @@ class TcpTransportExecutorTest extends TestCase
 
     public function testQueryStaysPendingWhenClientCanNotSendExcessiveMessageInOneChunkWhenServerClosesSocket()
     {
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped('Not supported on HHVM');
+        }
+
         $writableCallback = null;
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->once())->method('addWriteStream')->with($this->anything(), $this->callback(function ($cb) use (&$writableCallback) {
