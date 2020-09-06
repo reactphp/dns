@@ -247,10 +247,6 @@ class TcpTransportExecutorTest extends TestCase
 
     public function testQueryStaysPendingWhenClientCanNotSendExcessiveMessageInOneChunkWhenServerClosesSocket()
     {
-        if (defined('HHVM_VERSION')) {
-            $this->markTestSkipped('Not supported on HHVM');
-        }
-
         $writableCallback = null;
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->once())->method('addWriteStream')->with($this->anything(), $this->callback(function ($cb) use (&$writableCallback) {
@@ -268,7 +264,10 @@ class TcpTransportExecutorTest extends TestCase
 
         $query = new Query('google' . str_repeat('.com', 10000), Message::TYPE_A, Message::CLASS_IN);
 
-        $promise = $executor->query($query);
+        // send a bunch of queries and keep reference to last promise
+        for ($i = 0; $i < 100; ++$i) {
+            $promise = $executor->query($query);
+        }
 
         $client = stream_socket_accept($server);
         fclose($client);
@@ -571,11 +570,7 @@ class TcpTransportExecutorTest extends TestCase
 
         $executor->handleWritable();
 
-        // manually close socket before processing second write
-        $ref = new \ReflectionProperty($executor, 'socket');
-        $ref->setAccessible(true);
-        $socket = $ref->getValue($executor);
-        fclose($socket);
+        // close client socket before processing second write
         fclose($client);
 
         $promise2 = $executor->query($query);
