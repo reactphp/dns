@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.0 (2020-09-18)
+
+*   Feature: Support upcoming PHP 8.
+    (#168 by @clue)
+
+*   Improve test suite and update to PHPUnit 9.3.
+    (#164 by @clue, #165 and #166 by @SimonFrings and #167 by @WyriHaximus)
+
 ## 1.3.0 (2020-07-10)
 
 *   Feature: Forward compatibility with react/promise v3.
