@@ -811,6 +811,18 @@ class ParserTest extends TestCase
         $this->parser->parseMessage($data);
     }
 
+    public function testParseInvalidOffsetPointerToPreviousLabelInQuestionNameThrows()
+    {
+        $data = "";
+        $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
+        $data .= "02 69 6f c0 0c";          // question: offset pointer to previous label
+
+        $data = $this->convertTcpDumpToBinary($data);
+
+        $this->setExpectedException('InvalidArgumentException');
+        $this->parser->parseMessage($data);
+    }
+
     public function testParseInvalidOffsetPointerToStartOfMessageInQuestionNameThrows()
     {
         $data = "";
