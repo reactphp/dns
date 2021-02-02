@@ -1,6 +1,6 @@
 # Dns
 
-[![Build Status](https://travis-ci.org/reactphp/dns.svg?branch=master)](https://travis-ci.org/reactphp/dns)
+[![CI status](https://github.com/reactphp/dns/workflows/CI/badge.svg)](https://github.com/reactphp/dns/actions)
 
 Async DNS resolver for [ReactPHP](https://reactphp.org/).
 
