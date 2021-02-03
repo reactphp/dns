@@ -119,6 +119,9 @@ class FunctionalResolverTest extends TestCase
 
     public function testResolveCancelledRejectsImmediately()
     {
+        // max_nesting_level was set to 100 for PHP Versions < 5.4 which resulted in failing test for legacy PHP
+        ini_set('xdebug.max_nesting_level', 256);
+
         $ex = $this->callback(function ($param) {
             return ($param instanceof \RuntimeException && $param->getMessage() === 'DNS query for google.com has been cancelled');
         });
