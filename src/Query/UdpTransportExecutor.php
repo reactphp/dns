@@ -137,7 +137,20 @@ final class UdpTransportExecutor implements ExecutorInterface
 
         // set socket to non-blocking and immediately try to send (fill write buffer)
         \stream_set_blocking($socket, false);
-        \fwrite($socket, $queryData);
+        $written = @\fwrite($socket, $queryData);
+
+        if ($written !== \strlen($queryData)) {
+            // Write may potentially fail, but most common errors are already caught by connection check above.
+            // Among others, macOS is known to report here when trying to send to broadcast address.
+            // @codeCoverageIgnoreStart
+            $error = \error_get_last();
+            \preg_match('/errno=(\d+) (.+)/', $error['message'], $m);
+            return \React\Promise\reject(new \RuntimeException(
+                'DNS query for ' . $query->name . ' failed: Unable to send query to DNS server ('  . (isset($m[2]) ? $m[2] : $error['message']) . ')',
+                isset($m[1]) ? (int) $m[1] : 0
+            ));
+            // @codeCoverageIgnoreEnd
+        }
 
         $loop = $this->loop;
         $deferred = new Deferred(function () use ($loop, $socket, $query) {

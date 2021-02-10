@@ -120,7 +120,35 @@ class UdpTransportExecutorTest extends TestCase
         $promise = $executor->query($query);
 
         $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
-        $promise->then(null, $this->expectCallableOnce());
+
+        $exception = null;
+        $promise->then(null, function ($reason) use (&$exception) {
+            $exception = $reason;
+        });
+
+        $this->setExpectedException('RuntimeException', 'Unable to connect to DNS server (Failed to parse address "///")');
+        throw $exception;
+    }
+
+    public function testQueryRejectsIfSendToServerFailsAfterConnection()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        $loop->expects($this->never())->method('addReadStream');
+
+        $executor = new UdpTransportExecutor('255.255.255.255', $loop);
+
+        $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
+        $promise = $executor->query($query);
+
+        $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
+
+        $exception = null;
+        $promise->then(null, function ($reason) use (&$exception) {
+            $exception = $reason;
+        });
+
+        $this->setExpectedException('RuntimeException', 'to DNS server (Permission denied)', SOCKET_EACCES);
+        throw $exception;
     }
 
     /**
