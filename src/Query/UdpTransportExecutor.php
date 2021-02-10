@@ -93,6 +93,13 @@ final class UdpTransportExecutor implements ExecutorInterface
     private $dumper;
 
     /**
+     * maximum UDP packet size to send and receive
+     *
+     * @var int
+     */
+    private $maxPacketSize = 512;
+
+    /**
      * @param string        $nameserver
      * @param LoopInterface $loop
      */
@@ -119,7 +126,7 @@ final class UdpTransportExecutor implements ExecutorInterface
         $request = Message::createRequestForQuery($query);
 
         $queryData = $this->dumper->toBinary($request);
-        if (isset($queryData[512])) {
+        if (isset($queryData[$this->maxPacketSize])) {
             return \React\Promise\reject(new \RuntimeException(
                 'DNS query for ' . $query->name . ' failed: Query too large for UDP transport',
                 \defined('SOCKET_EMSGSIZE') ? \SOCKET_EMSGSIZE : 90
@@ -142,14 +149,14 @@ final class UdpTransportExecutor implements ExecutorInterface
         if ($written !== \strlen($queryData)) {
             // Write may potentially fail, but most common errors are already caught by connection check above.
             // Among others, macOS is known to report here when trying to send to broadcast address.
-            // @codeCoverageIgnoreStart
+            // This can also be reproduced by writing data exceeding `stream_set_chunk_size()` to a server refusing UDP data.
+            // fwrite(): send of 8192 bytes failed with errno=111 Connection refused
             $error = \error_get_last();
             \preg_match('/errno=(\d+) (.+)/', $error['message'], $m);
             return \React\Promise\reject(new \RuntimeException(
                 'DNS query for ' . $query->name . ' failed: Unable to send query to DNS server ('  . (isset($m[2]) ? $m[2] : $error['message']) . ')',
                 isset($m[1]) ? (int) $m[1] : 0
             ));
-            // @codeCoverageIgnoreEnd
         }
 
         $loop = $this->loop;
@@ -161,11 +168,12 @@ final class UdpTransportExecutor implements ExecutorInterface
             throw new CancellationException('DNS query for ' . $query->name . ' has been cancelled');
         });
 
+        $max = $this->maxPacketSize;
         $parser = $this->parser;
-        $loop->addReadStream($socket, function ($socket) use ($loop, $deferred, $query, $parser, $request) {
+        $loop->addReadStream($socket, function ($socket) use ($loop, $deferred, $query, $parser, $request, $max) {
             // try to read a single data packet from the DNS server
             // ignoring any errors, this is uses UDP packets and not a stream of data
-            $data = @\fread($socket, 512);
+            $data = @\fread($socket, $max);
 
             try {
                 $response = $parser->parseMessage($data);
