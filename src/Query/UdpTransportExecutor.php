@@ -174,6 +174,9 @@ final class UdpTransportExecutor implements ExecutorInterface
             // try to read a single data packet from the DNS server
             // ignoring any errors, this is uses UDP packets and not a stream of data
             $data = @\fread($socket, $max);
+            if ($data === false) {
+                return;
+            }
 
             try {
                 $response = $parser->parseMessage($data);
