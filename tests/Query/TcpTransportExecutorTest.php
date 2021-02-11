@@ -247,6 +247,14 @@ class TcpTransportExecutorTest extends TestCase
 
     public function testQueryStaysPendingWhenClientCanNotSendExcessiveMessageInOneChunkWhenServerClosesSocket()
     {
+        if (PHP_OS === 'Darwin') {
+            // Skip on macOS because it exhibits what looks like a kernal race condition when sending excessive data to a socket that is about to shut down (EPROTOTYPE)
+            // Due to this race condition, this is somewhat flaky. Happens around 75% of the time, use `--repeat=100` to reproduce.
+            // fwrite(): Send of 4260000 bytes failed with errno=41 Protocol wrong type for socket
+            // @link http://erickt.github.io/blog/2014/11/19/adventures-in-debugging-a-potential-osx-kernel-bug/
+            $this->markTestSkipped('Skipped on macOS due to possible race condition');
+        }
+
         $writableCallback = null;
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->once())->method('addWriteStream')->with($this->anything(), $this->callback(function ($cb) use (&$writableCallback) {
@@ -262,10 +270,10 @@ class TcpTransportExecutorTest extends TestCase
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address, $loop);
 
-        $query = new Query('google' . str_repeat('.com', 10000), Message::TYPE_A, Message::CLASS_IN);
+        $query = new Query('google' . str_repeat('.com', 100), Message::TYPE_A, Message::CLASS_IN);
 
         // send a bunch of queries and keep reference to last promise
-        for ($i = 0; $i < 100; ++$i) {
+        for ($i = 0; $i < 2000; ++$i) {
             $promise = $executor->query($query);
         }
 
