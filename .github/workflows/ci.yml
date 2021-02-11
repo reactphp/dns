@@ -33,6 +33,19 @@ jobs:
       - run: vendor/bin/phpunit --coverage-text -c phpunit.xml.legacy
         if: ${{ matrix.php < 7.3 }}
 
+  PHPUnit-macOS:
+    name: PHPUnit (macOS)
+    runs-on: macos-10.15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.0
+          coverage: xdebug
+      - run: composer install
+      - run: vendor/bin/phpunit --coverage-text
+
   PHPUnit-hhvm:
     name: PHPUnit (HHVM)
     runs-on: ubuntu-18.04

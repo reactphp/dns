@@ -120,7 +120,75 @@ class UdpTransportExecutorTest extends TestCase
         $promise = $executor->query($query);
 
         $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
-        $promise->then(null, $this->expectCallableOnce());
+
+        $exception = null;
+        $promise->then(null, function ($reason) use (&$exception) {
+            $exception = $reason;
+        });
+
+        // PHP (Failed to parse address "///") differs from HHVM (Name or service not known)
+        $this->setExpectedException('RuntimeException', 'Unable to connect to DNS server');
+        throw $exception;
+    }
+
+    public function testQueryRejectsIfSendToServerFailsAfterConnection()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        $loop->expects($this->never())->method('addReadStream');
+
+        $executor = new UdpTransportExecutor('0.0.0.0', $loop);
+
+        // increase hard-coded maximum packet size to allow sending excessive data
+        $ref = new \ReflectionProperty($executor, 'maxPacketSize');
+        $ref->setAccessible(true);
+        $ref->setValue($executor, PHP_INT_MAX);
+
+        $query = new Query(str_repeat('a.', 100000) . '.example', Message::TYPE_A, Message::CLASS_IN);
+        $promise = $executor->query($query);
+
+        $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
+
+        $exception = null;
+        $promise->then(null, function ($reason) use (&$exception) {
+            $exception = $reason;
+        });
+
+        // ECONNREFUSED( Connection refused) on Linux, EMSGSIZE (Message too long) on macOS
+        $this->setExpectedException('RuntimeException', 'Unable to send query to DNS server');
+        throw $exception;
+    }
+
+    public function testQueryKeepsPendingIfReadFailsBecauseServerRefusesConnection()
+    {
+        $socket = null;
+        $callback = null;
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        $loop->expects($this->once())->method('addReadStream')->with($this->callback(function ($ref) use (&$socket) {
+            $socket = $ref;
+            return true;
+        }), $this->callback(function ($ref) use (&$callback) {
+            $callback = $ref;
+            return true;
+        }));
+
+        $executor = new UdpTransportExecutor('0.0.0.0', $loop);
+
+        $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
+        $promise = $executor->query($query);
+
+        $this->assertNotNull($socket);
+        $callback($socket);
+
+        $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
+
+        $pending = true;
+        $promise->then(function () use (&$pending) {
+            $pending = false;
+        }, function () use (&$pending) {
+            $pending = false;
+        });
+
+        $this->assertTrue($pending);
     }
 
     /**
@@ -140,27 +208,6 @@ class UdpTransportExecutorTest extends TestCase
 
         $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
         $promise->then(null, $this->expectCallableOnce());
-    }
-
-    public function testQueryKeepsPendingIfServerRejectsNetworkPacket()
-    {
-        $loop = Factory::create();
-
-        $executor = new UdpTransportExecutor('127.0.0.1:1', $loop);
-
-        $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
-
-        $wait = true;
-        $promise = $executor->query($query)->then(
-            null,
-            function ($e) use (&$wait) {
-                $wait = false;
-                throw $e;
-            }
-        );
-
-        \Clue\React\Block\sleep(0.2, $loop);
-        $this->assertTrue($wait);
     }
 
     public function testQueryKeepsPendingIfServerSendsInvalidMessage()
