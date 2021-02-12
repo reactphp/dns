@@ -153,7 +153,7 @@ class UdpTransportExecutorTest extends TestCase
             $exception = $reason;
         });
 
-        // ECONNREFUSED( Connection refused) on Linux, EMSGSIZE (Message too long) on macOS
+        // ECONNREFUSED (Connection refused) on Linux, EMSGSIZE (Message too long) on macOS
         $this->setExpectedException('RuntimeException', 'Unable to send query to DNS server');
         throw $exception;
     }

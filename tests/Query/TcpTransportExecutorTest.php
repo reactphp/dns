@@ -245,6 +245,41 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertFalse($wait);
     }
 
+    public function testQueryStaysPendingWhenClientCanNotSendExcessiveMessageInOneChunk()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        $loop->expects($this->once())->method('addWriteStream');
+        $loop->expects($this->once())->method('addReadStream');
+        $loop->expects($this->never())->method('removeWriteStream');
+        $loop->expects($this->never())->method('removeReadStream');
+
+        $server = stream_socket_server('tcp://127.0.0.1:0');
+
+        $address = stream_socket_get_name($server, false);
+        $executor = new TcpTransportExecutor($address, $loop);
+
+        $query = new Query('google' . str_repeat('.com', 100), Message::TYPE_A, Message::CLASS_IN);
+
+        // send a bunch of queries and keep reference to last promise
+        for ($i = 0; $i < 8000; ++$i) {
+            $promise = $executor->query($query);
+        }
+
+        $client = stream_socket_accept($server);
+        assert(is_resource($client));
+
+        $executor->handleWritable();
+
+        $promise->then(null, 'printf');
+        $promise->then($this->expectCallableNever(), $this->expectCallableNever());
+
+        $ref = new \ReflectionProperty($executor, 'writePending');
+        $ref->setAccessible(true);
+        $writePending = $ref->getValue($executor);
+
+        $this->assertTrue($writePending);
+    }
+
     public function testQueryStaysPendingWhenClientCanNotSendExcessiveMessageInOneChunkWhenServerClosesSocket()
     {
         if (PHP_OS === 'Darwin') {
@@ -255,12 +290,8 @@ class TcpTransportExecutorTest extends TestCase
             $this->markTestSkipped('Skipped on macOS due to possible race condition');
         }
 
-        $writableCallback = null;
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
-        $loop->expects($this->once())->method('addWriteStream')->with($this->anything(), $this->callback(function ($cb) use (&$writableCallback) {
-            $writableCallback = $cb;
-            return true;
-        }));
+        $loop->expects($this->once())->method('addWriteStream');
         $loop->expects($this->once())->method('addReadStream');
         $loop->expects($this->never())->method('removeWriteStream');
         $loop->expects($this->never())->method('removeReadStream');
@@ -289,6 +320,57 @@ class TcpTransportExecutorTest extends TestCase
         $writePending = $ref->getValue($executor);
 
         $this->assertTrue($writePending);
+    }
+
+    public function testQueryRejectsWhenClientKeepsSendingWhenServerClosesSocket()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        $loop->expects($this->once())->method('addWriteStream');
+        $loop->expects($this->once())->method('addReadStream');
+        $loop->expects($this->once())->method('removeWriteStream');
+        $loop->expects($this->once())->method('removeReadStream');
+
+        $server = stream_socket_server('tcp://127.0.0.1:0');
+
+        $address = stream_socket_get_name($server, false);
+        $executor = new TcpTransportExecutor($address, $loop);
+
+        $query = new Query('google' . str_repeat('.com', 100), Message::TYPE_A, Message::CLASS_IN);
+
+        // send a bunch of queries and keep reference to last promise
+        for ($i = 0; $i < 2000; ++$i) {
+            $promise = $executor->query($query);
+        }
+
+        $client = stream_socket_accept($server);
+        fclose($client);
+
+        $executor->handleWritable();
+
+        $ref = new \ReflectionProperty($executor, 'writePending');
+        $ref->setAccessible(true);
+        $writePending = $ref->getValue($executor);
+
+        // We expect an EPIPE (Broken pipe) on second write.
+        // However, macOS may report EPROTOTYPE (Protocol wrong type for socket) on first write due to kernel race condition.
+        // fwrite(): Send of 4260000 bytes failed with errno=41 Protocol wrong type for socket
+        // @link http://erickt.github.io/blog/2014/11/19/adventures-in-debugging-a-potential-osx-kernel-bug/
+        if ($writePending) {
+            $executor->handleWritable();
+        }
+
+        $exception = null;
+        $promise->then(null, function ($reason) use (&$exception) {
+            $exception = $reason;
+        });
+
+        // expect EPIPE (Broken pipe), except for macOS kernel race condition or legacy HHVM
+        $this->setExpectedException(
+            'RuntimeException',
+            'Unable to send query to DNS server',
+            defined('SOCKET_EPIPE') && !defined('HHVM_VERSION') ? (PHP_OS !== 'Darwin' || $writePending ? SOCKET_EPIPE : SOCKET_EPROTOTYPE) : null
+        );
+        throw $exception;
     }
 
     public function testQueryRejectsWhenServerClosesConnection()
