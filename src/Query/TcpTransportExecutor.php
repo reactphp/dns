@@ -184,6 +184,9 @@ class TcpTransportExecutor implements ExecutorInterface
 
             // set socket to non-blocking and wait for it to become writable (connection success/rejected)
             \stream_set_blocking($socket, false);
+            if (\function_exists('stream_set_chunk_size')) {
+                \stream_set_chunk_size($socket, (1 << 31) - 1); // @codeCoverageIgnore
+            }
             $this->socket = $socket;
         }
 
@@ -234,7 +237,12 @@ class TcpTransportExecutor implements ExecutorInterface
 
         $written = @\fwrite($this->socket, $this->writeBuffer);
         if ($written === false || $written === 0) {
-            $this->closeError('Unable to write to closed socket');
+            $error = \error_get_last();
+            \preg_match('/errno=(\d+) (.+)/', $error['message'], $m);
+            $this->closeError(
+                'Unable to send query to DNS server (' . (isset($m[2]) ? $m[2] : $error['message']) . ')',
+                isset($m[1]) ? (int) $m[1] : 0
+            );
             return;
         }
 
@@ -300,8 +308,9 @@ class TcpTransportExecutor implements ExecutorInterface
     /**
      * @internal
      * @param string $reason
+     * @param int    $code
      */
-    public function closeError($reason)
+    public function closeError($reason, $code = 0)
     {
         $this->readBuffer = '';
         if ($this->readPending) {
@@ -325,7 +334,8 @@ class TcpTransportExecutor implements ExecutorInterface
 
         foreach ($this->names as $id => $name) {
             $this->pending[$id]->reject(new \RuntimeException(
-                'DNS query for ' . $name . ' failed: ' . $reason
+                'DNS query for ' . $name . ' failed: ' . $reason,
+                $code
             ));
         }
         $this->pending = $this->names = array();
