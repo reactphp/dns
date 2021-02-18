@@ -164,7 +164,7 @@ class ResolverTest extends TestCase
             }));
 
         $errback = $this->expectCallableOnceWith($this->callback(function ($param) {
-            return ($param instanceof RecordNotFoundException && $param->getCode() === 0 && $param->getMessage() === 'DNS query for igor.io did not return a valid answer (NOERROR / NODATA)');
+            return ($param instanceof RecordNotFoundException && $param->getCode() === 0 && $param->getMessage() === 'DNS query for igor.io (A) did not return a valid answer (NOERROR / NODATA)');
         }));
 
         $resolver = new Resolver($executor);
@@ -176,27 +176,27 @@ class ResolverTest extends TestCase
         return array(
             array(
                 Message::RCODE_FORMAT_ERROR,
-                'DNS query for example.com returned an error response (Format Error)',
+                'DNS query for example.com (A) returned an error response (Format Error)',
             ),
             array(
                 Message::RCODE_SERVER_FAILURE,
-                'DNS query for example.com returned an error response (Server Failure)',
+                'DNS query for example.com (A) returned an error response (Server Failure)',
             ),
             array(
                 Message::RCODE_NAME_ERROR,
-                'DNS query for example.com returned an error response (Non-Existent Domain / NXDOMAIN)'
+                'DNS query for example.com (A) returned an error response (Non-Existent Domain / NXDOMAIN)'
             ),
             array(
                 Message::RCODE_NOT_IMPLEMENTED,
-                'DNS query for example.com returned an error response (Not Implemented)'
+                'DNS query for example.com (A) returned an error response (Not Implemented)'
             ),
             array(
                 Message::RCODE_REFUSED,
-                'DNS query for example.com returned an error response (Refused)'
+                'DNS query for example.com (A) returned an error response (Refused)'
             ),
             array(
                 99,
-                'DNS query for example.com returned an error response (Unknown error response code 99)'
+                'DNS query for example.com (A) returned an error response (Unknown error response code 99)'
             )
         );
     }

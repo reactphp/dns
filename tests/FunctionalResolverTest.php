@@ -107,14 +107,19 @@ class FunctionalResolverTest extends TestCase
      */
     public function testResolveInvalidRejects()
     {
-        $ex = $this->callback(function ($param) {
-            return ($param instanceof RecordNotFoundException && $param->getCode() === Message::RCODE_NAME_ERROR);
-        });
-
         $promise = $this->resolver->resolve('example.invalid');
-        $promise->then($this->expectCallableNever(), $this->expectCallableOnceWith($ex));
 
         $this->loop->run();
+
+        $exception = null;
+        $promise->then(null, function ($reason) use (&$exception) {
+            $exception = $reason;
+        });
+
+        /** @var \React\Dns\RecordNotFoundException $exception */
+        $this->assertInstanceOf('React\Dns\RecordNotFoundException', $exception);
+        $this->assertEquals('DNS query for example.invalid (A) returned an error response (Non-Existent Domain / NXDOMAIN)', $exception->getMessage());
+        $this->assertEquals(Message::RCODE_NAME_ERROR, $exception->getCode());
     }
 
     public function testResolveCancelledRejectsImmediately()
@@ -122,12 +127,7 @@ class FunctionalResolverTest extends TestCase
         // max_nesting_level was set to 100 for PHP Versions < 5.4 which resulted in failing test for legacy PHP
         ini_set('xdebug.max_nesting_level', 256);
 
-        $ex = $this->callback(function ($param) {
-            return ($param instanceof \RuntimeException && $param->getMessage() === 'DNS query for google.com has been cancelled');
-        });
-
         $promise = $this->resolver->resolve('google.com');
-        $promise->then($this->expectCallableNever(), $this->expectCallableOnceWith($ex));
         $promise->cancel();
 
         $time = microtime(true);
@@ -135,6 +135,35 @@ class FunctionalResolverTest extends TestCase
         $time = microtime(true) - $time;
 
         $this->assertLessThan(0.1, $time);
+
+        $exception = null;
+        $promise->then(null, function ($reason) use (&$exception) {
+            $exception = $reason;
+        });
+
+        /** @var \React\Dns\Query\CancellationException $exception */
+        $this->assertInstanceOf('React\Dns\Query\CancellationException', $exception);
+        $this->assertEquals('DNS query for google.com (A) has been cancelled', $exception->getMessage());
+    }
+
+    /**
+     * @group internet
+     */
+    public function testResolveAllInvalidTypeRejects()
+    {
+        $promise = $this->resolver->resolveAll('google.com', Message::TYPE_PTR);
+
+        $this->loop->run();
+
+        $exception = null;
+        $promise->then(null, function ($reason) use (&$exception) {
+            $exception = $reason;
+        });
+
+        /** @var \React\Dns\RecordNotFoundException $exception */
+        $this->assertInstanceOf('React\Dns\RecordNotFoundException', $exception);
+        $this->assertEquals('DNS query for google.com (PTR) did not return a valid answer (NOERROR / NODATA)', $exception->getMessage());
+        $this->assertEquals(0, $exception->getCode());
     }
 
     public function testInvalidResolverDoesNotResolveGoogle()

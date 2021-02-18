@@ -105,7 +105,7 @@ class TimeoutExecutorTest extends TestCase
             \Clue\React\Block\await($promise, $this->loop);
             $this->fail();
         } catch (TimeoutException $exception) {
-            $this->assertEquals('DNS query for igor.io timed out' , $exception->getMessage());
+            $this->assertEquals('DNS query for igor.io (A) timed out' , $exception->getMessage());
         }
 
         $this->assertEquals(1, $cancelled);

@@ -166,7 +166,7 @@ class TcpTransportExecutor implements ExecutorInterface
         $length = \strlen($queryData);
         if ($length > 0xffff) {
             return \React\Promise\reject(new \RuntimeException(
-                'DNS query for ' . $query->name . ' failed: Query too large for TCP transport'
+                'DNS query for ' . $query->describe() . ' failed: Query too large for TCP transport'
             ));
         }
 
@@ -177,7 +177,7 @@ class TcpTransportExecutor implements ExecutorInterface
             $socket = @\stream_socket_client($this->nameserver, $errno, $errstr, 0, \STREAM_CLIENT_CONNECT | \STREAM_CLIENT_ASYNC_CONNECT);
             if ($socket === false) {
                 return \React\Promise\reject(new \RuntimeException(
-                    'DNS query for ' . $query->name . ' failed: Unable to connect to DNS server ('  . $errstr . ')',
+                    'DNS query for ' . $query->describe() . ' failed: Unable to connect to DNS server ('  . $errstr . ')',
                     $errno
                 ));
             }
@@ -214,7 +214,7 @@ class TcpTransportExecutor implements ExecutorInterface
         });
 
         $this->pending[$request->id] = $deferred;
-        $this->names[$request->id] = $query->name;
+        $this->names[$request->id] = $query->describe();
 
         return $deferred->promise();
     }
