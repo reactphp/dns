@@ -35,27 +35,27 @@ class TcpTransportExecutorTest extends TestCase
         return array(
             array(
                 '8.8.8.8',
-                '8.8.8.8:53'
+                'tcp://8.8.8.8:53'
             ),
             array(
                 '1.2.3.4:5',
-                '1.2.3.4:5'
+                'tcp://1.2.3.4:5'
             ),
             array(
                 'tcp://1.2.3.4',
-                '1.2.3.4:53'
+                'tcp://1.2.3.4:53'
             ),
             array(
                 'tcp://1.2.3.4:53',
-                '1.2.3.4:53'
+                'tcp://1.2.3.4:53'
             ),
             array(
                 '::1',
-                '[::1]:53'
+                'tcp://[::1]:53'
             ),
             array(
                 '[::1]:53',
-                '[::1]:53'
+                'tcp://[::1]:53'
             )
         );
     }
@@ -129,7 +129,7 @@ class TcpTransportExecutorTest extends TestCase
 
         /** @var \RuntimeException $exception */
         $this->assertInstanceOf('RuntimeException', $exception);
-        $this->assertEquals('DNS query for google.com (A) failed: Unable to connect to DNS server (Failed to parse address "///")', $exception->getMessage());
+        $this->assertEquals('DNS query for google.com (A) failed: Unable to connect to DNS server /// (Failed to parse address "///")', $exception->getMessage());
     }
 
     public function testQueryRejectsOnCancellationWithoutClosingSocketButStartsIdleTimer()
@@ -265,7 +265,7 @@ class TcpTransportExecutorTest extends TestCase
 
         /** @var \RuntimeException $exception */
         $this->assertInstanceOf('RuntimeException', $exception);
-        $this->assertEquals('DNS query for google.com (A) failed: Connection to DNS server rejected', $exception->getMessage());
+        $this->assertEquals('DNS query for google.com (A) failed: Connection to DNS server tcp://127.0.0.1:1 rejected', $exception->getMessage());
     }
 
     public function testQueryStaysPendingWhenClientCanNotSendExcessiveMessageInOneChunk()
@@ -390,7 +390,7 @@ class TcpTransportExecutorTest extends TestCase
         // expect EPIPE (Broken pipe), except for macOS kernel race condition or legacy HHVM
         $this->setExpectedException(
             'RuntimeException',
-            'Unable to send query to DNS server',
+            'Unable to send query to DNS server tcp://' . $address . ' (',
             defined('SOCKET_EPIPE') && !defined('HHVM_VERSION') ? (PHP_OS !== 'Darwin' || $writePending ? SOCKET_EPIPE : SOCKET_EPROTOTYPE) : null
         );
         throw $exception;
@@ -411,21 +411,22 @@ class TcpTransportExecutorTest extends TestCase
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
-        $wait = true;
+        $exception = null;
         $executor->query($query)->then(
             null,
-            function ($e) use (&$wait) {
-                $wait = false;
-                throw $e;
+            function ($e) use (&$exception) {
+                $exception = $e;
             }
         );
 
         \Clue\React\Block\sleep(0.01, $loop);
-        if ($wait) {
+        if ($exception === null) {
             \Clue\React\Block\sleep(0.2, $loop);
         }
 
-        $this->assertFalse($wait);
+        /** @var \RuntimeException $exception */
+        $this->assertInstanceOf('RuntimeException', $exception);
+        $this->assertEquals('DNS query for google.com (A) failed: Connection to DNS server tcp://' . $address . ' lost', $exception->getMessage());
     }
 
     public function testQueryKeepsPendingIfServerSendsIncompleteMessageLength()
@@ -514,21 +515,22 @@ class TcpTransportExecutorTest extends TestCase
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
-        $wait = true;
+        $exception = null;
         $executor->query($query)->then(
             null,
-            function ($e) use (&$wait) {
-                $wait = false;
-                throw $e;
+            function ($e) use (&$exception) {
+                $exception = $e;
             }
         );
 
         \Clue\React\Block\sleep(0.01, $loop);
-        if ($wait) {
+        if ($exception === null) {
             \Clue\React\Block\sleep(0.2, $loop);
         }
 
-        $this->assertFalse($wait);
+        /** @var \RuntimeException $exception */
+        $this->assertInstanceOf('RuntimeException', $exception);
+        $this->assertEquals('DNS query for google.com (A) failed: Invalid message received from DNS server tcp://' . $address, $exception->getMessage());
     }
 
     public function testQueryRejectsWhenServerSendsInvalidId()
@@ -564,21 +566,22 @@ class TcpTransportExecutorTest extends TestCase
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
-        $wait = true;
+        $exception = null;
         $executor->query($query)->then(
             null,
-            function ($e) use (&$wait) {
-                $wait = false;
-                throw $e;
+            function ($e) use (&$exception) {
+                $exception = $e;
             }
         );
 
         \Clue\React\Block\sleep(0.01, $loop);
-        if ($wait) {
+        if ($exception === null) {
             \Clue\React\Block\sleep(0.2, $loop);
         }
 
-        $this->assertFalse($wait);
+        /** @var \RuntimeException $exception */
+        $this->assertInstanceOf('RuntimeException', $exception);
+        $this->assertEquals('DNS query for google.com (A) failed: Invalid response message received from DNS server tcp://' . $address, $exception->getMessage());
     }
 
     public function testQueryRejectsIfServerSendsTruncatedResponse()
@@ -614,21 +617,22 @@ class TcpTransportExecutorTest extends TestCase
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
-        $wait = true;
+        $exception = null;
         $executor->query($query)->then(
             null,
-            function ($e) use (&$wait) {
-                $wait = false;
-                throw $e;
+            function ($e) use (&$exception) {
+                $exception = $e;
             }
         );
 
         \Clue\React\Block\sleep(0.01, $loop);
-        if ($wait) {
+        if ($exception === null) {
             \Clue\React\Block\sleep(0.2, $loop);
         }
 
-        $this->assertFalse($wait);
+        /** @var \RuntimeException $exception */
+        $this->assertInstanceOf('RuntimeException', $exception);
+        $this->assertEquals('DNS query for google.com (A) failed: Invalid response message received from DNS server tcp://' . $address, $exception->getMessage());
     }
 
     public function testQueryResolvesIfServerSendsValidResponse()

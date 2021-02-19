@@ -136,7 +136,7 @@ class UdpTransportExecutorTest extends TestCase
 
         $this->setExpectedException(
             'RuntimeException',
-            'DNS query for google.com (A) failed: Unable to connect to DNS server (Failed to parse address "///")'
+            'DNS query for google.com (A) failed: Unable to connect to DNS server /// (Failed to parse address "///")'
         );
         throw $exception;
     }
@@ -166,7 +166,7 @@ class UdpTransportExecutorTest extends TestCase
         // ECONNREFUSED (Connection refused) on Linux, EMSGSIZE (Message too long) on macOS
         $this->setExpectedException(
             'RuntimeException',
-            'DNS query for ' . $query->name . ' (A) failed: Unable to send query to DNS server'
+            'DNS query for ' . $query->name . ' (A) failed: Unable to send query to DNS server udp://0.0.0.0:53 ('
         );
         throw $exception;
     }
@@ -318,7 +318,7 @@ class UdpTransportExecutorTest extends TestCase
 
         $this->setExpectedException(
             'RuntimeException',
-            'DNS query for google.com (A) failed: The server returned a truncated result for a UDP query',
+            'DNS query for google.com (A) failed: The DNS server udp://' . $address . ' returned a truncated result for a UDP query',
             defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90
         );
         \Clue\React\Block\await($promise, $loop, 0.1);
