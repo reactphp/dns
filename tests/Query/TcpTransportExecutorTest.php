@@ -265,7 +265,8 @@ class TcpTransportExecutorTest extends TestCase
 
         /** @var \RuntimeException $exception */
         $this->assertInstanceOf('RuntimeException', $exception);
-        $this->assertEquals('DNS query for google.com (A) failed: Connection to DNS server tcp://127.0.0.1:1 rejected', $exception->getMessage());
+        $this->assertEquals('DNS query for google.com (A) failed: Unable to connect to DNS server tcp://127.0.0.1:1 (Connection refused)', $exception->getMessage());
+        $this->assertEquals(defined('SOCKET_ECONNREFUSED') ? SOCKET_ECONNREFUSED : 111, $exception->getCode());
     }
 
     public function testQueryStaysPendingWhenClientCanNotSendExcessiveMessageInOneChunk()

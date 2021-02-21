@@ -227,7 +227,19 @@ class TcpTransportExecutor implements ExecutorInterface
         if ($this->readPending === false) {
             $name = @\stream_socket_get_name($this->socket, true);
             if ($name === false) {
-                $this->closeError('Connection to DNS server ' . $this->nameserver . ' rejected');
+                // Connection failed? Check socket error if available for underlying errno/errstr.
+                // @codeCoverageIgnoreStart
+                if (\function_exists('socket_import_stream')) {
+                    $socket = \socket_import_stream($this->socket);
+                    $errno = \socket_get_option($socket, \SOL_SOCKET, \SO_ERROR);
+                    $errstr = \socket_strerror($errno);
+                } else {
+                    $errno = \defined('SOCKET_ECONNREFUSED') ? \SOCKET_ECONNREFUSED : 111;
+                    $errstr = 'Connection refused';
+                }
+                // @codeCoverageIgnoreEnd
+
+                $this->closeError('Unable to connect to DNS server ' . $this->nameserver . ' (' . $errstr . ')', $errno);
                 return;
             }
 
