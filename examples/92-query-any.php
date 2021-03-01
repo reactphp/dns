@@ -73,7 +73,7 @@ $executor->query($any)->then(function (Message $message) {
                 break;
             default:
                 // unknown type uses HEX format
-                $type = 'Type ' . $answer->type;
+                $type = 'TYPE' . $answer->type;
                 $data = wordwrap(strtoupper(bin2hex($data)), 2, ' ', true);
         }
 

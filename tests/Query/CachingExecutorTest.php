@@ -129,7 +129,7 @@ class CachingExecutorTest extends TestCase
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
         $fallback = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
-        $fallback->expects($this->once())->method('query')->willReturn(\React\Promise\reject(new \RuntimeException()));
+        $fallback->expects($this->once())->method('query')->willReturn(\React\Promise\reject($exception = new \RuntimeException()));
 
         $cache = $this->getMockBuilder('React\Cache\CacheInterface')->getMock();
         $cache->expects($this->once())->method('get')->willReturn(\React\Promise\resolve(null));
@@ -138,7 +138,7 @@ class CachingExecutorTest extends TestCase
 
         $promise = $executor->query($query);
 
-        $promise->then($this->expectCallableNever(), $this->expectCallableOnceWith($this->isInstanceOf('RuntimeException')));
+        $promise->then($this->expectCallableNever(), $this->expectCallableOnceWith($exception));
     }
 
     public function testCancelQueryWillReturnRejectedPromiseAndCancelPendingPromiseFromCache()
@@ -157,7 +157,14 @@ class CachingExecutorTest extends TestCase
         $promise = $executor->query($query);
         $promise->cancel();
 
-        $promise->then($this->expectCallableNever(), $this->expectCallableOnceWith($this->isInstanceOf('RuntimeException')));
+        $exception = null;
+        $promise->then(null, function ($reason) use (&$exception) {
+            $exception = $reason;
+        });
+
+        /** @var \RuntimeException $exception */
+        $this->assertInstanceOf('RuntimeException', $exception);
+        $this->assertEquals('DNS query for reactphp.org (A) has been cancelled', $exception->getMessage());
     }
 
     public function testCancelQueryWillReturnRejectedPromiseAndCancelPendingPromiseFromFallbackExecutorWhenCacheReturnsMiss()
@@ -178,6 +185,13 @@ class CachingExecutorTest extends TestCase
         $deferred->resolve(null);
         $promise->cancel();
 
-        $promise->then($this->expectCallableNever(), $this->expectCallableOnceWith($this->isInstanceOf('RuntimeException')));
+        $exception = null;
+        $promise->then(null, function ($reason) use (&$exception) {
+            $exception = $reason;
+        });
+
+        /** @var \RuntimeException $exception */
+        $this->assertInstanceOf('RuntimeException', $exception);
+        $this->assertEquals('DNS query for reactphp.org (A) has been cancelled', $exception->getMessage());
     }
 }

@@ -101,12 +101,20 @@ class UdpTransportExecutorTest extends TestCase
             $exception = $reason;
         });
 
-        $this->setExpectedException('RuntimeException', '', defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90);
+        $this->setExpectedException(
+            'RuntimeException',
+            'DNS query for ' . $query->name . ' (A) failed: Query too large for UDP transport',
+            defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90
+        );
         throw $exception;
     }
 
     public function testQueryRejectsIfServerConnectionFails()
     {
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped('HHVM reports different error message for invalid addresses');
+        }
+
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->never())->method('addReadStream');
 
@@ -126,8 +134,10 @@ class UdpTransportExecutorTest extends TestCase
             $exception = $reason;
         });
 
-        // PHP (Failed to parse address "///") differs from HHVM (Name or service not known)
-        $this->setExpectedException('RuntimeException', 'Unable to connect to DNS server');
+        $this->setExpectedException(
+            'RuntimeException',
+            'DNS query for google.com (A) failed: Unable to connect to DNS server /// (Failed to parse address "///")'
+        );
         throw $exception;
     }
 
@@ -154,7 +164,10 @@ class UdpTransportExecutorTest extends TestCase
         });
 
         // ECONNREFUSED (Connection refused) on Linux, EMSGSIZE (Message too long) on macOS
-        $this->setExpectedException('RuntimeException', 'Unable to send query to DNS server');
+        $this->setExpectedException(
+            'RuntimeException',
+            'DNS query for ' . $query->name . ' (A) failed: Unable to send query to DNS server udp://0.0.0.0:53 ('
+        );
         throw $exception;
     }
 
@@ -206,8 +219,14 @@ class UdpTransportExecutorTest extends TestCase
         $promise = $executor->query($query);
         $promise->cancel();
 
-        $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
-        $promise->then(null, $this->expectCallableOnce());
+        $exception = null;
+        $promise->then(null, function ($reason) use (&$exception) {
+            $exception = $reason;
+        });
+
+        /** @var \React\Dns\Query\CancellationException $exception */
+        $this->assertInstanceOf('React\Dns\Query\CancellationException', $exception);
+        $this->assertEquals('DNS query for google.com (A) has been cancelled', $exception->getMessage());
     }
 
     public function testQueryKeepsPendingIfServerSendsInvalidMessage()
@@ -297,7 +316,11 @@ class UdpTransportExecutorTest extends TestCase
 
         $promise = $executor->query($query);
 
-        $this->setExpectedException('RuntimeException', '', defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90);
+        $this->setExpectedException(
+            'RuntimeException',
+            'DNS query for google.com (A) failed: The DNS server udp://' . $address . ' returned a truncated result for a UDP query',
+            defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90
+        );
         \Clue\React\Block\await($promise, $loop, 0.1);
     }
 

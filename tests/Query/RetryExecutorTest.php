@@ -84,18 +84,19 @@ class RetryExecutorTest extends TestCase
                 return Promise\reject(new TimeoutException("timeout"));
             }));
 
-        $callback = $this->expectCallableNever();
-
-        $errorback = $this->createCallableMock();
-        $errorback
-            ->expects($this->once())
-            ->method('__invoke')
-            ->with($this->isInstanceOf('RuntimeException'));
-
         $retryExecutor = new RetryExecutor($executor, 2);
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $retryExecutor->query($query)->then($callback, $errorback);
+        $promise = $retryExecutor->query($query);
+
+        $exception = null;
+        $promise->then(null, function ($reason) use (&$exception) {
+            $exception = $reason;
+        });
+
+        /** @var \RuntimeException $exception */
+        $this->assertInstanceOf('RuntimeException', $exception);
+        $this->assertEquals('DNS query for igor.io (A) failed: too many retries', $exception->getMessage());
     }
 
     /**

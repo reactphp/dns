@@ -127,7 +127,14 @@ class CoopExecutorTest extends TestCase
 
         $promise->cancel();
 
-        $promise->then(null, $this->expectCallableOnce());
+        $exception = null;
+        $promise->then(null, function ($reason) use (&$exception) {
+            $exception = $reason;
+        });
+
+        /** @var \RuntimeException $exception */
+        $this->assertInstanceOf('RuntimeException', $exception);
+        $this->assertEquals('DNS query for reactphp.org (A) has been cancelled', $exception->getMessage());
     }
 
     public function testCancelOneQueryWhenOtherQueryIsStillPendingWillNotCancelPromiseFromBaseExecutorAndRejectCancelled()
