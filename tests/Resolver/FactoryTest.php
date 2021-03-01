@@ -2,12 +2,24 @@
 
 namespace React\Tests\Dns\Resolver;
 
+use React\Dns\Config\Config;
 use React\Dns\Resolver\Factory;
 use React\Tests\Dns\TestCase;
 use React\Dns\Query\HostsFileExecutor;
 
 class FactoryTest extends TestCase
 {
+    /** @test */
+    public function createFromConfigShouldCreateResolver()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+
+        $factory = new Factory();
+        $resolver = $factory->createFromConfig(Config::loadSystemConfigBlocking(), $loop, '8.8.8.8:53');
+
+        $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
+    }
+
     /** @test */
     public function createShouldCreateResolver()
     {
@@ -151,6 +163,21 @@ class FactoryTest extends TestCase
 
         $factory = new Factory();
         $resolver = $factory->createCached('8.8.8.8:53', $loop);
+
+        $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
+        $executor = $this->getResolverPrivateExecutor($resolver);
+        $this->assertInstanceOf('React\Dns\Query\CachingExecutor', $executor);
+        $cache = $this->getCachingExecutorPrivateMemberValue($executor, 'cache');
+        $this->assertInstanceOf('React\Cache\ArrayCache', $cache);
+    }
+
+    /** @test */
+    public function createCachedFromConfigShouldCreateResolverWithCachingExecutor()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+
+        $factory = new Factory();
+        $resolver = $factory->createCachedFromConfig(Config::loadSystemConfigBlocking(), $loop, '8.8.8.8:53');
 
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
         $executor = $this->getResolverPrivateExecutor($resolver);

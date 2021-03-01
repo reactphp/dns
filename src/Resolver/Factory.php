@@ -4,6 +4,7 @@ namespace React\Dns\Resolver;
 
 use React\Cache\ArrayCache;
 use React\Cache\CacheInterface;
+use React\Dns\Config\Config;
 use React\Dns\Config\HostsFile;
 use React\Dns\Query\CachingExecutor;
 use React\Dns\Query\CoopExecutor;
@@ -18,6 +19,29 @@ use React\EventLoop\LoopInterface;
 
 final class Factory
 {
+    /**
+     * @param Config        $config
+     * @param LoopInterface $loop
+     * @param string        $fallbackNameserver
+     * @return \React\Dns\Resolver\ResolverInterface
+     */
+    public function createFromConfig(Config $config, LoopInterface $loop, $fallbackNameserver)
+    {
+        return self::create($config->nameservers ? reset($config->nameservers) : $fallbackNameserver, $loop);
+    }
+
+    /**
+     * @param Config          $config
+     * @param LoopInterface   $loop
+     * @param string          $fallbackNameserver
+     * @param ?CacheInterface $cache
+     * @return \React\Dns\Resolver\ResolverInterface
+     */
+    public function createCachedFromConfig(Config $config, LoopInterface $loop, $fallbackNameserver, CacheInterface $cache = null)
+    {
+        return self::createCached($config->nameservers ? reset($config->nameservers) : $fallbackNameserver, $loop, $cache);
+    }
+
     /**
      * @param string        $nameserver
      * @param LoopInterface $loop

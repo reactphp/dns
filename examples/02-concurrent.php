@@ -7,11 +7,8 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $loop = React\EventLoop\Factory::create();
 
-$config = Config::loadSystemConfigBlocking();
-$server = $config->nameservers ? reset($config->nameservers) : '8.8.8.8';
-
 $factory = new Factory();
-$resolver = $factory->create($server, $loop);
+$resolver = $factory->createFromConfig(Config::loadSystemConfigBlocking(), $loop, '8.8.8.8');
 
 $names = array_slice($argv, 1);
 if (!$names) {
