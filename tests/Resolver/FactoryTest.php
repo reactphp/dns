@@ -2,9 +2,10 @@
 
 namespace React\Tests\Dns\Resolver;
 
+use React\Dns\Config\Config;
+use React\Dns\Query\HostsFileExecutor;
 use React\Dns\Resolver\Factory;
 use React\Tests\Dns\TestCase;
-use React\Dns\Query\HostsFileExecutor;
 
 class FactoryTest extends TestCase
 {
@@ -135,13 +136,69 @@ class FactoryTest extends TestCase
     }
 
     /** @test */
+    public function createWithConfigWithTcpNameserverSchemeShouldCreateResolverWithTcpExecutorStack()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+
+        $config = new Config();
+        $config->nameservers[] = 'tcp://8.8.8.8:53';
+
+        $factory = new Factory();
+        $resolver = $factory->create($config, $loop);
+
+        $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
+
+        $coopExecutor = $this->getResolverPrivateExecutor($resolver);
+
+        $this->assertInstanceOf('React\Dns\Query\CoopExecutor', $coopExecutor);
+
+        $ref = new \ReflectionProperty($coopExecutor, 'executor');
+        $ref->setAccessible(true);
+        $timeoutExecutor = $ref->getValue($coopExecutor);
+
+        $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
+
+        $ref = new \ReflectionProperty($timeoutExecutor, 'executor');
+        $ref->setAccessible(true);
+        $tcpExecutor = $ref->getValue($timeoutExecutor);
+
+        $this->assertInstanceOf('React\Dns\Query\TcpTransportExecutor', $tcpExecutor);
+    }
+
+    /** @test */
     public function createShouldThrowWhenNameserverIsInvalid()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
         $factory = new Factory();
+
         $this->setExpectedException('InvalidArgumentException');
         $factory->create('///', $loop);
+    }
+
+    /** @test */
+    public function createShouldThrowWhenConfigHasNoNameservers()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+
+        $factory = new Factory();
+
+        $this->setExpectedException('UnderflowException');
+        $factory->create(new Config(), $loop);
+    }
+
+    /** @test */
+    public function createShouldThrowWhenConfigHasInvalidNameserver()
+    {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+
+        $factory = new Factory();
+
+        $config = new Config();
+        $config->nameservers[] = '///';
+
+        $this->setExpectedException('InvalidArgumentException');
+        $factory->create($config, $loop);
     }
 
     /** @test */

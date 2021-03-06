@@ -11,10 +11,12 @@ require __DIR__ . '/../vendor/autoload.php';
 $loop = React\EventLoop\Factory::create();
 
 $config = Config::loadSystemConfigBlocking();
-$server = $config->nameservers ? reset($config->nameservers) : '8.8.8.8';
+if (!$config->nameservers) {
+    $config->nameservers[] = '8.8.8.8';
+}
 
 $factory = new Factory();
-$resolver = $factory->create($server, $loop);
+$resolver = $factory->create($config, $loop);
 
 $name = isset($argv[1]) ? $argv[1] : 'google.com';
 $type = constant('React\Dns\Model\Message::TYPE_' . (isset($argv[2]) ? $argv[2] : 'TXT'));
