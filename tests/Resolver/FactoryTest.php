@@ -36,7 +36,13 @@ class FactoryTest extends TestCase
 
         $ref = new \ReflectionProperty($coopExecutor, 'executor');
         $ref->setAccessible(true);
-        $selectiveExecutor = $ref->getValue($coopExecutor);
+        $retryExecutor = $ref->getValue($coopExecutor);
+
+        $this->assertInstanceOf('React\Dns\Query\RetryExecutor', $retryExecutor);
+
+        $ref = new \ReflectionProperty($retryExecutor, 'executor');
+        $ref->setAccessible(true);
+        $selectiveExecutor = $ref->getValue($retryExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\SelectiveTransportExecutor', $selectiveExecutor);
 
@@ -44,13 +50,7 @@ class FactoryTest extends TestCase
 
         $ref = new \ReflectionProperty($selectiveExecutor, 'datagramExecutor');
         $ref->setAccessible(true);
-        $retryExecutor = $ref->getValue($selectiveExecutor);
-
-        $this->assertInstanceOf('React\Dns\Query\RetryExecutor', $retryExecutor);
-
-        $ref = new \ReflectionProperty($retryExecutor, 'executor');
-        $ref->setAccessible(true);
-        $timeoutExecutor = $ref->getValue($retryExecutor);
+        $timeoutExecutor = $ref->getValue($selectiveExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
 
@@ -124,7 +124,13 @@ class FactoryTest extends TestCase
 
         $ref = new \ReflectionProperty($coopExecutor, 'executor');
         $ref->setAccessible(true);
-        $timeoutExecutor = $ref->getValue($coopExecutor);
+        $retryExecutor = $ref->getValue($coopExecutor);
+
+        $this->assertInstanceOf('React\Dns\Query\RetryExecutor', $retryExecutor);
+
+        $ref = new \ReflectionProperty($retryExecutor, 'executor');
+        $ref->setAccessible(true);
+        $timeoutExecutor = $ref->getValue($retryExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
 
@@ -154,7 +160,13 @@ class FactoryTest extends TestCase
 
         $ref = new \ReflectionProperty($coopExecutor, 'executor');
         $ref->setAccessible(true);
-        $timeoutExecutor = $ref->getValue($coopExecutor);
+        $retryExecutor = $ref->getValue($coopExecutor);
+
+        $this->assertInstanceOf('React\Dns\Query\RetryExecutor', $retryExecutor);
+
+        $ref = new \ReflectionProperty($retryExecutor, 'executor');
+        $ref->setAccessible(true);
+        $timeoutExecutor = $ref->getValue($retryExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
 

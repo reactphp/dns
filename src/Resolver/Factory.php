@@ -128,7 +128,7 @@ final class Factory
             );
         }
 
-        return new CoopExecutor($executor);
+        return new CoopExecutor(new RetryExecutor($executor));
     }
 
     private function createTcpExecutor($nameserver, LoopInterface $loop)
@@ -142,15 +142,13 @@ final class Factory
 
     private function createUdpExecutor($nameserver, LoopInterface $loop)
     {
-        return new RetryExecutor(
-            new TimeoutExecutor(
-                new UdpTransportExecutor(
-                    $nameserver,
-                    $loop
-                ),
-                5.0,
+        return new TimeoutExecutor(
+            new UdpTransportExecutor(
+                $nameserver,
                 $loop
-            )
+            ),
+            5.0,
+            $loop
         );
     }
 }
