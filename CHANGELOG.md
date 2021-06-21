@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.6.0 (2021-06-21)
+
+*   Feature: Add support for legacy `SPF` record type.
+    (#178 by @akondas and @clue)
+
+*   Fix: Fix integer overflow for TCP/IP chunk size on 32 bit platforms.
+    (#177 by @clue)
+
 ## 1.5.0 (2021-03-05)
 
 *   Feature: Improve error reporting when query fails, include domain and query type and DNS server address where applicable.
