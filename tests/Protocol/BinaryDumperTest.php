@@ -385,7 +385,7 @@ class BinaryDumperTest extends TestCase
     public function testToBinaryForResponseWithMultipleAnswerRecords()
     {
         $data = "";
-        $data .= "72 62 01 00 00 01 00 06 00 00 00 00"; // header
+        $data .= "72 62 01 00 00 01 00 07 00 00 00 00"; // header
         $data .= "04 69 67 6f 72 02 69 6f 00";          // question: igor.io
         $data .= "00 ff 00 01";                         // question: type ANY, class IN
 
@@ -400,6 +400,10 @@ class BinaryDumperTest extends TestCase
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
         $data .= "00 10 00 01 00 00 00 00 00 0c";       // answer: type TXT, class IN, TTL 0, 12 bytes
         $data .= "05 68 65 6c 6c 6f 05 77 6f 72 6c 64"; // answer: hello, world
+
+        $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
+        $data .= "00 63 00 01 00 00 00 00 00 0c";       // answer: type SPF, class IN, TTL 0, 12 bytes
+        $data .= "0b 76 3d 73 70 66 31 20 2d 61 6c 6c"; // answer: v=spf1 -all
 
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
         $data .= "00 0f 00 01 00 00 00 00 00 03";       // answer: type MX, class IN, TTL 0, 3 bytes
@@ -430,6 +434,7 @@ class BinaryDumperTest extends TestCase
         $response->answers[] = new Record('igor.io', Message::TYPE_A, Message::CLASS_IN, 0, '127.0.0.1');
         $response->answers[] = new Record('igor.io', Message::TYPE_AAAA, Message::CLASS_IN, 0, '::1');
         $response->answers[] = new Record('igor.io', Message::TYPE_TXT, Message::CLASS_IN, 0, array('hello', 'world'));
+        $response->answers[] = new Record('igor.io', Message::TYPE_SPF, Message::CLASS_IN, 0, array('v=spf1 -all'));
         $response->answers[] = new Record('igor.io', Message::TYPE_MX, Message::CLASS_IN, 0, array('priority' => 0, 'target' => ''));
         $response->answers[] = new Record('igor.io', Message::TYPE_CAA, Message::CLASS_IN, 0, array('flag' => 0, 'tag' => 'issue', 'value' => 'letsencrypt.org'));
         $response->answers[] = new Record('igor.io', Message::TYPE_SSHFP, Message::CLASS_IN, 0, array('algorithm' => 1, 'type' => '1', 'fingerprint' => '69ac090c'));
