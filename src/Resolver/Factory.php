@@ -4,6 +4,7 @@ namespace React\Dns\Resolver;
 
 use React\Cache\ArrayCache;
 use React\Cache\CacheInterface;
+use React\Dns\Config\Config;
 use React\Dns\Config\HostsFile;
 use React\Dns\Query\CachingExecutor;
 use React\Dns\Query\CoopExecutor;
@@ -19,31 +20,49 @@ use React\EventLoop\LoopInterface;
 final class Factory
 {
     /**
-     * @param string        $nameserver
+     * Creates a DNS resolver instance for the given DNS config
+     *
+     * As of v1.7.0 it's recommended to pass a `Config` object instead of a
+     * single nameserver address. If the given config contains more than one DNS
+     * nameserver, only the primary will be used at the moment. A future version
+     * may take advantage of fallback DNS servers.
+     *
+     * @param Config|string $config DNS Config object (recommended) or single nameserver address
      * @param LoopInterface $loop
      * @return \React\Dns\Resolver\ResolverInterface
+     * @throws \InvalidArgumentException for invalid DNS server address
+     * @throws \UnderflowException when given DNS Config object has an empty list of nameservers
      */
-    public function create($nameserver, LoopInterface $loop)
+    public function create($config, LoopInterface $loop)
     {
-        $executor = $this->decorateHostsFileExecutor($this->createExecutor($nameserver, $loop));
+        $executor = $this->decorateHostsFileExecutor($this->createExecutor($config, $loop));
 
         return new Resolver($executor);
     }
 
     /**
-     * @param string          $nameserver
+     * Creates a cached DNS resolver instance for the given DNS config and cache
+     *
+     * As of v1.7.0 it's recommended to pass a `Config` object instead of a
+     * single nameserver address. If the given config contains more than one DNS
+     * nameserver, only the primary will be used at the moment. A future version
+     * may take advantage of fallback DNS servers.
+     *
+     * @param Config|string   $config DNS Config object (recommended) or single nameserver address
      * @param LoopInterface   $loop
      * @param ?CacheInterface $cache
      * @return \React\Dns\Resolver\ResolverInterface
+     * @throws \InvalidArgumentException for invalid DNS server address
+     * @throws \UnderflowException when given DNS Config object has an empty list of nameservers
      */
-    public function createCached($nameserver, LoopInterface $loop, CacheInterface $cache = null)
+    public function createCached($config, LoopInterface $loop, CacheInterface $cache = null)
     {
         // default to keeping maximum of 256 responses in cache unless explicitly given
         if (!($cache instanceof CacheInterface)) {
             $cache = new ArrayCache(256);
         }
 
-        $executor = $this->createExecutor($nameserver, $loop);
+        $executor = $this->createExecutor($config, $loop);
         $executor = new CachingExecutor($executor, $cache);
         $executor = $this->decorateHostsFileExecutor($executor);
 
@@ -80,8 +99,22 @@ final class Factory
         return $executor;
     }
 
+    /**
+     * @param Config|string $nameserver
+     * @param LoopInterface $loop
+     * @return CoopExecutor
+     * @throws \InvalidArgumentException for invalid DNS server address
+     * @throws \UnderflowException when given DNS Config object has an empty list of nameservers
+     */
     private function createExecutor($nameserver, LoopInterface $loop)
     {
+        if ($nameserver instanceof Config) {
+            $nameserver = \reset($nameserver->nameservers);
+            if ($nameserver === false) {
+                throw new \UnderflowException('Empty config with no DNS servers');
+            }
+        }
+
         $parts = \parse_url($nameserver);
 
         if (isset($parts['scheme']) && $parts['scheme'] === 'tcp') {

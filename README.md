@@ -36,10 +36,12 @@ names, baby!
 $loop = React\EventLoop\Factory::create();
 
 $config = React\Dns\Config\Config::loadSystemConfigBlocking();
-$server = $config->nameservers ? reset($config->nameservers) : '8.8.8.8';
+if (!$config->nameservers) {
+    $config->nameservers[] = '8.8.8.8';
+}
 
 $factory = new React\Dns\Resolver\Factory();
-$dns = $factory->create($server, $loop);
+$dns = $factory->create($config, $loop);
 
 $dns->resolve('igor.io')->then(function ($ip) {
     echo "Host: $ip\n";
@@ -73,10 +75,12 @@ You can cache results by configuring the resolver to use a `CachedExecutor`:
 $loop = React\EventLoop\Factory::create();
 
 $config = React\Dns\Config\Config::loadSystemConfigBlocking();
-$server = $config->nameservers ? reset($config->nameservers) : '8.8.8.8';
+if (!$config->nameservers) {
+    $config->nameservers[] = '8.8.8.8';
+}
 
 $factory = new React\Dns\Resolver\Factory();
-$dns = $factory->createCached($server, $loop);
+$dns = $factory->createCached($config, $loop);
 
 $dns->resolve('igor.io')->then(function ($ip) {
     echo "Host: $ip\n";
