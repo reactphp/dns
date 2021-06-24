@@ -26,8 +26,8 @@ final class Factory
      * As of v1.7.0 it's recommended to pass a `Config` object instead of a
      * single nameserver address. If the given config contains more than one DNS
      * nameserver, all DNS nameservers will be used in order. The primary DNS
-     * server will always be used first before falling back to the secondary DNS
-     * server.
+     * server will always be used first before falling back to the secondary or
+     * tertiary DNS server.
      *
      * @param Config|string $config DNS Config object (recommended) or single nameserver address
      * @param LoopInterface $loop
@@ -48,8 +48,8 @@ final class Factory
      * As of v1.7.0 it's recommended to pass a `Config` object instead of a
      * single nameserver address. If the given config contains more than one DNS
      * nameserver, all DNS nameservers will be used in order. The primary DNS
-     * server will always be used first before falling back to the secondary DNS
-     * server.
+     * server will always be used first before falling back to the secondary or
+     * tertiary DNS server.
      *
      * @param Config|string   $config DNS Config object (recommended) or single nameserver address
      * @param LoopInterface   $loop
@@ -116,10 +116,27 @@ final class Factory
                 throw new \UnderflowException('Empty config with no DNS servers');
             }
 
+            // Hard-coded to check up to 3 DNS servers to match default limits in place in most systems (see MAXNS config).
+            // Note to future self: Recursion isn't too hard, but how deep do we really want to go?
             $primary = reset($nameserver->nameservers);
             $secondary = next($nameserver->nameservers);
+            $tertiary = next($nameserver->nameservers);
 
-            if ($secondary !== false) {
+            if ($tertiary !== false) {
+                // 3 DNS servers given => nest first with fallback for second and third
+                return new CoopExecutor(
+                    new RetryExecutor(
+                        new FallbackExecutor(
+                            $this->createSingleExecutor($primary, $loop),
+                            new FallbackExecutor(
+                                $this->createSingleExecutor($secondary, $loop),
+                                $this->createSingleExecutor($tertiary, $loop)
+                            )
+                        )
+                    )
+                );
+            } elseif ($secondary !== false) {
+                // 2 DNS servers given => fallback from first to second
                 return new CoopExecutor(
                     new RetryExecutor(
                         new FallbackExecutor(
@@ -129,6 +146,7 @@ final class Factory
                     )
                 );
             } else {
+                // 1 DNS server given => use single executor
                 $nameserver = $primary;
             }
         }
