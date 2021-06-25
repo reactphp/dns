@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.7.0 (2021-06-25)
+
+*   Feature: Update DNS `Factory` to accept complete `Config` object.
+    Add new `FallbackExecutor` and use fallback DNS servers when `Config` lists multiple servers.
+    (#179 and #180 by @clue)
+
+    ```php
+    // old (still supported)
+    $config = React\Dns\Config\Config::loadSystemConfigBlocking();
+    $server = $config->nameservers ? reset($config->nameservers) : '8.8.8.8';
+    $resolver = $factory->create($server, $loop);
+
+    // new
+    $config = React\Dns\Config\Config::loadSystemConfigBlocking();
+    if (!$config->nameservers) {
+        $config->nameservers[] = '8.8.8.8';
+    }
+    $resolver = $factory->create($config, $loop);
+    ```
+
 ## 1.6.0 (2021-06-21)
 
 *   Feature: Add support for legacy `SPF` record type.
