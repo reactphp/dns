@@ -9,6 +9,7 @@ use React\Dns\Config\HostsFile;
 use React\Dns\Query\CachingExecutor;
 use React\Dns\Query\CoopExecutor;
 use React\Dns\Query\ExecutorInterface;
+use React\Dns\Query\FallbackExecutor;
 use React\Dns\Query\HostsFileExecutor;
 use React\Dns\Query\RetryExecutor;
 use React\Dns\Query\SelectiveTransportExecutor;
@@ -24,8 +25,9 @@ final class Factory
      *
      * As of v1.7.0 it's recommended to pass a `Config` object instead of a
      * single nameserver address. If the given config contains more than one DNS
-     * nameserver, only the primary will be used at the moment. A future version
-     * may take advantage of fallback DNS servers.
+     * nameserver, all DNS nameservers will be used in order. The primary DNS
+     * server will always be used first before falling back to the secondary or
+     * tertiary DNS server.
      *
      * @param Config|string $config DNS Config object (recommended) or single nameserver address
      * @param LoopInterface $loop
@@ -45,8 +47,9 @@ final class Factory
      *
      * As of v1.7.0 it's recommended to pass a `Config` object instead of a
      * single nameserver address. If the given config contains more than one DNS
-     * nameserver, only the primary will be used at the moment. A future version
-     * may take advantage of fallback DNS servers.
+     * nameserver, all DNS nameservers will be used in order. The primary DNS
+     * server will always be used first before falling back to the secondary or
+     * tertiary DNS server.
      *
      * @param Config|string   $config DNS Config object (recommended) or single nameserver address
      * @param LoopInterface   $loop
@@ -109,12 +112,56 @@ final class Factory
     private function createExecutor($nameserver, LoopInterface $loop)
     {
         if ($nameserver instanceof Config) {
-            $nameserver = \reset($nameserver->nameservers);
-            if ($nameserver === false) {
+            if (!$nameserver->nameservers) {
                 throw new \UnderflowException('Empty config with no DNS servers');
+            }
+
+            // Hard-coded to check up to 3 DNS servers to match default limits in place in most systems (see MAXNS config).
+            // Note to future self: Recursion isn't too hard, but how deep do we really want to go?
+            $primary = reset($nameserver->nameservers);
+            $secondary = next($nameserver->nameservers);
+            $tertiary = next($nameserver->nameservers);
+
+            if ($tertiary !== false) {
+                // 3 DNS servers given => nest first with fallback for second and third
+                return new CoopExecutor(
+                    new RetryExecutor(
+                        new FallbackExecutor(
+                            $this->createSingleExecutor($primary, $loop),
+                            new FallbackExecutor(
+                                $this->createSingleExecutor($secondary, $loop),
+                                $this->createSingleExecutor($tertiary, $loop)
+                            )
+                        )
+                    )
+                );
+            } elseif ($secondary !== false) {
+                // 2 DNS servers given => fallback from first to second
+                return new CoopExecutor(
+                    new RetryExecutor(
+                        new FallbackExecutor(
+                            $this->createSingleExecutor($primary, $loop),
+                            $this->createSingleExecutor($secondary, $loop)
+                        )
+                    )
+                );
+            } else {
+                // 1 DNS server given => use single executor
+                $nameserver = $primary;
             }
         }
 
+        return new CoopExecutor(new RetryExecutor($this->createSingleExecutor($nameserver, $loop)));
+    }
+
+    /**
+     * @param string $nameserver
+     * @param LoopInterface $loop
+     * @return ExecutorInterface
+     * @throws \InvalidArgumentException for invalid DNS server address
+     */
+    private function createSingleExecutor($nameserver, LoopInterface $loop)
+    {
         $parts = \parse_url($nameserver);
 
         if (isset($parts['scheme']) && $parts['scheme'] === 'tcp') {
@@ -128,9 +175,15 @@ final class Factory
             );
         }
 
-        return new CoopExecutor($executor);
+        return $executor;
     }
 
+    /**
+     * @param string $nameserver
+     * @param LoopInterface $loop
+     * @return TimeoutExecutor
+     * @throws \InvalidArgumentException for invalid DNS server address
+     */
     private function createTcpExecutor($nameserver, LoopInterface $loop)
     {
         return new TimeoutExecutor(
@@ -140,17 +193,21 @@ final class Factory
         );
     }
 
+    /**
+     * @param string $nameserver
+     * @param LoopInterface $loop
+     * @return TimeoutExecutor
+     * @throws \InvalidArgumentException for invalid DNS server address
+     */
     private function createUdpExecutor($nameserver, LoopInterface $loop)
     {
-        return new RetryExecutor(
-            new TimeoutExecutor(
-                new UdpTransportExecutor(
-                    $nameserver,
-                    $loop
-                ),
-                5.0,
+        return new TimeoutExecutor(
+            new UdpTransportExecutor(
+                $nameserver,
                 $loop
-            )
+            ),
+            5.0,
+            $loop
         );
     }
 }
