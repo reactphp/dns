@@ -85,7 +85,7 @@ final class Config
         preg_match_all('/^nameserver\s+(\S+)\s*$/m', $contents, $matches);
 
         $config = new self();
-        $config->nameservers = [];
+        $config->nameservers = array();
 
         /* only valid IP */
         foreach($matches[1] as $n) {
