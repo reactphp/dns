@@ -7,8 +7,7 @@ use React\EventLoop\Factory;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$loop = Factory::create();
-$executor = new UdpTransportExecutor('8.8.8.8:53', $loop);
+$executor = new UdpTransportExecutor('8.8.8.8:53');
 
 $name = isset($argv[1]) ? $argv[1] : 'www.google.com';
 
@@ -25,5 +24,3 @@ $executor->query($ipv6Query)->then(function (Message $message) {
         echo 'IPv6: ' . $answer->data . PHP_EOL;
     }
 }, 'printf');
-
-$loop->run();

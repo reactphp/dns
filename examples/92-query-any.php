@@ -11,8 +11,7 @@ use React\EventLoop\Factory;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$loop = Factory::create();
-$executor = new TcpTransportExecutor('8.8.8.8:53', $loop);
+$executor = new TcpTransportExecutor('8.8.8.8:53');
 
 $name = isset($argv[1]) ? $argv[1] : 'google.com';
 
@@ -80,5 +79,3 @@ $executor->query($any)->then(function (Message $message) {
         echo $type . ': ' . $data . PHP_EOL;
     }
 }, 'printf');
-
-$loop->run();

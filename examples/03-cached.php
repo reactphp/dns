@@ -2,10 +2,9 @@
 
 use React\Dns\Config\Config;
 use React\Dns\Resolver\Factory;
+use React\EventLoop\Loop;
 
 require __DIR__ . '/../vendor/autoload.php';
-
-$loop = React\EventLoop\Factory::create();
 
 $config = Config::loadSystemConfigBlocking();
 if (!$config->nameservers) {
@@ -13,7 +12,7 @@ if (!$config->nameservers) {
 }
 
 $factory = new Factory();
-$resolver = $factory->createCached($config, $loop);
+$resolver = $factory->createCached($config);
 
 $name = isset($argv[1]) ? $argv[1] : 'www.google.com';
 
@@ -21,22 +20,20 @@ $resolver->resolve($name)->then(function ($ip) use ($name) {
     echo 'IP for ' . $name . ': ' . $ip . PHP_EOL;
 }, 'printf');
 
-$loop->addTimer(1.0, function() use ($name, $resolver) {
+Loop::addTimer(1.0, function() use ($name, $resolver) {
     $resolver->resolve($name)->then(function ($ip) use ($name) {
         echo 'IP for ' . $name . ': ' . $ip . PHP_EOL;
     }, 'printf');
 });
 
-$loop->addTimer(2.0, function() use ($name, $resolver) {
+Loop::addTimer(2.0, function() use ($name, $resolver) {
     $resolver->resolve($name)->then(function ($ip) use ($name) {
         echo 'IP for ' . $name . ': ' . $ip . PHP_EOL;
     }, 'printf');
 });
 
-$loop->addTimer(3.0, function() use ($name, $resolver) {
+Loop::addTimer(3.0, function() use ($name, $resolver) {
     $resolver->resolve($name)->then(function ($ip) use ($name) {
         echo 'IP for ' . $name . ': ' . $ip . PHP_EOL;
     }, 'printf');
 });
-
-$loop->run();

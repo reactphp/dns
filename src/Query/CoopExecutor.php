@@ -27,9 +27,8 @@ use React\Promise\Promise;
  * $executor = new CoopExecutor(
  *     new RetryExecutor(
  *         new TimeoutExecutor(
- *             new UdpTransportExecutor($nameserver, $loop),
- *             3.0,
- *             $loop
+ *             new UdpTransportExecutor($nameserver),
+ *             3.0
  *         )
  *     )
  * );

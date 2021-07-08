@@ -33,21 +33,17 @@ factory. All you need to give it is a nameserver, then you can start resolving
 names, baby!
 
 ```php
-$loop = React\EventLoop\Factory::create();
-
 $config = React\Dns\Config\Config::loadSystemConfigBlocking();
 if (!$config->nameservers) {
     $config->nameservers[] = '8.8.8.8';
 }
 
 $factory = new React\Dns\Resolver\Factory();
-$dns = $factory->create($config, $loop);
+$dns = $factory->create($config);
 
 $dns->resolve('igor.io')->then(function ($ip) {
     echo "Host: $ip\n";
 });
-
-$loop->run();
 ```
 
 See also the [first example](examples).
@@ -72,15 +68,13 @@ But there's more.
 You can cache results by configuring the resolver to use a `CachedExecutor`:
 
 ```php
-$loop = React\EventLoop\Factory::create();
-
 $config = React\Dns\Config\Config::loadSystemConfigBlocking();
 if (!$config->nameservers) {
     $config->nameservers[] = '8.8.8.8';
 }
 
 $factory = new React\Dns\Resolver\Factory();
-$dns = $factory->createCached($config, $loop);
+$dns = $factory->createCached($config);
 
 $dns->resolve('igor.io')->then(function ($ip) {
     echo "Host: $ip\n";
@@ -91,8 +85,6 @@ $dns->resolve('igor.io')->then(function ($ip) {
 $dns->resolve('igor.io')->then(function ($ip) {
     echo "Host: $ip\n";
 });
-
-$loop->run();
 ```
 
 If the first call returns before the second, only one query will be executed.
@@ -110,9 +102,8 @@ You can also specify a custom cache implementing [`CacheInterface`](https://gith
 
 ```php
 $cache = new React\Cache\ArrayCache();
-$loop = React\EventLoop\Factory::create();
 $factory = new React\Dns\Resolver\Factory();
-$dns = $factory->createCached('8.8.8.8', $loop, $cache);
+$dns = $factory->createCached('8.8.8.8', null, $cache);
 ```
 
 See also the wiki for possible [cache implementations](https://github.com/reactphp/react/wiki/Users#cache-implementations).
@@ -215,8 +206,7 @@ For more advanced usages one can utilize this class directly.
 The following example looks up the `IPv6` address for `igor.io`.
 
 ```php
-$loop = Factory::create();
-$executor = new UdpTransportExecutor('8.8.8.8:53', $loop);
+$executor = new UdpTransportExecutor('8.8.8.8:53');
 
 $executor->query(
     new Query($name, Message::TYPE_AAAA, Message::CLASS_IN)
@@ -225,8 +215,6 @@ $executor->query(
         echo 'IPv6: ' . $answer->data . PHP_EOL;
     }
 }, 'printf');
-
-$loop->run();
 ```
 
 See also the [fourth example](examples).
@@ -236,9 +224,8 @@ want to use this in combination with a `TimeoutExecutor` like this:
 
 ```php
 $executor = new TimeoutExecutor(
-    new UdpTransportExecutor($nameserver, $loop),
-    3.0,
-    $loop
+    new UdpTransportExecutor($nameserver),
+    3.0
 );
 ```
 
@@ -249,9 +236,8 @@ combination with a `RetryExecutor` like this:
 ```php
 $executor = new RetryExecutor(
     new TimeoutExecutor(
-        new UdpTransportExecutor($nameserver, $loop),
-        3.0,
-        $loop
+        new UdpTransportExecutor($nameserver),
+        3.0
     )
 );
 ```
@@ -268,9 +254,8 @@ a `CoopExecutor` like this:
 $executor = new CoopExecutor(
     new RetryExecutor(
         new TimeoutExecutor(
-            new UdpTransportExecutor($nameserver, $loop),
-            3.0,
-            $loop
+            new UdpTransportExecutor($nameserver),
+            3.0
         )
     )
 );
@@ -293,8 +278,7 @@ For more advanced usages one can utilize this class directly.
 The following example looks up the `IPv6` address for `reactphp.org`.
 
 ```php
-$loop = Factory::create();
-$executor = new TcpTransportExecutor('8.8.8.8:53', $loop);
+$executor = new TcpTransportExecutor('8.8.8.8:53');
 
 $executor->query(
     new Query($name, Message::TYPE_AAAA, Message::CLASS_IN)
@@ -303,8 +287,6 @@ $executor->query(
         echo 'IPv6: ' . $answer->data . PHP_EOL;
     }
 }, 'printf');
-
-$loop->run();
 ```
 
 See also [example #92](examples).
@@ -314,9 +296,8 @@ want to use this in combination with a `TimeoutExecutor` like this:
 
 ```php
 $executor = new TimeoutExecutor(
-    new TcpTransportExecutor($nameserver, $loop),
-    3.0,
-    $loop
+    new TcpTransportExecutor($nameserver),
+    3.0
 );
 ```
 
@@ -342,9 +323,8 @@ combination with a `CoopExecutor` like this:
 ```php
 $executor = new CoopExecutor(
     new TimeoutExecutor(
-        new TcpTransportExecutor($nameserver, $loop),
-        3.0,
-        $loop
+        new TcpTransportExecutor($nameserver),
+        3.0
     )
 );
 ```
@@ -412,7 +392,7 @@ use this code:
 ```php
 $hosts = \React\Dns\Config\HostsFile::loadFromPathBlocking();
 
-$executor = new UdpTransportExecutor('8.8.8.8:53', $loop);
+$executor = new UdpTransportExecutor('8.8.8.8:53');
 $executor = new HostsFileExecutor($hosts, $executor);
 
 $executor->query(

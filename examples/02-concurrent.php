@@ -5,15 +5,13 @@ use React\Dns\Resolver\Factory;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$loop = React\EventLoop\Factory::create();
-
 $config = Config::loadSystemConfigBlocking();
 if (!$config->nameservers) {
     $config->nameservers[] = '8.8.8.8';
 }
 
 $factory = new Factory();
-$resolver = $factory->create($config, $loop);
+$resolver = $factory->create($config);
 
 $names = array_slice($argv, 1);
 if (!$names) {
@@ -25,5 +23,3 @@ foreach ($names as $name) {
         echo 'IP for ' . $name . ': ' . $ip . PHP_EOL;
     }, 'printf');
 }
-
-$loop->run();

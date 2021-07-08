@@ -6,15 +6,13 @@ use React\Dns\Model\Message;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$loop = React\EventLoop\Factory::create();
-
 $config = Config::loadSystemConfigBlocking();
 if (!$config->nameservers) {
     $config->nameservers[] = '8.8.8.8';
 }
 
 $factory = new Factory();
-$resolver = $factory->create($config, $loop);
+$resolver = $factory->create($config);
 
 $name = isset($argv[1]) ? $argv[1] : 'www.google.com';
 
@@ -29,5 +27,3 @@ $resolver->resolveAll($name, Message::TYPE_AAAA)->then(function (array $ips) use
 }, function (Exception $e) use ($name) {
     echo 'No IPv6 addresses for ' . $name . ': ' . $e->getMessage() . PHP_EOL;
 });
-
-$loop->run();

@@ -5,6 +5,7 @@ namespace React\Dns\Query;
 use React\Dns\Model\Message;
 use React\Dns\Protocol\BinaryDumper;
 use React\Dns\Protocol\Parser;
+use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use React\Promise\Deferred;
 
@@ -17,8 +18,7 @@ use React\Promise\Deferred;
  * The following example looks up the `IPv6` address for `reactphp.org`.
  *
  * ```php
- * $loop = Factory::create();
- * $executor = new TcpTransportExecutor('8.8.8.8:53', $loop);
+ * $executor = new TcpTransportExecutor('8.8.8.8:53');
  *
  * $executor->query(
  *     new Query($name, Message::TYPE_AAAA, Message::CLASS_IN)
@@ -27,8 +27,6 @@ use React\Promise\Deferred;
  *         echo 'IPv6: ' . $answer->data . PHP_EOL;
  *     }
  * }, 'printf');
- *
- * $loop->run();
  * ```
  *
  * See also [example #92](examples).
@@ -38,9 +36,8 @@ use React\Promise\Deferred;
  *
  * ```php
  * $executor = new TimeoutExecutor(
- *     new TcpTransportExecutor($nameserver, $loop),
- *     3.0,
- *     $loop
+ *     new TcpTransportExecutor($nameserver),
+ *     3.0
  * );
  * ```
  *
@@ -66,9 +63,8 @@ use React\Promise\Deferred;
  * ```php
  * $executor = new CoopExecutor(
  *     new TimeoutExecutor(
- *         new TcpTransportExecutor($nameserver, $loop),
- *         3.0,
- *         $loop
+ *         new TcpTransportExecutor($nameserver),
+ *         3.0
  *     )
  * );
  * ```
@@ -132,10 +128,10 @@ class TcpTransportExecutor implements ExecutorInterface
     private $readPending = false;
 
     /**
-     * @param string        $nameserver
-     * @param LoopInterface $loop
+     * @param string         $nameserver
+     * @param ?LoopInterface $loop
      */
-    public function __construct($nameserver, LoopInterface $loop)
+    public function __construct($nameserver, LoopInterface $loop = null)
     {
         if (\strpos($nameserver, '[') === false && \substr_count($nameserver, ':') >= 2 && \strpos($nameserver, '://') === false) {
             // several colons, but not enclosed in square brackets => enclose IPv6 address in square brackets
@@ -148,7 +144,7 @@ class TcpTransportExecutor implements ExecutorInterface
         }
 
         $this->nameserver = 'tcp://' . $parts['host'] . ':' . (isset($parts['port']) ? $parts['port'] : 53);
-        $this->loop = $loop;
+        $this->loop = $loop ?: Loop::get();
         $this->parser = new Parser();
         $this->dumper = new BinaryDumper();
     }
