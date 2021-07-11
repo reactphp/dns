@@ -14,6 +14,10 @@ use React\Tests\Dns\TestCase;
 
 class TimeoutExecutorTest extends TestCase
 {
+    private $loop;
+    private $wrapped;
+    private $executor;
+
     /**
      * @before
      */
@@ -24,6 +28,17 @@ class TimeoutExecutorTest extends TestCase
         $this->wrapped = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
 
         $this->executor = new TimeoutExecutor($this->wrapped, 5.0, $this->loop);
+    }
+
+    public function testCtorWithoutLoopShouldAssignDefaultLoop()
+    {
+        $executor = new TimeoutExecutor($this->executor, 5.0);
+
+        $ref = new \ReflectionProperty($executor, 'loop');
+        $ref->setAccessible(true);
+        $loop = $ref->getValue($executor);
+
+        $this->assertInstanceOf('React\EventLoop\LoopInterface', $loop);
     }
 
     public function testCancellingPromiseWillCancelWrapped()

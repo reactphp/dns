@@ -60,6 +60,17 @@ class TcpTransportExecutorTest extends TestCase
         );
     }
 
+    public function testCtorWithoutLoopShouldAssignDefaultLoop()
+    {
+        $executor = new TcpTransportExecutor('127.0.0.1');
+
+        $ref = new \ReflectionProperty($executor, 'loop');
+        $ref->setAccessible(true);
+        $loop = $ref->getValue($executor);
+
+        $this->assertInstanceOf('React\EventLoop\LoopInterface', $loop);
+    }
+
     public function testCtorShouldThrowWhenNameserverAddressIsInvalid()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();

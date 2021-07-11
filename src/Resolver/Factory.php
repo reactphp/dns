@@ -16,6 +16,7 @@ use React\Dns\Query\SelectiveTransportExecutor;
 use React\Dns\Query\TcpTransportExecutor;
 use React\Dns\Query\TimeoutExecutor;
 use React\Dns\Query\UdpTransportExecutor;
+use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 
 final class Factory
@@ -29,15 +30,15 @@ final class Factory
      * server will always be used first before falling back to the secondary or
      * tertiary DNS server.
      *
-     * @param Config|string $config DNS Config object (recommended) or single nameserver address
-     * @param LoopInterface $loop
+     * @param Config|string  $config DNS Config object (recommended) or single nameserver address
+     * @param ?LoopInterface $loop
      * @return \React\Dns\Resolver\ResolverInterface
      * @throws \InvalidArgumentException for invalid DNS server address
      * @throws \UnderflowException when given DNS Config object has an empty list of nameservers
      */
-    public function create($config, LoopInterface $loop)
+    public function create($config, LoopInterface $loop = null)
     {
-        $executor = $this->decorateHostsFileExecutor($this->createExecutor($config, $loop));
+        $executor = $this->decorateHostsFileExecutor($this->createExecutor($config, $loop ?: Loop::get()));
 
         return new Resolver($executor);
     }
@@ -52,20 +53,20 @@ final class Factory
      * tertiary DNS server.
      *
      * @param Config|string   $config DNS Config object (recommended) or single nameserver address
-     * @param LoopInterface   $loop
+     * @param ?LoopInterface  $loop
      * @param ?CacheInterface $cache
      * @return \React\Dns\Resolver\ResolverInterface
      * @throws \InvalidArgumentException for invalid DNS server address
      * @throws \UnderflowException when given DNS Config object has an empty list of nameservers
      */
-    public function createCached($config, LoopInterface $loop, CacheInterface $cache = null)
+    public function createCached($config, LoopInterface $loop = null, CacheInterface $cache = null)
     {
         // default to keeping maximum of 256 responses in cache unless explicitly given
         if (!($cache instanceof CacheInterface)) {
             $cache = new ArrayCache(256);
         }
 
-        $executor = $this->createExecutor($config, $loop);
+        $executor = $this->createExecutor($config, $loop ?: Loop::get());
         $executor = new CachingExecutor($executor, $cache);
         $executor = $this->decorateHostsFileExecutor($executor);
 

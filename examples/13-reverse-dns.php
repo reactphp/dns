@@ -6,15 +6,13 @@ use React\Dns\Model\Message;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$loop = React\EventLoop\Factory::create();
-
 $config = Config::loadSystemConfigBlocking();
 if (!$config->nameservers) {
     $config->nameservers[] = '8.8.8.8';
 }
 
 $factory = new Factory();
-$resolver = $factory->create($config, $loop);
+$resolver = $factory->create($config);
 
 $ip = isset($argv[1]) ? $argv[1] : '8.8.8.8';
 
@@ -33,5 +31,3 @@ $resolver->resolveAll($name, Message::TYPE_PTR)->then(function (array $names) {
 }, function (Exception $e) {
     echo $e->getMessage() . PHP_EOL;
 });
-
-$loop->run();

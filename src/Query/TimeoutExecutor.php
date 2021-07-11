@@ -2,6 +2,7 @@
 
 namespace React\Dns\Query;
 
+use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use React\Promise\Timer;
 
@@ -11,10 +12,10 @@ final class TimeoutExecutor implements ExecutorInterface
     private $loop;
     private $timeout;
 
-    public function __construct(ExecutorInterface $executor, $timeout, LoopInterface $loop)
+    public function __construct(ExecutorInterface $executor, $timeout, LoopInterface $loop = null)
     {
         $this->executor = $executor;
-        $this->loop = $loop;
+        $this->loop = $loop ?: Loop::get();
         $this->timeout = $timeout;
     }
 

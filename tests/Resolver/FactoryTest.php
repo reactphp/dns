@@ -12,10 +12,8 @@ class FactoryTest extends TestCase
     /** @test */
     public function createShouldCreateResolver()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
-
         $factory = new Factory();
-        $resolver = $factory->create('8.8.8.8:53', $loop);
+        $resolver = $factory->create('8.8.8.8:53');
 
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
     }
@@ -375,10 +373,8 @@ class FactoryTest extends TestCase
     /** @test */
     public function createCachedShouldCreateResolverWithCachingExecutor()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
-
         $factory = new Factory();
-        $resolver = $factory->createCached('8.8.8.8:53', $loop);
+        $resolver = $factory->createCached('8.8.8.8:53');
 
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
         $executor = $this->getResolverPrivateExecutor($resolver);
