@@ -1,4 +1,4 @@
-# Dns
+# DNS
 
 [![CI status](https://github.com/reactphp/dns/workflows/CI/badge.svg)](https://github.com/reactphp/dns/actions)
 
@@ -409,7 +409,7 @@ This project follows [SemVer](https://semver.org/).
 This will install the latest supported version:
 
 ```bash
-$ composer require react/dns:^1.7
+$ composer require react/dns:^1.8
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
