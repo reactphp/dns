@@ -47,6 +47,15 @@ class ConfigTest extends TestCase
         $this->assertEquals($expected, $config->nameservers);
     }
 
+    public function testParsesNameserverWithoutIpv6ScopeId()
+    {
+        $contents = 'nameserver ::1%lo';
+        $expected = array('::1');
+
+        $config = Config::loadResolvConfBlocking('data://text/plain;base64,' . base64_encode($contents));
+        $this->assertEquals($expected, $config->nameservers);
+    }
+
     public function testParsesNameserverEntriesFromAverageFileCorrectly()
     {
         $contents = '#
@@ -70,7 +79,6 @@ nameserver ::1
 
     public function testParsesEmptyFileWithoutNameserverEntries()
     {
-        $contents = '';
         $expected = array();
 
         $config = Config::loadResolvConfBlocking('data://text/plain;base64,');
@@ -87,6 +95,7 @@ nameserver 3.4.5.6 # nope
 nameserver 4.5.6.7 5.6.7.8
   nameserver 6.7.8.9
 NameServer 7.8.9.10
+nameserver localhost
 ';
         $expected = array();
 
