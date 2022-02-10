@@ -94,9 +94,12 @@ class RetryExecutorTest extends TestCase
             $exception = $reason;
         });
 
-        /** @var \RuntimeException $exception */
+        assert($exception instanceof \RuntimeException);
         $this->assertInstanceOf('RuntimeException', $exception);
         $this->assertEquals('DNS query for igor.io (A) failed: too many retries', $exception->getMessage());
+        $this->assertEquals(0, $exception->getCode());
+        $this->assertInstanceOf('React\Dns\Query\TimeoutException', $exception->getPrevious());
+        $this->assertNotEquals('', $exception->getTraceAsString());
     }
 
     /**
