@@ -12,7 +12,7 @@ use React\Dns\RecordNotFoundException;
  */
 final class Resolver implements ResolverInterface
 {
-    private $executor;
+    protected $executor;
 
     public function __construct(ExecutorInterface $executor)
     {
@@ -31,12 +31,16 @@ final class Resolver implements ResolverInterface
         $query = new Query($domain, $type, Message::CLASS_IN);
         $that = $this;
 
-        return $this->executor->query(
-            $query
-        )->then(function (Message $response) use ($query, $that) {
+        return $this->resolveQuery($query)->then(function (Message $response) use ($query, $that) {
             return $that->extractValues($query, $response);
         });
     }
+
+    public function resolveQuery(Query $query)
+    {
+        return $this->executor->query($query);
+    }
+
 
     /**
      * [Internal] extract all resource record values from response for this query
