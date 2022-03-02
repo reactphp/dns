@@ -2,7 +2,6 @@
 
 namespace React\Tests\Dns;
 
-use React\Dns\Query\Query;
 use React\EventLoop\Factory as LoopFactory;
 use React\Dns\Resolver\Factory;
 use React\Dns\RecordNotFoundException;
@@ -44,17 +43,6 @@ class FunctionalResolverTest extends TestCase
     {
         $promise = $this->resolver->resolve('google.com');
         $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
-
-        $this->loop->run();
-    }
-
-    /**
-     * @group internet
-     */
-    public function testResolveQueryGoogleResolves()
-    {
-        $promise = $this->resolver->resolveQuery(new Query('google.com', Message::TYPE_A, Message::CLASS_IN));
-        $promise->then($this->expectCallableOnceWith($this->isInstanceOf('React\Dns\Model\Message')), $this->expectCallableNever());
 
         $this->loop->run();
     }

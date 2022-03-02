@@ -2,9 +2,6 @@
 
 namespace React\Dns\Resolver;
 
-use React\Dns\Model\Message;
-use React\Dns\Query\Query;
-
 interface ResolverInterface
 {
     /**
@@ -94,21 +91,4 @@ interface ResolverInterface
      *     Resolves with all record values on success or rejects with an Exception on error.
      */
     public function resolveAll($domain, $type);
-
-    /**
-     * @param Query $query
-     * @return \React\Promise\PromiseInterface<Message>
-     *
-     * This is the magic behind the main function of this package. It allows you to use low-level
-     * DNS query objects to send custom DNS queries to your DNS server.
-     *
-     * ```php
-     * $resolver->resolveQuery(new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN))->then(function (Message $message) {
-     *     foreach($message->answers as $record) {
-     *          echo 'IPv4 addresses for reactphp.org ' . $record->data . PHP_EOL;
-     *     }
-     * });
-     * ```
-     */
-    public function resolveQuery(Query $query);
 }

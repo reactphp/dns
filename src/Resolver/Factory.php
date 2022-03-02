@@ -19,20 +19,8 @@ use React\Dns\Query\UdpTransportExecutor;
 use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 
-class Factory
+final class Factory
 {
-
-    /**
-     * Allow the developer to specify a custom additional ExecutorInterface
-     * or ResolverInterface in an extended Class.
-     * @param ExecutorInterface $executor
-     * @return ResolverInterface
-     */
-    protected function wrapInResolver(ExecutorInterface $executor)
-    {
-        return new Resolver($executor);
-    }
-
     /**
      * Creates a DNS resolver instance for the given DNS config
      *
@@ -52,7 +40,7 @@ class Factory
     {
         $executor = $this->decorateHostsFileExecutor($this->createExecutor($config, $loop ?: Loop::get()));
 
-        return $this->wrapInResolver($executor);
+        return new Resolver($executor);
     }
 
     /**
@@ -82,7 +70,7 @@ class Factory
         $executor = new CachingExecutor($executor, $cache);
         $executor = $this->decorateHostsFileExecutor($executor);
 
-        return $this->wrapInResolver($executor);
+        return new Resolver($executor);
     }
 
     /**
