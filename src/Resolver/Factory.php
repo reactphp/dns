@@ -4,11 +4,22 @@ namespace React\Dns\Resolver;
 
 use React\Cache\CacheInterface;
 use React\Dns\Config\Config;
-use React\Dns\Query\ExecuterFactory;
+use React\Dns\Query\ExecutorFactory;
 use React\EventLoop\LoopInterface;
 
-final class Factory extends ExecuterFactory
+final class Factory
 {
+
+    private $executorFactory;
+
+    /**
+     * @param ExecutorFactory $executorFactory
+     */
+    public function __construct(ExecutorFactory $executorFactory = null)
+    {
+        $this->executorFactory = $executorFactory ?: new ExecutorFactory();
+    }
+
     /**
      * Creates a DNS resolver instance for the given DNS config
      *
@@ -26,7 +37,7 @@ final class Factory extends ExecuterFactory
      */
     public function create($config, LoopInterface $loop = null)
     {
-        return new Resolver(parent::create($config, $loop));
+        return new Resolver($this->executorFactory->create($config, $loop));
     }
 
     /**
@@ -47,7 +58,7 @@ final class Factory extends ExecuterFactory
      */
     public function createCached($config, LoopInterface $loop = null, CacheInterface $cache = null)
     {
-        return new Resolver(parent::createCached($config, $loop, $cache));
+        return new Resolver($this->executorFactory->createCached($config, $loop, $cache));
     }
 
 

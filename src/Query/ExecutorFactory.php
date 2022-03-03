@@ -9,7 +9,7 @@ use React\Dns\Config\HostsFile;
 use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 
-class ExecuterFactory
+class ExecutorFactory
 {
 
     /**
