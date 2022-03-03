@@ -12,12 +12,9 @@ final class Factory
 
     private $executorFactory;
 
-    /**
-     * @param ExecutorFactory $executorFactory
-     */
-    public function __construct(ExecutorFactory $executorFactory = null)
+    public function __construct()
     {
-        $this->executorFactory = $executorFactory ?: new ExecutorFactory();
+        $this->executorFactory = new ExecutorFactory();
     }
 
     /**
