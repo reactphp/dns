@@ -52,7 +52,7 @@ class FunctionalResolverTest extends TestCase
      */
     public function testResolveGoogleOverUdpResolves()
     {
-        $factory = new Factory($this->loop);
+        $factory = new Factory();
         $this->resolver = $factory->create('udp://8.8.8.8', $this->loop);
 
         $promise = $this->resolver->resolve('google.com');
@@ -66,7 +66,7 @@ class FunctionalResolverTest extends TestCase
      */
     public function testResolveGoogleOverTcpResolves()
     {
-        $factory = new Factory($this->loop);
+        $factory = new Factory();
         $this->resolver = $factory->create('tcp://8.8.8.8', $this->loop);
 
         $promise = $this->resolver->resolve('google.com');
