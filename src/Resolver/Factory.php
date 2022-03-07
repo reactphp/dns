@@ -55,7 +55,7 @@ final class Factory
      */
     public function createCached($config, LoopInterface $loop = null, CacheInterface $cache = null)
     {
-        return new Resolver($this->executorFactory->createCached($config, $loop, $cache));
+        return new Resolver($this->executorFactory->createCached($config, $cache, $loop));
     }
 
 
