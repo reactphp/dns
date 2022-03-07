@@ -48,7 +48,7 @@ class ExecutorFactory
      * @throws \InvalidArgumentException for invalid DNS server address
      * @throws \UnderflowException when given DNS Config object has an empty list of nameservers
      */
-    public function createCached($config, LoopInterface $loop = null, CacheInterface $cache = null)
+    public function createCached($config, CacheInterface $cache = null, LoopInterface $loop = null)
     {
         // default to keeping maximum of 256 responses in cache unless explicitly given
         if (!($cache instanceof CacheInterface)) {
