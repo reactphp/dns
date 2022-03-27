@@ -357,7 +357,7 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertTrue($writePending);
     }
 
-    public function testQueryRejectsWhenClientKeepsSendingWhenServerClosesSocket()
+    public function testQueryRejectsWhenClientKeepsSendingWhenServerClosesSocketWithoutCallingCustomErrorHandler()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->once())->method('addWriteStream');
@@ -380,6 +380,11 @@ class TcpTransportExecutorTest extends TestCase
         $client = stream_socket_accept($server);
         fclose($client);
 
+        $error = null;
+        set_error_handler(function ($_, $errstr) use (&$error) {
+            $error = $errstr;
+        });
+
         $executor->handleWritable();
 
         $ref = new \ReflectionProperty($executor, 'writePending');
@@ -393,6 +398,9 @@ class TcpTransportExecutorTest extends TestCase
         if ($writePending) {
             $executor->handleWritable();
         }
+
+        restore_error_handler();
+        $this->assertNull($error);
 
         $exception = null;
         $promise->then(null, function ($reason) use (&$exception) {
