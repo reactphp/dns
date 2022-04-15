@@ -1,6 +1,6 @@
 # DNS
 
-[![CI status](https://github.com/reactphp/dns/workflows/CI/badge.svg)](https://github.com/reactphp/dns/actions)
+[![CI status](https://github.com/reactphp/dns/actions/workflows/ci.yml/badge.svg)](https://github.com/reactphp/dns/actions)
 [![installs on Packagist](https://img.shields.io/packagist/dt/react/dns?color=blue&label=installs%20on%20Packagist)](https://packagist.org/packages/react/dns)
 
 Async DNS resolver for [ReactPHP](https://reactphp.org/).
