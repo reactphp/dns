@@ -152,7 +152,7 @@ class UdpTransportExecutorTest extends TestCase
         throw $exception;
     }
 
-    public function testQueryRejectsIfSendToServerFailsAfterConnection()
+    public function testQueryRejectsIfSendToServerFailsAfterConnectionWithoutCallingCustomErrorHandler()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->never())->method('addReadStream');
@@ -164,8 +164,16 @@ class UdpTransportExecutorTest extends TestCase
         $ref->setAccessible(true);
         $ref->setValue($executor, PHP_INT_MAX);
 
+        $error = null;
+        set_error_handler(function ($_, $errstr) use (&$error) {
+            $error = $errstr;
+        });
+
         $query = new Query(str_repeat('a.', 100000) . '.example', Message::TYPE_A, Message::CLASS_IN);
         $promise = $executor->query($query);
+
+        restore_error_handler();
+        $this->assertNull($error);
 
         $this->assertInstanceOf('React\Promise\PromiseInterface', $promise);
 
