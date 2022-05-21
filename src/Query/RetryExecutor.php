@@ -2,6 +2,7 @@
 
 namespace React\Dns\Query;
 
+use React\Dns\Model\Message;
 use React\Promise\CancellablePromiseInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
@@ -10,11 +11,13 @@ final class RetryExecutor implements ExecutorInterface
 {
     private $executor;
     private $retries;
+    private $config;
 
     public function __construct(ExecutorInterface $executor, $retries = 2)
     {
         $this->executor = $executor;
         $this->retries = $retries;
+        $this->config = \React\Dns\Config\Config::loadSystemConfigBlocking();
     }
 
     public function query(Query $query)
@@ -30,9 +33,22 @@ final class RetryExecutor implements ExecutorInterface
             }
         });
 
-        $success = function ($value) use ($deferred, &$errorback) {
+        $executor = $this->executor;
+        $q = clone $query;
+        $index = 0;
+        $success = function ($value) use ($deferred, &$promise, &$errorback, &$success, $query, $q, &$index, $executor) {
             $errorback = null;
-            $deferred->resolve($value);
+            //if Non-Existent Domain / NXDOMAIN, append domain option and retry
+            if($value->rcode==Message::RCODE_NAME_ERROR&&isset($this->config->searches[$index])){
+                $query->name = $q->name.'.'.$this->config->searches[$index];
+                $index++;
+                $promise = $executor->query($query)->then(
+                    $success,
+                    $errorback
+                );
+            }else{
+                $deferred->resolve($value);
+            }
         };
 
         $executor = $this->executor;
