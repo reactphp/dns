@@ -34,24 +34,11 @@ final class RetryExecutor implements ExecutorInterface
         });
 
         $executor = $this->executor;
-        $q = clone $query;
-        $index = 0;
-        $success = function ($value) use ($deferred, &$promise, &$errorback, &$success, $query, $q, &$index, $executor) {
+        $success = function ($value) use ($deferred, &$errorback) {
             $errorback = null;
-            //if Non-Existent Domain / NXDOMAIN, append domain option and retry
-            if($value->rcode==Message::RCODE_NAME_ERROR&&isset($this->config->searches[$index])){
-                $query->name = $q->name.'.'.$this->config->searches[$index];
-                $index++;
-                $promise = $executor->query($query)->then(
-                    $success,
-                    $errorback
-                );
-            }else{
-                $deferred->resolve($value);
-            }
+            $deferred->resolve($value);
         };
 
-        $executor = $this->executor;
         $errorback = function ($e) use ($deferred, &$promise, $query, $success, &$errorback, &$retries, $executor) {
             if (!$e instanceof TimeoutException) {
                 $errorback = null;

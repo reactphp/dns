@@ -533,7 +533,7 @@ class TcpTransportExecutorTest extends TestCase
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address, $loop);
 
-        $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
+        $query = new Query('bing.com', Message::TYPE_A, Message::CLASS_IN);
 
         $exception = null;
         $executor->query($query)->then(
@@ -550,7 +550,7 @@ class TcpTransportExecutorTest extends TestCase
 
         /** @var \RuntimeException $exception */
         $this->assertInstanceOf('RuntimeException', $exception);
-        $this->assertEquals('DNS query for google.com (A) failed: Invalid message received from DNS server tcp://' . $address, $exception->getMessage());
+        $this->assertEquals('DNS query for bing.com (A) failed: Invalid message received from DNS server tcp://' . $address, $exception->getMessage());
     }
 
     public function testQueryRejectsWhenServerSendsInvalidId()
@@ -683,7 +683,7 @@ class TcpTransportExecutorTest extends TestCase
 
         $this->assertInstanceOf('React\Dns\Model\Message', $response);
     }
-
+    
     public function testQueryRejectsIfSocketIsClosedAfterPreviousQueryThatWasStillPending()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
