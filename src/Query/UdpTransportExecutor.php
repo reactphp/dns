@@ -211,7 +211,7 @@ final class UdpTransportExecutor implements ExecutorInterface
             }
             if($response->rcode==Message::RCODE_NAME_ERROR){
                 $deferred->reject(new RecordNotFoundException(
-                    'DNS query for ' . $query->describe() . ' failed: Non-Existent Domain / NXDOMAIN',
+                    'DNS query for ' . $query->describe() . ' returned an error response (Non-Existent Domain / NXDOMAIN)',
                     $response->rcode
                 ));
                 return;
