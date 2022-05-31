@@ -165,7 +165,7 @@ final class Factory
     {
         $parts = \parse_url($nameserver);
 
-        if (isset($parts['scheme']) && $parts['scheme'] === 'tcp') {
+        if (isset($parts['scheme']) && in_array($parts['scheme'], array('tcp','tls'), true)) {
             $executor = $this->createTcpExecutor($nameserver, $loop);
         } elseif (isset($parts['scheme']) && $parts['scheme'] === 'udp') {
             $executor = $this->createUdpExecutor($nameserver, $loop);

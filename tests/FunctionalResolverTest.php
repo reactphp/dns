@@ -78,6 +78,66 @@ class FunctionalResolverTest extends TestCase
     /**
      * @group internet
      */
+    public function testResolveGoogleOverTlsResolves()
+    {
+        if (defined('HHVM_VERSION') || \PHP_VERSION_ID < 50600) {
+            $this->markTestSkipped('DNS over TLS not supported on legacy PHP');
+        }
+
+        $factory = new Factory();
+        $this->resolver = $factory->create('tls://8.8.8.8?socket[tcp_nodelay]=true', $this->loop);
+
+        $promise = $this->resolver->resolve('google.com');
+        $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
+
+        $this->loop->run();
+    }
+
+    /**
+     * @group internet
+     */
+    public function testAttemptTlsOnNonTlsPortRejects()
+    {
+        if (defined('HHVM_VERSION') || \PHP_VERSION_ID < 50600) {
+            $this->markTestSkipped('DNS over TLS not supported on legacy PHP');
+        }
+
+        $factory = new Factory();
+        $this->resolver = $factory->create('tls://8.8.8.8:53', $this->loop);
+
+        $promise = $this->resolver->resolve('google.com');
+        $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
+
+        $this->loop->run();
+    }
+
+    /**
+     * @group internet
+     */
+    public function testUnsupportedLegacyPhpOverTlsRejectsWithBadMethodCall()
+    {
+        if (!(defined('HHVM_VERSION') || \PHP_VERSION_ID < 50600)) {
+            $this->markTestSkipped('Tests not relevant to recent PHP versions');
+        }
+
+        $factory = new Factory();
+        $this->resolver = $factory->create('tls://8.8.8.8', $this->loop);
+
+        $promise = $this->resolver->resolve('google.com');
+        $exception = null;
+        $promise->then($this->expectCallableNever(), function ($reason) use (&$exception) {
+            $exception = $reason;
+        });
+
+        /** @var \BadMethodCallException $exception */
+        $this->assertInstanceOf('BadMethodCallException', $exception);
+
+        $this->loop->run();
+    }
+
+    /**
+     * @group internet
+     */
     public function testResolveAllGoogleMxResolvesWithCache()
     {
         $factory = new Factory();

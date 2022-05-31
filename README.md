@@ -20,6 +20,7 @@ easily be used to create a DNS server.
 * [Advanced usage](#advanced-usage)
   * [UdpTransportExecutor](#udptransportexecutor)
   * [TcpTransportExecutor](#tcptransportexecutor)
+    * [DNS over TLS](#dns-over-tls-dot)
   * [SelectiveTransportExecutor](#selectivetransportexecutor)
   * [HostsFileExecutor](#hostsfileexecutor)
 * [Install](#install)
@@ -335,6 +336,27 @@ $executor = new CoopExecutor(
   organizational reasons to avoid a cyclic dependency between the two
   packages. Higher-level components should take advantage of the Socket
   component instead of reimplementing this socket logic from scratch.
+
+#### DNS over TLS (DoT)
+DoT provides secure DNS lookups over Transport Layer Security (TLS).
+The tls:// scheme must be provided when configuring nameservers to 
+enable DoT communication to a TLS supporting DNS server.
+The port 853 is used by default.
+
+```php
+$executor = new TcpTransportExecutor('tls://8.8.8.8');
+````
+
+> Note: To ensure security and privacy, DoT resolvers typically only support
+  TLS 1.2 and above. DoT is not supported on legacy PHP < 5.6 and HHVM
+
+##### TLS Configuration
+[SSL Context parameters](https://www.php.net/manual/en/context.ssl.php) can be set appending passing query parameters to the nameserver URI in the format `wrapper[parameter]=value`.
+
+```php
+// Verify that the 8.8.8.8 resolver's certificate CN matches dns.google
+$executor = new TcpTransportExecutor('tls://8.8.8.8?ssl[peer_name]=dns.google');
+````
 
 ### SelectiveTransportExecutor
 
