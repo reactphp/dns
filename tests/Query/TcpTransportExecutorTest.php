@@ -400,7 +400,7 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertNull($error);
 
         $exception = null;
-        $promise->then(null, function ($reason) use (&$exception) {
+        $promise->then($this->expectCallableNever(), function ($reason) use (&$exception) {
             $exception = $reason;
         });
 
@@ -410,6 +410,7 @@ class TcpTransportExecutorTest extends TestCase
             'Unable to send query to DNS server tcp://' . $address . ' (',
             defined('SOCKET_EPIPE') && !defined('HHVM_VERSION') ? (PHP_OS !== 'Darwin' || $writePending ? SOCKET_EPIPE : SOCKET_EPROTOTYPE) : null
         );
+        $this->assertNotNull($exception, 'Promise did not reject with an Exception');
         throw $exception;
     }
 
@@ -945,5 +946,18 @@ class TcpTransportExecutorTest extends TestCase
 
         // trigger second query
         $executor->query($query);
+    }
+
+    public function testConnectionContextParamsCanBetSet() {
+        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+
+        $options = array('socket' => array('tcp_nodelay' => true));
+        $executor = new TcpTransportExecutor('tcp://127.0.0.1/?' . http_build_query($options), $loop);
+
+        $ref = new \ReflectionProperty($executor, 'connectionParameters');
+        $ref->setAccessible(true);
+        $data = $ref->getValue($executor);
+
+        $this->assertEquals($options, $data);
     }
 }

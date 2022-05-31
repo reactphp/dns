@@ -77,6 +77,42 @@ class FunctionalResolverTest extends TestCase
     /**
      * @group internet
      */
+    public function testResolveGoogleOverTlsResolves()
+    {
+        if (defined('HHVM_VERSION') || \PHP_VERSION_ID < 50600) {
+            $this->markTestSkipped('DNS over TLS not supported on legacy PHP');
+        }
+
+        $factory = new Factory();
+        $this->resolver = $factory->create('tls://8.8.8.8?socket[tcp_nodelay]=true');
+
+        $promise = $this->resolver->resolve('google.com');
+        $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
+
+        Loop::run();
+    }
+
+    /**
+     * @group internet
+     */
+    public function testAttemptTlsOnNonTlsPortRejects()
+    {
+        if (defined('HHVM_VERSION') || \PHP_VERSION_ID < 50600) {
+            $this->markTestSkipped('DNS over TLS not supported on legacy PHP');
+        }
+
+        $factory = new Factory();
+        $this->resolver = $factory->create('tls://8.8.8.8:53');
+
+        $promise = $this->resolver->resolve('google.com');
+        $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
+
+        Loop::run();
+    }
+
+    /**
+     * @group internet
+     */
     public function testResolveAllGoogleMxResolvesWithCache()
     {
         $factory = new Factory();

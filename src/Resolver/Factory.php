@@ -14,6 +14,7 @@ use React\Dns\Query\HostsFileExecutor;
 use React\Dns\Query\RetryExecutor;
 use React\Dns\Query\SelectiveTransportExecutor;
 use React\Dns\Query\TcpTransportExecutor;
+use React\Dns\Query\TlsTransportExecutor;
 use React\Dns\Query\TimeoutExecutor;
 use React\Dns\Query\UdpTransportExecutor;
 use React\EventLoop\Loop;
@@ -169,6 +170,8 @@ final class Factory
             $executor = $this->createTcpExecutor($nameserver, $loop);
         } elseif (isset($parts['scheme']) && $parts['scheme'] === 'udp') {
             $executor = $this->createUdpExecutor($nameserver, $loop);
+        } elseif (isset($parts['scheme']) && $parts['scheme'] === 'tls') {
+            $executor = $this->createTlsExecutor($nameserver, $loop);
         } else {
             $executor = new SelectiveTransportExecutor(
                 $this->createUdpExecutor($nameserver, $loop),
@@ -207,6 +210,21 @@ final class Factory
                 $nameserver,
                 $loop
             ),
+            5.0,
+            $loop
+        );
+    }
+
+    /**
+     * @param string $nameserver
+     * @param LoopInterface $loop
+     * @return TimeoutExecutor
+     * @throws \InvalidArgumentException for invalid DNS server address
+     */
+    private function createTlsExecutor($nameserver, LoopInterface $loop)
+    {
+        return new TimeoutExecutor(
+            new TlsTransportExecutor($nameserver, $loop),
             5.0,
             $loop
         );
