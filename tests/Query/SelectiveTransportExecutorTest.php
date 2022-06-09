@@ -11,6 +11,10 @@ use React\Tests\Dns\TestCase;
 
 class SelectiveTransportExecutorTest extends TestCase
 {
+    private $datagram;
+    private $stream;
+    private $executor;
+
     /**
      * @before
      */

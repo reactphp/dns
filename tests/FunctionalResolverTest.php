@@ -9,6 +9,9 @@ use React\Dns\Model\Message;
 
 class FunctionalResolverTest extends TestCase
 {
+    private $loop;
+    private $resolver;
+
     /**
      * @before
      */
