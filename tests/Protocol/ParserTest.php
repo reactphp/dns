@@ -8,6 +8,8 @@ use React\Tests\Dns\TestCase;
 
 class ParserTest extends TestCase
 {
+    private $parser;
+
     /**
      * @before
      */
