@@ -273,7 +273,7 @@ class UdpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\await(\React\Promise\Timer\sleep(0.2));
+        \React\Async\await(\React\Promise\Timer\sleep(0.2));
         $this->assertTrue($wait);
 
         $promise->cancel();
@@ -311,7 +311,7 @@ class UdpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\await(\React\Promise\Timer\sleep(0.2));
+        \React\Async\await(\React\Promise\Timer\sleep(0.2));
         $this->assertTrue($wait);
 
         $promise->cancel();
@@ -347,7 +347,7 @@ class UdpTransportExecutorTest extends TestCase
             'DNS query for google.com (A) failed: The DNS server udp://' . $address . ' returned a truncated result for a UDP query',
             defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90
         );
-        \Clue\React\Block\await(\React\Promise\Timer\timeout($promise, 0.1));
+        \React\Async\await(\React\Promise\Timer\timeout($promise, 0.1));
     }
 
     public function testQueryResolvesIfServerSendsValidResponse()
@@ -373,7 +373,7 @@ class UdpTransportExecutorTest extends TestCase
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
         $promise = $executor->query($query);
-        $response = \Clue\React\Block\await(\React\Promise\Timer\timeout($promise, 0.2));
+        $response = \React\Async\await(\React\Promise\Timer\timeout($promise, 0.2));
 
         $this->assertInstanceOf('React\Dns\Model\Message', $response);
     }
