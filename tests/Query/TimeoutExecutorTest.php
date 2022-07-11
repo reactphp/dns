@@ -7,14 +7,12 @@ use React\Dns\Query\CancellationException;
 use React\Dns\Query\Query;
 use React\Dns\Query\TimeoutException;
 use React\Dns\Query\TimeoutExecutor;
-use React\EventLoop\Factory;
 use React\Promise;
 use React\Promise\Deferred;
 use React\Tests\Dns\TestCase;
 
 class TimeoutExecutorTest extends TestCase
 {
-    private $loop;
     private $wrapped;
     private $executor;
 
@@ -23,11 +21,9 @@ class TimeoutExecutorTest extends TestCase
      */
     public function setUpExecutor()
     {
-        $this->loop = Factory::create();
-
         $this->wrapped = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
 
-        $this->executor = new TimeoutExecutor($this->wrapped, 5.0, $this->loop);
+        $this->executor = new TimeoutExecutor($this->wrapped, 5.0);
     }
 
     public function testCtorWithoutLoopShouldAssignDefaultLoop()
@@ -95,7 +91,7 @@ class TimeoutExecutorTest extends TestCase
 
     public function testWrappedWillBeCancelledOnTimeout()
     {
-        $this->executor = new TimeoutExecutor($this->wrapped, 0, $this->loop);
+        $this->executor = new TimeoutExecutor($this->wrapped, 0);
 
         $cancelled = 0;
 
@@ -117,7 +113,7 @@ class TimeoutExecutorTest extends TestCase
         $this->assertEquals(0, $cancelled);
 
         try {
-            \Clue\React\Block\await($promise, $this->loop);
+            \Clue\React\Block\await($promise);
             $this->fail();
         } catch (TimeoutException $exception) {
             $this->assertEquals('DNS query for igor.io (A) timed out' , $exception->getMessage());
