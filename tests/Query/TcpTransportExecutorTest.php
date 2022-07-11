@@ -266,9 +266,9 @@ class TcpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\sleep(0.01);
+        \Clue\React\Block\await(\React\Promise\Timer\sleep(0.01));
         if ($exception === null) {
-            \Clue\React\Block\sleep(0.2);
+            \Clue\React\Block\await(\React\Promise\Timer\sleep(0.2));
         }
 
         /** @var \RuntimeException $exception */
@@ -438,9 +438,9 @@ class TcpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\sleep(0.01);
+        \Clue\React\Block\await(\React\Promise\Timer\sleep(0.01));
         if ($exception === null) {
-            \Clue\React\Block\sleep(0.2);
+            \Clue\React\Block\await(\React\Promise\Timer\sleep(0.2));
         }
 
         /** @var \RuntimeException $exception */
@@ -477,7 +477,7 @@ class TcpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\sleep(0.2);
+        \Clue\React\Block\await(\React\Promise\Timer\sleep(0.2));
         $this->assertTrue($wait);
 
         $this->assertNotNull($client);
@@ -514,7 +514,7 @@ class TcpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\sleep(0.2);
+        \Clue\React\Block\await(\React\Promise\Timer\sleep(0.2));
         $this->assertTrue($wait);
 
         $this->assertNotNull($client);
@@ -549,9 +549,9 @@ class TcpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\sleep(0.01);
+        \Clue\React\Block\await(\React\Promise\Timer\sleep(0.01));
         if ($exception === null) {
-            \Clue\React\Block\sleep(0.2);
+            \Clue\React\Block\await(\React\Promise\Timer\sleep(0.2));
         }
 
         /** @var \RuntimeException $exception */
@@ -601,9 +601,9 @@ class TcpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\sleep(0.01);
+        \Clue\React\Block\await(\React\Promise\Timer\sleep(0.01));
         if ($exception === null) {
-            \Clue\React\Block\sleep(0.2);
+            \Clue\React\Block\await(\React\Promise\Timer\sleep(0.2));
         }
 
         /** @var \RuntimeException $exception */
@@ -653,9 +653,9 @@ class TcpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\sleep(0.01);
+        \Clue\React\Block\await(\React\Promise\Timer\sleep(0.01));
         if ($exception === null) {
-            \Clue\React\Block\sleep(0.2);
+            \Clue\React\Block\await(\React\Promise\Timer\sleep(0.2));
         }
 
         /** @var \RuntimeException $exception */
@@ -688,7 +688,7 @@ class TcpTransportExecutorTest extends TestCase
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
         $promise = $executor->query($query);
-        $response = \Clue\React\Block\await($promise, null, 0.2);
+        $response = \Clue\React\Block\await(\React\Promise\Timer\timeout($promise, 0.2));
 
         $this->assertInstanceOf('React\Dns\Model\Message', $response);
     }
