@@ -254,6 +254,9 @@ class UdpTransportExecutorTest extends TestCase
         Loop::addReadStream($server, function ($server) {
             $data = stream_socket_recvfrom($server, 512, 0, $peer);
             stream_socket_sendto($server, 'invalid', 0, $peer);
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
@@ -272,6 +275,8 @@ class UdpTransportExecutorTest extends TestCase
 
         \Clue\React\Block\sleep(0.2);
         $this->assertTrue($wait);
+
+        $promise->cancel();
     }
 
     public function testQueryKeepsPendingIfServerSendsInvalidId()
@@ -287,6 +292,9 @@ class UdpTransportExecutorTest extends TestCase
             $message->id = 0;
 
             stream_socket_sendto($server, $dumper->toBinary($message), 0, $peer);
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
@@ -305,6 +313,8 @@ class UdpTransportExecutorTest extends TestCase
 
         \Clue\React\Block\sleep(0.2);
         $this->assertTrue($wait);
+
+        $promise->cancel();
     }
 
     public function testQueryRejectsIfServerSendsTruncatedResponse()
@@ -320,6 +330,9 @@ class UdpTransportExecutorTest extends TestCase
             $message->tc = true;
 
             stream_socket_sendto($server, $dumper->toBinary($message), 0, $peer);
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
@@ -349,6 +362,9 @@ class UdpTransportExecutorTest extends TestCase
             $message = $parser->parseMessage($data);
 
             stream_socket_sendto($server, $dumper->toBinary($message), 0, $peer);
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);

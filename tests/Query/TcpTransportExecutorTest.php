@@ -420,6 +420,9 @@ class TcpTransportExecutorTest extends TestCase
         Loop::addReadStream($server, function ($server) {
             $client = stream_socket_accept($server);
             fclose($client);
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
@@ -447,16 +450,17 @@ class TcpTransportExecutorTest extends TestCase
 
     public function testQueryKeepsPendingIfServerSendsIncompleteMessageLength()
     {
+        $client = null;
         $server = stream_socket_server('tcp://127.0.0.1:0');
-        Loop::addReadStream($server, function ($server) {
+        Loop::addReadStream($server, function ($server) use (&$client) {
             $client = stream_socket_accept($server);
             Loop::addReadStream($client, function ($client) {
                 Loop::removeReadStream($client);
                 fwrite($client, "\x00");
             });
 
-            // keep reference to client to avoid disconnecting
-            Loop::addTimer(1, function () use ($client) { });
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
@@ -475,20 +479,25 @@ class TcpTransportExecutorTest extends TestCase
 
         \Clue\React\Block\sleep(0.2);
         $this->assertTrue($wait);
+
+        $this->assertNotNull($client);
+        fclose($client);
+        Loop::removeReadStream($client);
     }
 
     public function testQueryKeepsPendingIfServerSendsIncompleteMessageBody()
     {
+        $client = null;
         $server = stream_socket_server('tcp://127.0.0.1:0');
-        Loop::addReadStream($server, function ($server) {
+        Loop::addReadStream($server, function ($server) use (&$client) {
             $client = stream_socket_accept($server);
             Loop::addReadStream($client, function ($client) {
                 Loop::removeReadStream($client);
                 fwrite($client, "\x00\xff" . "some incomplete message data");
             });
 
-            // keep reference to client to avoid disconnecting
-            Loop::addTimer(1, function () use ($client) { });
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
@@ -507,6 +516,10 @@ class TcpTransportExecutorTest extends TestCase
 
         \Clue\React\Block\sleep(0.2);
         $this->assertTrue($wait);
+
+        $this->assertNotNull($client);
+        fclose($client);
+        Loop::removeReadStream($client);
     }
 
     public function testQueryRejectsWhenServerSendsInvalidMessage()
@@ -518,6 +531,9 @@ class TcpTransportExecutorTest extends TestCase
                 Loop::removeReadStream($client);
                 fwrite($client, "\x00\x0f" . 'invalid message');
             });
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
@@ -567,6 +583,9 @@ class TcpTransportExecutorTest extends TestCase
 
                 fwrite($client, $data);
             });
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
@@ -616,6 +635,9 @@ class TcpTransportExecutorTest extends TestCase
 
                 fwrite($client, $data);
             });
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
@@ -655,6 +677,9 @@ class TcpTransportExecutorTest extends TestCase
 
                 fwrite($client, $data);
             });
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
