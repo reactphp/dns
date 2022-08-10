@@ -7,7 +7,7 @@ use React\Dns\Protocol\BinaryDumper;
 use React\Dns\Protocol\Parser;
 use React\Dns\Query\Query;
 use React\Dns\Query\UdpTransportExecutor;
-use React\EventLoop\Factory;
+use React\EventLoop\Loop;
 use React\Tests\Dns\TestCase;
 
 class UdpTransportExecutorTest extends TestCase
@@ -250,16 +250,17 @@ class UdpTransportExecutorTest extends TestCase
 
     public function testQueryKeepsPendingIfServerSendsInvalidMessage()
     {
-        $loop = Factory::create();
-
         $server = stream_socket_server('udp://127.0.0.1:0', $errno, $errstr, STREAM_SERVER_BIND);
-        $loop->addReadStream($server, function ($server) {
+        Loop::addReadStream($server, function ($server) {
             $data = stream_socket_recvfrom($server, 512, 0, $peer);
             stream_socket_sendto($server, 'invalid', 0, $peer);
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new UdpTransportExecutor($address, $loop);
+        $executor = new UdpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -272,8 +273,10 @@ class UdpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\sleep(0.2, $loop);
+        \Clue\React\Block\sleep(0.2);
         $this->assertTrue($wait);
+
+        $promise->cancel();
     }
 
     public function testQueryKeepsPendingIfServerSendsInvalidId()
@@ -281,20 +284,21 @@ class UdpTransportExecutorTest extends TestCase
         $parser = new Parser();
         $dumper = new BinaryDumper();
 
-        $loop = Factory::create();
-
         $server = stream_socket_server('udp://127.0.0.1:0', $errno, $errstr, STREAM_SERVER_BIND);
-        $loop->addReadStream($server, function ($server) use ($parser, $dumper) {
+        Loop::addReadStream($server, function ($server) use ($parser, $dumper) {
             $data = stream_socket_recvfrom($server, 512, 0, $peer);
 
             $message = $parser->parseMessage($data);
             $message->id = 0;
 
             stream_socket_sendto($server, $dumper->toBinary($message), 0, $peer);
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new UdpTransportExecutor($address, $loop);
+        $executor = new UdpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -307,8 +311,10 @@ class UdpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\sleep(0.2, $loop);
+        \Clue\React\Block\sleep(0.2);
         $this->assertTrue($wait);
+
+        $promise->cancel();
     }
 
     public function testQueryRejectsIfServerSendsTruncatedResponse()
@@ -316,20 +322,21 @@ class UdpTransportExecutorTest extends TestCase
         $parser = new Parser();
         $dumper = new BinaryDumper();
 
-        $loop = Factory::create();
-
         $server = stream_socket_server('udp://127.0.0.1:0', $errno, $errstr, STREAM_SERVER_BIND);
-        $loop->addReadStream($server, function ($server) use ($parser, $dumper) {
+        Loop::addReadStream($server, function ($server) use ($parser, $dumper) {
             $data = stream_socket_recvfrom($server, 512, 0, $peer);
 
             $message = $parser->parseMessage($data);
             $message->tc = true;
 
             stream_socket_sendto($server, $dumper->toBinary($message), 0, $peer);
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new UdpTransportExecutor($address, $loop);
+        $executor = new UdpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -340,7 +347,7 @@ class UdpTransportExecutorTest extends TestCase
             'DNS query for google.com (A) failed: The DNS server udp://' . $address . ' returned a truncated result for a UDP query',
             defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90
         );
-        \Clue\React\Block\await($promise, $loop, 0.1);
+        \Clue\React\Block\await($promise, null, 0.1);
     }
 
     public function testQueryResolvesIfServerSendsValidResponse()
@@ -348,24 +355,25 @@ class UdpTransportExecutorTest extends TestCase
         $parser = new Parser();
         $dumper = new BinaryDumper();
 
-        $loop = Factory::create();
-
         $server = stream_socket_server('udp://127.0.0.1:0', $errno, $errstr, STREAM_SERVER_BIND);
-        $loop->addReadStream($server, function ($server) use ($parser, $dumper) {
+        Loop::addReadStream($server, function ($server) use ($parser, $dumper) {
             $data = stream_socket_recvfrom($server, 512, 0, $peer);
 
             $message = $parser->parseMessage($data);
 
             stream_socket_sendto($server, $dumper->toBinary($message), 0, $peer);
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new UdpTransportExecutor($address, $loop);
+        $executor = new UdpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
         $promise = $executor->query($query);
-        $response = \Clue\React\Block\await($promise, $loop, 0.2);
+        $response = \Clue\React\Block\await($promise, null, 0.2);
 
         $this->assertInstanceOf('React\Dns\Model\Message', $response);
     }
