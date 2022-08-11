@@ -113,7 +113,8 @@ class TimeoutExecutorTest extends TestCase
         $this->assertEquals(0, $cancelled);
 
         try {
-            \Clue\React\Block\await($promise);
+            \React\Async\await(\React\Promise\Timer\sleep(0));
+            \React\Async\await($promise);
             $this->fail();
         } catch (TimeoutException $exception) {
             $this->assertEquals('DNS query for igor.io (A) timed out' , $exception->getMessage());

@@ -33,8 +33,8 @@
         "react/promise-timer": "^1.9"
     },
     "require-dev": {
-        "clue/block-react": "^1.2",
-        "phpunit/phpunit": "^9.3 || ^4.8.35"
+        "phpunit/phpunit": "^9.3 || ^4.8.35",
+        "react/async": "^4 || ^3 || ^2"
     },
     "autoload": {
         "psr-4": { "React\\Dns\\": "src" }
