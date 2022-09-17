@@ -1,0 +1,2391 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Parameter \\#2 \\$subject of function preg_match_all expects string, string\\|false\\|null given\\.$#"
+			count: 1
+			path: src/Config/Config.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Config\\\\Config\\:\\:\\$nameservers has no type specified\\.$#"
+			count: 1
+			path: src/Config/Config.php
+
+		-
+			message: "#^Argument of an invalid type array\\<int, string\\>\\|false supplied for foreach, only iterables are supported\\.$#"
+			count: 3
+			path: src/Config/HostsFile.php
+
+		-
+			message: "#^Parameter \\#1 \\$array of function array_shift expects array, array\\<int, string\\>\\|false given\\.$#"
+			count: 2
+			path: src/Config/HostsFile.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Config\\\\HostsFile\\:\\:\\$contents has no type specified\\.$#"
+			count: 1
+			path: src/Config/HostsFile.php
+
+		-
+			message: "#^Argument of an invalid type array\\<string\\>\\|string supplied for foreach, only iterables are supported\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Binary operation \"\\.\\=\" between string and array\\<string\\>\\|string\\|false results in an error\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'algorithm' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'expire' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'fingerprint' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'flag' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'minimum' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'mname' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'port' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'priority' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 2
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'refresh' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'retry' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'rname' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'serial' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'tag' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 2
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'target' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 2
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'type' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'value' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Offset 'weight' does not exist on array\\<string\\>\\|string\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Parameter \\#1 \\$host of method React\\\\Dns\\\\Protocol\\\\BinaryDumper\\:\\:domainNameToBinary\\(\\) expects string, array\\<string\\>\\|string given\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Parameter \\#1 \\$ip of function inet_pton expects string, array\\<string\\>\\|string given\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function strlen expects string, array\\<string\\>\\|string\\|false given\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Parameter \\#1 \\$texts of method React\\\\Dns\\\\Protocol\\\\BinaryDumper\\:\\:textsToBinary\\(\\) expects array\\<string\\>, array\\<string\\>\\|string given\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Parameter \\#2 \\$array of function array_map expects array, array\\<int, string\\>\\|false given\\.$#"
+			count: 1
+			path: src/Protocol/BinaryDumper.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Protocol\\\\Parser\\:\\:parseQuestion\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Protocol/Parser.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Protocol\\\\Parser\\:\\:parseRecord\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Protocol/Parser.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Protocol\\\\Parser\\:\\:readDomain\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Protocol/Parser.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Protocol\\\\Parser\\:\\:readDomain\\(\\) has parameter \\$consumed with no type specified\\.$#"
+			count: 1
+			path: src/Protocol/Parser.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Protocol\\\\Parser\\:\\:readDomain\\(\\) has parameter \\$data with no type specified\\.$#"
+			count: 1
+			path: src/Protocol/Parser.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Protocol\\\\Parser\\:\\:readLabels\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Protocol/Parser.php
+
+		-
+			message: "#^Parameter \\#1 \\$array of function array_values expects array, array\\|false given\\.$#"
+			count: 12
+			path: src/Protocol/Parser.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\CachingExecutor\\:\\:\\$cache has no type specified\\.$#"
+			count: 1
+			path: src/Query/CachingExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\CachingExecutor\\:\\:\\$executor has no type specified\\.$#"
+			count: 1
+			path: src/Query/CachingExecutor.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Query\\\\CoopExecutor\\:\\:serializeQueryToIdentity\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Query/CoopExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\CoopExecutor\\:\\:\\$counts has no type specified\\.$#"
+			count: 1
+			path: src/Query/CoopExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\CoopExecutor\\:\\:\\$executor has no type specified\\.$#"
+			count: 1
+			path: src/Query/CoopExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\CoopExecutor\\:\\:\\$pending has no type specified\\.$#"
+			count: 1
+			path: src/Query/CoopExecutor.php
+
+		-
+			message: "#^PHPDoc tag @return contains generic type React\\\\Promise\\\\PromiseInterface\\<React\\\\Dns\\\\Model\\\\Message, Exception\\> but interface React\\\\Promise\\\\PromiseInterface is not generic\\.$#"
+			count: 1
+			path: src/Query/ExecutorInterface.php
+
+		-
+			message: "#^If condition is always false\\.$#"
+			count: 1
+			path: src/Query/FallbackExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\FallbackExecutor\\:\\:\\$executor has no type specified\\.$#"
+			count: 1
+			path: src/Query/FallbackExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\FallbackExecutor\\:\\:\\$fallback has no type specified\\.$#"
+			count: 1
+			path: src/Query/FallbackExecutor.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Query\\\\HostsFileExecutor\\:\\:getIpFromHost\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Query/HostsFileExecutor.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Query\\\\HostsFileExecutor\\:\\:getIpFromHost\\(\\) has parameter \\$host with no type specified\\.$#"
+			count: 1
+			path: src/Query/HostsFileExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\HostsFileExecutor\\:\\:\\$fallback has no type specified\\.$#"
+			count: 1
+			path: src/Query/HostsFileExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\HostsFileExecutor\\:\\:\\$hosts has no type specified\\.$#"
+			count: 1
+			path: src/Query/HostsFileExecutor.php
+
+		-
+			message: "#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#"
+			count: 2
+			path: src/Query/RetryExecutor.php
+
+		-
+			message: "#^Cannot access offset 'args' on mixed\\.$#"
+			count: 2
+			path: src/Query/RetryExecutor.php
+
+		-
+			message: "#^Cannot access offset mixed on mixed\\.$#"
+			count: 1
+			path: src/Query/RetryExecutor.php
+
+		-
+			message: "#^Instanceof between null and React\\\\Promise\\\\PromiseInterface will always evaluate to false\\.$#"
+			count: 1
+			path: src/Query/RetryExecutor.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Query\\\\RetryExecutor\\:\\:__construct\\(\\) has parameter \\$retries with no type specified\\.$#"
+			count: 1
+			path: src/Query/RetryExecutor.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Query\\\\RetryExecutor\\:\\:tryQuery\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Query/RetryExecutor.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Query\\\\RetryExecutor\\:\\:tryQuery\\(\\) has parameter \\$retries with no type specified\\.$#"
+			count: 1
+			path: src/Query/RetryExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\RetryExecutor\\:\\:\\$executor has no type specified\\.$#"
+			count: 1
+			path: src/Query/RetryExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\RetryExecutor\\:\\:\\$retries has no type specified\\.$#"
+			count: 1
+			path: src/Query/RetryExecutor.php
+
+		-
+			message: "#^Result of && is always false\\.$#"
+			count: 1
+			path: src/Query/RetryExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\SelectiveTransportExecutor\\:\\:\\$datagramExecutor has no type specified\\.$#"
+			count: 1
+			path: src/Query/SelectiveTransportExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\SelectiveTransportExecutor\\:\\:\\$streamExecutor has no type specified\\.$#"
+			count: 1
+			path: src/Query/SelectiveTransportExecutor.php
+
+		-
+			message: "#^Cannot access offset 'host' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int\\<0, 65535\\>, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Cannot access offset 'scheme' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int\\<0, 65535\\>, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Cannot use array destructuring on array\\|false\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Query\\\\TcpTransportExecutor\\:\\:checkIdle\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Query\\\\TcpTransportExecutor\\:\\:closeError\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Query\\\\TcpTransportExecutor\\:\\:handleRead\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Query\\\\TcpTransportExecutor\\:\\:handleWritable\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Parameter \\#1 \\$callback of function set_error_handler expects \\(callable\\(int, string, string, int\\)\\: bool\\)\\|null, Closure\\(mixed, mixed\\)\\: void given\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Parameter \\#1 \\$error_code of function socket_strerror expects int, array\\|int\\|false given\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Parameter \\#1 \\$socket of function socket_get_option expects Socket, Socket\\|false given\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Parameter \\#1 \\$socket of function stream_socket_get_name expects resource, resource\\|null given\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Parameter \\#1 \\$stream of function fclose expects resource, resource\\|null given\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Parameter \\#1 \\$stream of function fread expects resource, resource\\|null given\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Parameter \\#1 \\$stream of function fwrite expects resource, resource\\|null given\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Parameter \\#1 \\$stream of function socket_import_stream expects resource, resource\\|null given\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Parameter \\#2 \\$code of method React\\\\Dns\\\\Query\\\\TcpTransportExecutor\\:\\:closeError\\(\\) expects int, array\\|int\\|false given\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Parameter \\#2 \\$length of function fread expects int\\<0, max\\>, string given\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Parameter \\#2 \\$size of function stream_set_chunk_size expects int, string given\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\TcpTransportExecutor\\:\\:\\$dumper has no type specified\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\TcpTransportExecutor\\:\\:\\$loop has no type specified\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\TcpTransportExecutor\\:\\:\\$nameserver has no type specified\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\TcpTransportExecutor\\:\\:\\$parser has no type specified\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\TcpTransportExecutor\\:\\:\\$readBuffer has no type specified\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\TcpTransportExecutor\\:\\:\\$readChunk \\(string\\) does not accept default value of type int\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\TcpTransportExecutor\\:\\:\\$readPending has no type specified\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\TcpTransportExecutor\\:\\:\\$writeBuffer has no type specified\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\TcpTransportExecutor\\:\\:\\$writePending has no type specified\\.$#"
+			count: 1
+			path: src/Query/TcpTransportExecutor.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Query\\\\TimeoutExecutor\\:\\:__construct\\(\\) has parameter \\$timeout with no type specified\\.$#"
+			count: 1
+			path: src/Query/TimeoutExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\TimeoutExecutor\\:\\:\\$executor has no type specified\\.$#"
+			count: 1
+			path: src/Query/TimeoutExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\TimeoutExecutor\\:\\:\\$loop has no type specified\\.$#"
+			count: 1
+			path: src/Query/TimeoutExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\TimeoutExecutor\\:\\:\\$timeout has no type specified\\.$#"
+			count: 1
+			path: src/Query/TimeoutExecutor.php
+
+		-
+			message: "#^Cannot access offset 'host' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int\\<0, 65535\\>, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
+			count: 1
+			path: src/Query/UdpTransportExecutor.php
+
+		-
+			message: "#^Cannot access offset 'scheme' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int\\<0, 65535\\>, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
+			count: 1
+			path: src/Query/UdpTransportExecutor.php
+
+		-
+			message: "#^Parameter \\#1 \\$callback of function set_error_handler expects \\(callable\\(int, string, string, int\\)\\: bool\\)\\|null, Closure\\(mixed, mixed\\)\\: void given\\.$#"
+			count: 1
+			path: src/Query/UdpTransportExecutor.php
+
+		-
+			message: "#^Parameter \\#2 \\$length of function fread expects int\\<0, max\\>, int given\\.$#"
+			count: 1
+			path: src/Query/UdpTransportExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\UdpTransportExecutor\\:\\:\\$dumper has no type specified\\.$#"
+			count: 1
+			path: src/Query/UdpTransportExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\UdpTransportExecutor\\:\\:\\$loop has no type specified\\.$#"
+			count: 1
+			path: src/Query/UdpTransportExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\UdpTransportExecutor\\:\\:\\$nameserver has no type specified\\.$#"
+			count: 1
+			path: src/Query/UdpTransportExecutor.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Query\\\\UdpTransportExecutor\\:\\:\\$parser has no type specified\\.$#"
+			count: 1
+			path: src/Query/UdpTransportExecutor.php
+
+		-
+			message: "#^Cannot access offset 'scheme' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int\\<0, 65535\\>, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
+			count: 2
+			path: src/Resolver/Factory.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:extractValues\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:filterByField\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:filterByField\\(\\) has parameter \\$answers with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:filterByField\\(\\) has parameter \\$field with no type specified\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:filterByField\\(\\) has parameter \\$value with no type specified\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:filterByName\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:filterByName\\(\\) has parameter \\$answers with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:filterByName\\(\\) has parameter \\$name with no type specified\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:filterByType\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:filterByType\\(\\) has parameter \\$answers with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:filterByType\\(\\) has parameter \\$type with no type specified\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:mapRecordData\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:mapRecordData\\(\\) has parameter \\$records with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:resolveAll\\(\\) has parameter \\$type with no type specified\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:resolveAll\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:valuesByNameAndType\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:valuesByNameAndType\\(\\) should return array but returns array\\<mixed, mixed\\>\\|float\\|int\\|string\\|false\\|null\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Parameter \\#1 \\.\\.\\.\\$arrays of function array_merge expects array, array\\<mixed, mixed\\>\\|float\\|int\\|string\\|false\\|null given\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Property React\\\\Dns\\\\Resolver\\\\Resolver\\:\\:\\$executor has no type specified\\.$#"
+			count: 1
+			path: src/Resolver/Resolver.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\ResolverInterface\\:\\:resolveAll\\(\\) has parameter \\$type with no type specified\\.$#"
+			count: 1
+			path: src/Resolver/ResolverInterface.php
+
+		-
+			message: "#^Method React\\\\Dns\\\\Resolver\\\\ResolverInterface\\:\\:resolveAll\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Resolver/ResolverInterface.php
+
+		-
+			message: "#^PHPDoc tag @return contains generic type React\\\\Promise\\\\PromiseInterface\\<array, Exception\\> but interface React\\\\Promise\\\\PromiseInterface is not generic\\.$#"
+			count: 1
+			path: src/Resolver/ResolverInterface.php
+
+		-
+			message: "#^PHPDoc tag @return contains generic type React\\\\Promise\\\\PromiseInterface\\<string, Exception\\> but interface React\\\\Promise\\\\PromiseInterface is not generic\\.$#"
+			count: 1
+			path: src/Resolver/ResolverInterface.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:echoCommand\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:echoCommand\\(\\) has parameter \\$output with no type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:testLoadThrowsWhenPathIsInvalid\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:testLoadsDefaultPath\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:testLoadsEmptyListFromWmicOutput\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:testLoadsFromExplicitPath\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:testLoadsFromWmicOnWindows\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:testLoadsMultipleEntriesForSingleNicWithQuotesFromWmicOutput\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:testLoadsMultipleEntriesForSingleNicWithSemicolonFromWmicOutput\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:testLoadsSingleEntryForMultipleNicsFromWmicOutput\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:testLoadsSingleEntryFromWmicOutput\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:testLoadsSystemDefault\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:testParsesEmptyFileWithoutNameserverEntries\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:testParsesFileAndIgnoresCommentsAndInvalidNameserverEntries\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:testParsesNameserverEntriesFromAverageFileCorrectly\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:testParsesNameserverWithoutIpv6ScopeId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\ConfigTest\\:\\:testParsesSingleEntryFile\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/ConfigTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testContainsSingleLocalhostEntry\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testContainsSingleLocalhostEntryWithCaseIgnored\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testDefaultShouldHaveLocalhostMapped\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testEmptyFileContainsNothing\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testIgnoresIpv6ZoneId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testLoadThrowsForInvalidPath\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testLoadsFromDefaultPath\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testMergesEntriesOverMultipleLines\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testMergesIpv4AndIpv6EntriesOverMultipleLines\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testNonIpReturnsNothingForInvalidHosts\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testReverseLookup\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testReverseLookupChecksNormalizedIpv6\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testReverseLookupIgnoresIpv6ZoneId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testReverseLookupReturnsLowerCaseHost\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testReverseLookupReturnsMultipleHostsOverMultipleLines\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testReverseLookupReturnsMultipleHostsOverSingleLine\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testReverseNonIpReturnsNothing\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testReverseNonIpReturnsNothingForInvalidHosts\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testReverseSkipsComments\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testSingleEntryWithMultipleNames\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Config\\\\HostsFileTest\\:\\:testSkipsComments\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Config/HostsFileTest.php
+
+		-
+			message: "#^Call to an undefined method React\\\\Promise\\\\PromiseInterface\\<string, Exception\\>\\:\\:cancel\\(\\)\\.$#"
+			count: 2
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:setUpResolver\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:testCancelResolveCachedShouldNotCauseGarbageReferences\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:testCancelResolveShouldNotCauseGarbageReferences\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:testInvalidResolverDoesNotResolveGoogle\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:testResolveAllGoogleCaaResolvesWithCache\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:testResolveAllGoogleMxResolvesWithCache\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:testResolveAllInvalidTypeRejects\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:testResolveAllLocalhostResolvesWithArray\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:testResolveCachedShouldNotCauseGarbageReferencesWhenUsingInvalidNameserver\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:testResolveCancelledRejectsImmediately\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:testResolveGoogleOverTcpResolves\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:testResolveGoogleOverUdpResolves\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:testResolveGoogleResolves\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:testResolveInvalidRejects\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:testResolveLocalhostResolves\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:testResolveShouldNotCauseGarbageReferencesWhenUsingInvalidNameserver\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Property React\\\\Tests\\\\Dns\\\\FunctionalResolverTest\\:\\:\\$resolver has no type specified\\.$#"
+			count: 1
+			path: tests/FunctionalResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Model\\\\MessageTest\\:\\:testCreateRequestDesiresRecusion\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Model/MessageTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Model\\\\MessageTest\\:\\:testCreateResponseWithNoAnswers\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Model/MessageTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:convertBinaryToHexDump\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:convertBinaryToHexDump\\(\\) has parameter \\$input with no type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:formatHexDump\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:formatHexDump\\(\\) has parameter \\$input with no type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:testToBinaryForResponseWithAnswerAndAdditionalRecord\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:testToBinaryForResponseWithMultipleAnswerRecords\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:testToBinaryForResponseWithPTRRecordWithSpecialCharactersEscaped\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:testToBinaryForResponseWithSOARecord\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:testToBinaryForResponseWithSRVRecord\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:testToBinaryRequestMessage\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:testToBinaryRequestMessageWithAdditionalOptForEdns0\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:testToBinaryRequestMessageWithAdditionalOptForEdns0WithCustomOptCodes\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:testToBinaryRequestMessageWithAdditionalOptForEdns0WithOptPadding\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:testToBinaryRequestMessageWithAdditionalOptForEdns0WithOptTcpKeepAliveDesired\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:testToBinaryRequestMessageWithAdditionalOptForEdns0WithOptTcpKeepAliveGiven\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:testToBinaryRequestMessageWithUnknownAuthorityTypeEncodesValueAsBinary\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\BinaryDumperTest\\:\\:testToBinaryResponseMessageWithoutRecords\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Parameter \\#2 \\$array of function implode expects array\\|null, array\\|false given\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Parameter \\#5 \\$data of class React\\\\Dns\\\\Model\\\\Record constructor expects array\\<string\\>\\|string, array\\<int, float\\> given\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Parameter \\#5 \\$data of class React\\\\Dns\\\\Model\\\\Record constructor expects array\\<string\\>\\|string, array\\<int, null\\> given\\.$#"
+			count: 1
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Parameter \\#5 \\$data of class React\\\\Dns\\\\Model\\\\Record constructor expects array\\<string\\>\\|string, array\\<string, int\\|string\\> given\\.$#"
+			count: 5
+			path: tests/Protocol/BinaryDumperTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:convertTcpDumpToBinary\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:convertTcpDumpToBinary\\(\\) has parameter \\$input with no type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:parseAnswer\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:parseAnswer\\(\\) has parameter \\$answerData with no type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:provideConvertTcpDumpToBinary\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:setUpParser\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testConvertTcpDumpToBinary\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testConvertTcpDumpToBinary\\(\\) has parameter \\$data with no type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testConvertTcpDumpToBinary\\(\\) has parameter \\$expected with no type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseAAAAResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseAnswerWithExcessiveTtlReturnsZeroTtl\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseAnswerWithInlineData\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseAnswerWithMaximumTtlReturnsExactTtl\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseAnswerWithTtlExactlyBoundaryReturnsZeroTtl\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseAnswerWithUnknownType\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseCAAResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseIncompleteAnswerFieldsThrows\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseIncompleteAnswerRecordDataThrows\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseIncompleteOffsetPointerInQuestionNameThrows\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseIncompleteQuestionLabelThrows\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseIncompleteQuestionNameThrows\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseIncompleteQuestionThrows\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidAAAAResponseWhereIPIsMissing\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidAResponseWhereIPIsMissing\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidCAAResponseEmtpyData\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidCAAResponseIncompleteTag\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidCAAResponseMissingValue\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidMXResponseWhereDomainNameIsIncomplete\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidMXResponseWhereDomainNameIsMissing\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidNSResponseWhereDomainNameIsMissing\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidOPTResponseWhereRecordIsTooSmall\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidOPTResponseWhereRecordLengthDoesNotMatchOptType\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidOffsetPointerInQuestionNameThrows\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidOffsetPointerToPreviousLabelInQuestionNameThrows\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidOffsetPointerToSameLabelInQuestionNameThrows\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidOffsetPointerToStartOfMessageInQuestionNameThrows\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidSOAResponseWhereFlagsAreMissing\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidSRVResponseWhereDomainNameIsIncomplete\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidSRVResponseWhereDomainNameIsMissing\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidSSHFPResponseWhereRecordIsTooSmall\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseInvalidTXTResponseWhereTxtChunkExceedsLimit\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseMXResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseMessageResponseWithAnswerAndAdditionalRecord\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseMessageResponseWithIncompleteAdditionalRecordThrows\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseMessageResponseWithIncompleteAuthorityRecordThrows\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseMessageResponseWithTwoAnswers\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseMessageResponseWithTwoAuthorityRecords\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseNSResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseOptResponseWithCustomOptions\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseOptResponseWithOptTcpKeepaliveDesired\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseOptResponseWithOptTcpKeepaliveGiven\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseOptResponseWithoutOptions\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParsePTRResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParsePTRResponseWithSpecialCharactersEscaped\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseRequest\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseRequestWithTwoQuestions\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseResponseWithCnameAndOffsetPointers\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseSOAResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseSPFResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseSRVResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseSSHFPResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseTXTResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:testParseTXTResponseMultiple\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Property React\\\\Tests\\\\Dns\\\\Protocol\\\\ParserTest\\:\\:\\$parser has no type specified\\.$#"
+			count: 1
+			path: tests/Protocol/ParserTest.php
+
+		-
+			message: "#^Call to an undefined method React\\\\Promise\\\\PromiseInterface\\<React\\\\Dns\\\\Model\\\\Message, Exception\\>\\:\\:cancel\\(\\)\\.$#"
+			count: 2
+			path: tests/Query/CachingExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\CachingExecutorTest\\:\\:testCancelQueryWillReturnRejectedPromiseAndCancelPendingPromiseFromCache\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CachingExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\CachingExecutorTest\\:\\:testCancelQueryWillReturnRejectedPromiseAndCancelPendingPromiseFromFallbackExecutorWhenCacheReturnsMiss\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CachingExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\CachingExecutorTest\\:\\:testQueryWillReturnPendingPromiseWhenCacheIsPendingWithoutSendingQueryToFallbackExecutor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CachingExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\CachingExecutorTest\\:\\:testQueryWillReturnPendingPromiseWhenCacheReturnsMissAndWillSendSameQueryToFallbackExecutor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CachingExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\CachingExecutorTest\\:\\:testQueryWillReturnRejectedPromiseWhenCacheReturnsMissAndFallbackExecutorRejects\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CachingExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\CachingExecutorTest\\:\\:testQueryWillReturnResolvedPromiseWhenCacheReturnsHitWithoutSendingQueryToFallbackExecutor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CachingExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\CachingExecutorTest\\:\\:testQueryWillReturnResolvedPromiseWhenCacheReturnsMissAndFallbackExecutorResolvesAndSaveMessageToCacheWithDefaultTtl\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CachingExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\CachingExecutorTest\\:\\:testQueryWillReturnResolvedPromiseWhenCacheReturnsMissAndFallbackExecutorResolvesAndSaveMessageToCacheWithMinimumTtlFromRecord\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CachingExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\CachingExecutorTest\\:\\:testQueryWillReturnResolvedPromiseWhenCacheReturnsMissAndFallbackExecutorResolvesWithTruncatedResponseButShouldNotSaveTruncatedMessageToCache\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CachingExecutorTest.php
+
+		-
+			message: "#^Call to an undefined method React\\\\Promise\\\\PromiseInterface\\<React\\\\Dns\\\\Model\\\\Message, Exception\\>\\:\\:cancel\\(\\)\\.$#"
+			count: 7
+			path: tests/Query/CoopExecutorTest.php
+
+		-
+			message: "#^Method CoopExecutorTest\\:\\:testCancelAllPendingQueriesWillCancelPromiseFromBaseExecutorAndRejectCancelled\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CoopExecutorTest.php
+
+		-
+			message: "#^Method CoopExecutorTest\\:\\:testCancelOneQueryWhenOtherQueryIsStillPendingWillNotCancelPromiseFromBaseExecutorAndRejectCancelled\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CoopExecutorTest.php
+
+		-
+			message: "#^Method CoopExecutorTest\\:\\:testCancelQueryShouldNotCauseGarbageReferences\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CoopExecutorTest.php
+
+		-
+			message: "#^Method CoopExecutorTest\\:\\:testCancelQueryWillCancelPromiseFromBaseExecutorAndReject\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CoopExecutorTest.php
+
+		-
+			message: "#^Method CoopExecutorTest\\:\\:testCancelSecondQueryWhenFirstQueryIsStillPendingWillNotCancelPromiseFromBaseExecutorAndRejectCancelled\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CoopExecutorTest.php
+
+		-
+			message: "#^Method CoopExecutorTest\\:\\:testQueryOnceWillPassExactQueryToBaseExecutor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CoopExecutorTest.php
+
+		-
+			message: "#^Method CoopExecutorTest\\:\\:testQueryOnceWillRejectWhenBaseExecutorRejects\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CoopExecutorTest.php
+
+		-
+			message: "#^Method CoopExecutorTest\\:\\:testQueryOnceWillResolveWhenBaseExecutorResolves\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CoopExecutorTest.php
+
+		-
+			message: "#^Method CoopExecutorTest\\:\\:testQueryTwiceWillPassExactQueryToBaseExecutorOnceWhenQueryIsStillPending\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CoopExecutorTest.php
+
+		-
+			message: "#^Method CoopExecutorTest\\:\\:testQueryTwiceWillPassExactQueryToBaseExecutorTwiceWhenFirstQueryIsAlreadyRejected\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CoopExecutorTest.php
+
+		-
+			message: "#^Method CoopExecutorTest\\:\\:testQueryTwiceWillPassExactQueryToBaseExecutorTwiceWhenFirstQueryIsAlreadyResolved\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CoopExecutorTest.php
+
+		-
+			message: "#^Method CoopExecutorTest\\:\\:testQueryTwiceWillQueryBaseExecutorTwiceIfFirstQueryHasAlreadyBeenCancelledWhenSecondIsStarted\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CoopExecutorTest.php
+
+		-
+			message: "#^Method CoopExecutorTest\\:\\:testQueryTwoDifferentQueriesWillPassExactQueryToBaseExecutorTwice\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/CoopExecutorTest.php
+
+		-
+			message: "#^Call to an undefined method React\\\\Promise\\\\PromiseInterface\\<React\\\\Dns\\\\Model\\\\Message, Exception\\>\\:\\:cancel\\(\\)\\.$#"
+			count: 4
+			path: tests/Query/FallbackExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\FallbackExecutorTest\\:\\:testCancelQueryShouldNotCauseGarbageReferencesWhenCancellingPrimaryExecutor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/FallbackExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\FallbackExecutorTest\\:\\:testCancelQueryShouldNotCauseGarbageReferencesWhenCancellingSecondaryExecutor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/FallbackExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\FallbackExecutorTest\\:\\:testCancelQueryWillReturnRejectedPromiseWhenPrimaryExecutorRejectsAndSecondaryExecutorIsStillPending\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/FallbackExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\FallbackExecutorTest\\:\\:testCancelQueryWillReturnRejectedPromiseWithoutCallingSecondaryExecutorWhenPrimaryExecutorIsStillPending\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/FallbackExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\FallbackExecutorTest\\:\\:testQueryWillRejectWithExceptionMessagesConcatenatedAfterColonWhenPrimaryExecutorRejectsPromiseAndSecondaryExecutorRejectsPromiseWithMessageWithColon\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/FallbackExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\FallbackExecutorTest\\:\\:testQueryWillRejectWithExceptionMessagesConcatenatedInFullWhenPrimaryExecutorRejectsPromiseAndSecondaryExecutorRejectsPromiseWithMessageWithNoColon\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/FallbackExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\FallbackExecutorTest\\:\\:testQueryWillResolveWithMessageWhenPrimaryExecutorRejectsPromiseAndSecondaryExecutorResolvesWithMessage\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/FallbackExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\FallbackExecutorTest\\:\\:testQueryWillResolveWithMessageWhenPrimaryExecutorResolvesWithMessage\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/FallbackExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\FallbackExecutorTest\\:\\:testQueryWillReturnPendingPromiseWhenPrimaryExecutorIsStillPending\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/FallbackExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\FallbackExecutorTest\\:\\:testQueryWillReturnPendingPromiseWhenPrimaryExecutorRejectsPromiseAndSecondaryExecutorIsStillPending\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/FallbackExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\TestCase\\:\\:expectCallableOnce\\(\\) invoked with 1 parameter, 0 required\\.$#"
+			count: 2
+			path: tests/Query/FallbackExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:setUpMocks\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:testDoesNotTryToGetIpsForMxQuery\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:testDoesReturnReverseIpv4Lookup\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:testDoesReturnReverseIpv6Lookup\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:testFallsBackForInvalidAddress\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:testFallsBackIfNoIpsWereFound\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:testFallsBackIfNoIpv4Matches\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:testFallsBackIfNoIpv6Matches\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:testFallsBackIfNoReverseIpv4Matches\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:testReturnsResponseMessageIfIpsWereFound\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:testReturnsResponseMessageIfIpv6AddressesWereFound\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:testReverseFallsBackForInvalidHexIpv6Address\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:testReverseFallsBackForInvalidIpv4Address\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:testReverseFallsBackForInvalidLengthIpv6Address\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Property React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:\\$executor has no type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Property React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:\\$fallback has no type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Property React\\\\Tests\\\\Dns\\\\Query\\\\HostsFileExecutorTest\\:\\:\\$hosts has no type specified\\.$#"
+			count: 1
+			path: tests/Query/HostsFileExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\QueryTest\\:\\:testDescribeSimpleAQuery\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/QueryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\QueryTest\\:\\:testDescribeUnknownType\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/QueryTest.php
+
+		-
+			message: "#^Call to an undefined method React\\\\Promise\\\\PromiseInterface\\<React\\\\Dns\\\\Model\\\\Message, Exception\\>\\:\\:cancel\\(\\)\\.$#"
+			count: 3
+			path: tests/Query/RetryExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\RetryExecutorTest\\:\\:createExecutorMock\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/RetryExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\RetryExecutorTest\\:\\:createPromiseMock\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/RetryExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\RetryExecutorTest\\:\\:createStandardResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/RetryExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\RetryExecutorTest\\:\\:expectPromiseOnce\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/RetryExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\RetryExecutorTest\\:\\:expectPromiseOnce\\(\\) has parameter \\$return with no type specified\\.$#"
+			count: 1
+			path: tests/Query/RetryExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\RetryExecutorTest\\:\\:queryShouldCancelQueryOnCancel\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/RetryExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\RetryExecutorTest\\:\\:queryShouldCancelSecondQueryOnCancel\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/RetryExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\RetryExecutorTest\\:\\:queryShouldDelegateToDecoratedExecutor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/RetryExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\RetryExecutorTest\\:\\:queryShouldForwardNonTimeoutErrors\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/RetryExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\RetryExecutorTest\\:\\:queryShouldNotCauseGarbageReferencesOnCancellation\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/RetryExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\RetryExecutorTest\\:\\:queryShouldNotCauseGarbageReferencesOnNonTimeoutErrors\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/RetryExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\RetryExecutorTest\\:\\:queryShouldNotCauseGarbageReferencesOnSuccess\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/RetryExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\RetryExecutorTest\\:\\:queryShouldNotCauseGarbageReferencesOnTimeoutErrors\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/RetryExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\RetryExecutorTest\\:\\:queryShouldRetryQueryOnTimeout\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/RetryExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\RetryExecutorTest\\:\\:queryShouldStopRetryingAfterSomeAttempts\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/RetryExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\SelectiveTransportExecutorTest\\:\\:setUpMocks\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/SelectiveTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\SelectiveTransportExecutorTest\\:\\:testCancelPromiseAfterTruncatedResponseShouldNotCreateAnyGarbageReferences\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/SelectiveTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\SelectiveTransportExecutorTest\\:\\:testCancelPromiseShouldNotCreateAnyGarbageReferences\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/SelectiveTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\SelectiveTransportExecutorTest\\:\\:testCancelPromiseWillCancelPromiseFromDatagramExecutor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/SelectiveTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\SelectiveTransportExecutorTest\\:\\:testCancelPromiseWillCancelPromiseFromStreamExecutorWhenDatagramExecutorRejectedWithTruncatedResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/SelectiveTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\SelectiveTransportExecutorTest\\:\\:testQueryRejectsWhenDatagramTransportRejectsWithRuntimeExceptionWithoutUsingStreamTransport\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/SelectiveTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\SelectiveTransportExecutorTest\\:\\:testQueryRejectsWhenStreamTransportRejectsAfterDatagramTransportRejectsWithSizeError\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/SelectiveTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\SelectiveTransportExecutorTest\\:\\:testQueryResolvesWhenDatagramTransportResolvesWithoutUsingStreamTransport\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/SelectiveTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\SelectiveTransportExecutorTest\\:\\:testQueryResolvesWhenStreamTransportResolvesAfterDatagramTransportRejectsWithSizeError\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/SelectiveTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\SelectiveTransportExecutorTest\\:\\:testRejectedPromiseAfterTruncatedResponseShouldNotCreateAnyGarbageReferences\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/SelectiveTransportExecutorTest.php
+
+		-
+			message: "#^Property React\\\\Tests\\\\Dns\\\\Query\\\\SelectiveTransportExecutorTest\\:\\:\\$datagram has no type specified\\.$#"
+			count: 1
+			path: tests/Query/SelectiveTransportExecutorTest.php
+
+		-
+			message: "#^Property React\\\\Tests\\\\Dns\\\\Query\\\\SelectiveTransportExecutorTest\\:\\:\\$executor has no type specified\\.$#"
+			count: 1
+			path: tests/Query/SelectiveTransportExecutorTest.php
+
+		-
+			message: "#^Property React\\\\Tests\\\\Dns\\\\Query\\\\SelectiveTransportExecutorTest\\:\\:\\$stream has no type specified\\.$#"
+			count: 1
+			path: tests/Query/SelectiveTransportExecutorTest.php
+
+		-
+			message: "#^Call to an undefined method React\\\\Promise\\\\PromiseInterface\\<React\\\\Dns\\\\Model\\\\Message, Exception\\>\\:\\:cancel\\(\\)\\.$#"
+			count: 6
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Cannot use array destructuring on array\\|false\\.$#"
+			count: 3
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:provideDefaultPortProvider\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testClosingConnectionAfterPreviousQueryResolvedWillCancelIdleTimer\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testCtorShouldAcceptNameserverAddresses\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testCtorShouldThrowWhenNameserverAddressContainsHostname\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testCtorShouldThrowWhenNameserverAddressIsInvalid\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testCtorShouldThrowWhenNameserverSchemeIsInvalid\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testCtorWithoutLoopShouldAssignDefaultLoop\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryAgainAfterPreviousQueryResolvedWillReuseSocketAndCancelIdleTimer\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryAgainAfterPreviousWasCancelledReusesExistingSocket\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryKeepsPendingIfServerSendsIncompleteMessageBody\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryKeepsPendingIfServerSendsIncompleteMessageLength\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryRejectsIfMessageExceedsMaximumMessageSize\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryRejectsIfServerConnectionFails\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryRejectsIfServerSendsTruncatedResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryRejectsIfSocketIsClosedAfterPreviousQueryThatWasStillPending\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryRejectsOnCancellationWithoutClosingSocketAndWithoutStartingIdleTimerWhenOtherQueryIsStillPending\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryRejectsOnCancellationWithoutClosingSocketButStartsIdleTimer\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryRejectsWhenClientKeepsSendingWhenServerClosesSocketWithoutCallingCustomErrorHandler\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryRejectsWhenServerClosesConnection\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryRejectsWhenServerIsNotListening\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryRejectsWhenServerSendsInvalidId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryRejectsWhenServerSendsInvalidMessage\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryResolvesIfServerSendsBackResponseMessageAfterCancellingOtherQueryAndWillStartIdleTimer\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryResolvesIfServerSendsBackResponseMessageAfterCancellingQueryAndWillStartIdleTimer\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryResolvesIfServerSendsBackResponseMessageAndWillStartIdleTimer\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryResolvesIfServerSendsValidResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryStaysPendingWhenClientCanNotSendExcessiveMessageInOneChunk\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testQueryStaysPendingWhenClientCanNotSendExcessiveMessageInOneChunkWhenServerClosesSocket\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testTriggerIdleTimerAfterPreviousQueryResolvedWillCloseIdleSocketConnection\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TcpTransportExecutorTest\\:\\:testTriggerIdleTimerAfterQueryRejectedOnCancellationWillCloseSocket\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$callback of function set_error_handler expects \\(callable\\(int, string, string, int\\)\\: bool\\)\\|null, Closure\\(mixed, mixed\\)\\: void given\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$nameserver of class React\\\\Dns\\\\Query\\\\TcpTransportExecutor constructor expects string, string\\|false given\\.$#"
+			count: 21
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$socket of function stream_socket_accept expects resource, resource\\|false given\\.$#"
+			count: 10
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$socket of function stream_socket_get_name expects resource, resource\\|false given\\.$#"
+			count: 21
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$stream of function fclose expects resource, resource\\|false given\\.$#"
+			count: 5
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$stream of function fclose expects resource, resource\\|false\\|null given\\.$#"
+			count: 2
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$stream of function fwrite expects resource, resource\\|false given\\.$#"
+			count: 6
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$stream of static method React\\\\EventLoop\\\\Loop\\:\\:addReadStream\\(\\) expects resource, resource\\|false given\\.$#"
+			count: 13
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$stream of static method React\\\\EventLoop\\\\Loop\\:\\:removeReadStream\\(\\) expects resource, resource\\|false\\|null given\\.$#"
+			count: 2
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function strlen expects string, string\\|false given\\.$#"
+			count: 3
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function substr expects string, string\\|false given\\.$#"
+			count: 5
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#2 \\$data of function fwrite expects string, mixed given\\.$#"
+			count: 6
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#2 \\$data of function fwrite expects string, string\\|false given\\.$#"
+			count: 1
+			path: tests/Query/TcpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TimeoutExecutorTest\\:\\:setUpExecutor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TimeoutExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TimeoutExecutorTest\\:\\:testCancellingPromiseWillCancelWrapped\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TimeoutExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TimeoutExecutorTest\\:\\:testCtorWithoutLoopShouldAssignDefaultLoop\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TimeoutExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TimeoutExecutorTest\\:\\:testRejectsPromiseWhenWrappedRejects\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TimeoutExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TimeoutExecutorTest\\:\\:testResolvesPromiseWhenWrappedResolves\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TimeoutExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\TimeoutExecutorTest\\:\\:testWrappedWillBeCancelledOnTimeout\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/TimeoutExecutorTest.php
+
+		-
+			message: "#^Property React\\\\Tests\\\\Dns\\\\Query\\\\TimeoutExecutorTest\\:\\:\\$executor has no type specified\\.$#"
+			count: 1
+			path: tests/Query/TimeoutExecutorTest.php
+
+		-
+			message: "#^Property React\\\\Tests\\\\Dns\\\\Query\\\\TimeoutExecutorTest\\:\\:\\$wrapped has no type specified\\.$#"
+			count: 1
+			path: tests/Query/TimeoutExecutorTest.php
+
+		-
+			message: "#^Call to an undefined method React\\\\Promise\\\\PromiseInterface\\:\\:cancel\\(\\)\\.$#"
+			count: 2
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Call to an undefined method React\\\\Promise\\\\PromiseInterface\\<React\\\\Dns\\\\Model\\\\Message, Exception\\>\\:\\:cancel\\(\\)\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\UdpTransportExecutorTest\\:\\:provideDefaultPortProvider\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\UdpTransportExecutorTest\\:\\:testCtorShouldAcceptNameserverAddresses\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\UdpTransportExecutorTest\\:\\:testCtorShouldThrowWhenNameserverAddressContainsHostname\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\UdpTransportExecutorTest\\:\\:testCtorShouldThrowWhenNameserverAddressIsInvalid\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\UdpTransportExecutorTest\\:\\:testCtorShouldThrowWhenNameserverSchemeIsInvalid\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\UdpTransportExecutorTest\\:\\:testCtorWithoutLoopShouldAssignDefaultLoop\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\UdpTransportExecutorTest\\:\\:testQueryKeepsPendingIfReadFailsBecauseServerRefusesConnection\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\UdpTransportExecutorTest\\:\\:testQueryKeepsPendingIfServerSendsInvalidId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\UdpTransportExecutorTest\\:\\:testQueryKeepsPendingIfServerSendsInvalidMessage\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\UdpTransportExecutorTest\\:\\:testQueryRejectsIfMessageExceedsUdpSize\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\UdpTransportExecutorTest\\:\\:testQueryRejectsIfSendToServerFailsAfterConnectionWithoutCallingCustomErrorHandler\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\UdpTransportExecutorTest\\:\\:testQueryRejectsIfServerConnectionFails\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\UdpTransportExecutorTest\\:\\:testQueryRejectsIfServerSendsTruncatedResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\UdpTransportExecutorTest\\:\\:testQueryRejectsOnCancellation\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Query\\\\UdpTransportExecutorTest\\:\\:testQueryResolvesIfServerSendsValidResponse\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$callback of function set_error_handler expects \\(callable\\(int, string, string, int\\)\\: bool\\)\\|null, Closure\\(mixed, mixed\\)\\: void given\\.$#"
+			count: 1
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$data of method React\\\\Dns\\\\Protocol\\\\Parser\\:\\:parseMessage\\(\\) expects string, string\\|false given\\.$#"
+			count: 3
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$nameserver of class React\\\\Dns\\\\Query\\\\UdpTransportExecutor constructor expects string, string\\|false given\\.$#"
+			count: 4
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$socket of function stream_socket_get_name expects resource, resource\\|false given\\.$#"
+			count: 4
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$stream of static method React\\\\EventLoop\\\\Loop\\:\\:addReadStream\\(\\) expects resource, resource\\|false given\\.$#"
+			count: 4
+			path: tests/Query/UdpTransportExecutorTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:createCachedShouldCreateResolverWithCachingExecutor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:createCachedShouldCreateResolverWithCachingExecutorWithCustomCache\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:createShouldCreateResolver\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:createShouldThrowWhenConfigHasInvalidNameserver\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:createShouldThrowWhenConfigHasNoNameservers\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:createShouldThrowWhenNameserverIsInvalid\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:createWithConfigWithTcpNameserverSchemeShouldCreateResolverWithTcpExecutorStack\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:createWithConfigWithThreeNameserversWithTcpSchemeShouldCreateResolverWithNestedFallbackExecutorStack\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:createWithConfigWithTwoNameserversWithTcpSchemeShouldCreateResolverWithFallbackExecutorStack\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:createWithTcpSchemeShouldCreateResolverWithTcpExecutorStack\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:createWithUdpSchemeShouldCreateResolverWithUdpExecutorStack\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:createWithoutSchemeShouldCreateResolverWithSelectiveUdpAndTcpExecutorStack\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:getCachingExecutorPrivateMemberValue\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:getCachingExecutorPrivateMemberValue\\(\\) has parameter \\$field with no type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:getCachingExecutorPrivateMemberValue\\(\\) has parameter \\$resolver with no type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:getResolverPrivateExecutor\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:getResolverPrivateExecutor\\(\\) has parameter \\$resolver with no type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:getResolverPrivateMemberValue\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:getResolverPrivateMemberValue\\(\\) has parameter \\$field with no type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\FactoryTest\\:\\:getResolverPrivateMemberValue\\(\\) has parameter \\$resolver with no type specified\\.$#"
+			count: 1
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$class of class ReflectionProperty constructor expects object\\|string, mixed given\\.$#"
+			count: 29
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method ReflectionProperty\\:\\:getValue\\(\\) expects object\\|null, mixed given\\.$#"
+			count: 29
+			path: tests/Resolver/FactoryTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolveAliasesTest\\:\\:createExecutorMock\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/ResolveAliasesTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolveAliasesTest\\:\\:provideAliasedAnswers\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/ResolveAliasesTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolveAliasesTest\\:\\:testResolveAliases\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/ResolveAliasesTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolveAliasesTest\\:\\:testResolveAliases\\(\\) has parameter \\$answers with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/Resolver/ResolveAliasesTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolveAliasesTest\\:\\:testResolveAliases\\(\\) has parameter \\$expectedAnswers with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/Resolver/ResolveAliasesTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolveAliasesTest\\:\\:testResolveAliases\\(\\) has parameter \\$name with no type specified\\.$#"
+			count: 1
+			path: tests/Resolver/ResolveAliasesTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolverTest\\:\\:createExecutorMock\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/ResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolverTest\\:\\:provideRcodeErrors\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/ResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolverTest\\:\\:resolveAllShouldIgnoreRecordsWithOtherTypes\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/ResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolverTest\\:\\:resolveAllShouldQueryGivenRecords\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/ResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolverTest\\:\\:resolveAllShouldReturnMultipleValuesForAlias\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/ResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolverTest\\:\\:resolveShouldFilterByName\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/ResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolverTest\\:\\:resolveShouldQueryARecords\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/ResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolverTest\\:\\:resolveShouldQueryARecordsAndIgnoreCase\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/ResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolverTest\\:\\:resolveWithNoAnswersShouldCallErrbackIfGiven\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/ResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolverTest\\:\\:resolveWithRcodeErrorShouldCallErrbackIfGiven\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/Resolver/ResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolverTest\\:\\:resolveWithRcodeErrorShouldCallErrbackIfGiven\\(\\) has parameter \\$code with no type specified\\.$#"
+			count: 1
+			path: tests/Resolver/ResolverTest.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\Resolver\\\\ResolverTest\\:\\:resolveWithRcodeErrorShouldCallErrbackIfGiven\\(\\) has parameter \\$expectedMessage with no type specified\\.$#"
+			count: 1
+			path: tests/Resolver/ResolverTest.php
+
+		-
+			message: "#^Call to an undefined static method PHPUnit\\\\Framework\\\\TestCase\\:\\:setExpectedException\\(\\)\\.$#"
+			count: 1
+			path: tests/TestCase.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\TestCase\\:\\:createCallableMock\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/TestCase.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\TestCase\\:\\:expectCallableNever\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/TestCase.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\TestCase\\:\\:expectCallableOnce\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/TestCase.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\TestCase\\:\\:expectCallableOnceWith\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/TestCase.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\TestCase\\:\\:expectCallableOnceWith\\(\\) has parameter \\$value with no type specified\\.$#"
+			count: 1
+			path: tests/TestCase.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\TestCase\\:\\:setExpectedException\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/TestCase.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\TestCase\\:\\:setExpectedException\\(\\) has parameter \\$exception with no type specified\\.$#"
+			count: 1
+			path: tests/TestCase.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\TestCase\\:\\:setExpectedException\\(\\) has parameter \\$exceptionCode with no type specified\\.$#"
+			count: 1
+			path: tests/TestCase.php
+
+		-
+			message: "#^Method React\\\\Tests\\\\Dns\\\\TestCase\\:\\:setExpectedException\\(\\) has parameter \\$exceptionMessage with no type specified\\.$#"
+			count: 1
+			path: tests/TestCase.php
