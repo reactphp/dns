@@ -7,7 +7,7 @@ use React\Dns\Protocol\BinaryDumper;
 use React\Dns\Protocol\Parser;
 use React\Dns\Query\Query;
 use React\Dns\Query\TcpTransportExecutor;
-use React\EventLoop\Factory;
+use React\EventLoop\Loop;
 use React\Tests\Dns\TestCase;
 
 class TcpTransportExecutorTest extends TestCase
@@ -215,7 +215,6 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->never())->method('addReadStream');
         $loop->expects($this->never())->method('removeReadStream');
 
-        $timer = $this->getMockBuilder('React\EventLoop\TimerInterface')->getMock();
         $loop->expects($this->never())->method('addTimer');
         $loop->expects($this->never())->method('cancelTimer');
 
@@ -255,9 +254,7 @@ class TcpTransportExecutorTest extends TestCase
 
     public function testQueryRejectsWhenServerIsNotListening()
     {
-        $loop = Factory::create();
-
-        $executor = new TcpTransportExecutor('127.0.0.1:1', $loop);
+        $executor = new TcpTransportExecutor('127.0.0.1:1');
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -269,9 +266,9 @@ class TcpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\sleep(0.01, $loop);
+        \React\Async\await(\React\Promise\Timer\sleep(0.01));
         if ($exception === null) {
-            \Clue\React\Block\sleep(0.2, $loop);
+            \React\Async\await(\React\Promise\Timer\sleep(0.2));
         }
 
         /** @var \RuntimeException $exception */
@@ -418,16 +415,17 @@ class TcpTransportExecutorTest extends TestCase
 
     public function testQueryRejectsWhenServerClosesConnection()
     {
-        $loop = Factory::create();
-
         $server = stream_socket_server('tcp://127.0.0.1:0');
-        $loop->addReadStream($server, function ($server) use ($loop) {
+        Loop::addReadStream($server, function ($server) {
             $client = stream_socket_accept($server);
             fclose($client);
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -439,9 +437,9 @@ class TcpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\sleep(0.01, $loop);
+        \React\Async\await(\React\Promise\Timer\sleep(0.01));
         if ($exception === null) {
-            \Clue\React\Block\sleep(0.2, $loop);
+            \React\Async\await(\React\Promise\Timer\sleep(0.2));
         }
 
         /** @var \RuntimeException $exception */
@@ -451,22 +449,21 @@ class TcpTransportExecutorTest extends TestCase
 
     public function testQueryKeepsPendingIfServerSendsIncompleteMessageLength()
     {
-        $loop = Factory::create();
-
+        $client = null;
         $server = stream_socket_server('tcp://127.0.0.1:0');
-        $loop->addReadStream($server, function ($server) use ($loop) {
+        Loop::addReadStream($server, function ($server) use (&$client) {
             $client = stream_socket_accept($server);
-            $loop->addReadStream($client, function ($client) use ($loop) {
-                $loop->removeReadStream($client);
+            Loop::addReadStream($client, function ($client) {
+                Loop::removeReadStream($client);
                 fwrite($client, "\x00");
             });
 
-            // keep reference to client to avoid disconnecting
-            $loop->addTimer(1, function () use ($client) { });
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -479,28 +476,31 @@ class TcpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\sleep(0.2, $loop);
+        \React\Async\await(\React\Promise\Timer\sleep(0.2));
         $this->assertTrue($wait);
+
+        $this->assertNotNull($client);
+        fclose($client);
+        Loop::removeReadStream($client);
     }
 
     public function testQueryKeepsPendingIfServerSendsIncompleteMessageBody()
     {
-        $loop = Factory::create();
-
+        $client = null;
         $server = stream_socket_server('tcp://127.0.0.1:0');
-        $loop->addReadStream($server, function ($server) use ($loop) {
+        Loop::addReadStream($server, function ($server) use (&$client) {
             $client = stream_socket_accept($server);
-            $loop->addReadStream($client, function ($client) use ($loop) {
-                $loop->removeReadStream($client);
+            Loop::addReadStream($client, function ($client) {
+                Loop::removeReadStream($client);
                 fwrite($client, "\x00\xff" . "some incomplete message data");
             });
 
-            // keep reference to client to avoid disconnecting
-            $loop->addTimer(1, function () use ($client) { });
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -513,25 +513,30 @@ class TcpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\sleep(0.2, $loop);
+        \React\Async\await(\React\Promise\Timer\sleep(0.2));
         $this->assertTrue($wait);
+
+        $this->assertNotNull($client);
+        fclose($client);
+        Loop::removeReadStream($client);
     }
 
     public function testQueryRejectsWhenServerSendsInvalidMessage()
     {
-        $loop = Factory::create();
-
         $server = stream_socket_server('tcp://127.0.0.1:0');
-        $loop->addReadStream($server, function ($server) use ($loop) {
+        Loop::addReadStream($server, function ($server) {
             $client = stream_socket_accept($server);
-            $loop->addReadStream($client, function ($client) use ($loop) {
-                $loop->removeReadStream($client);
+            Loop::addReadStream($client, function ($client) {
+                Loop::removeReadStream($client);
                 fwrite($client, "\x00\x0f" . 'invalid message');
             });
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('bing.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -543,9 +548,9 @@ class TcpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\sleep(0.01, $loop);
+        \React\Async\await(\React\Promise\Timer\sleep(0.01));
         if ($exception === null) {
-            \Clue\React\Block\sleep(0.2, $loop);
+            \React\Async\await(\React\Promise\Timer\sleep(0.2));
         }
 
         /** @var \RuntimeException $exception */
@@ -558,13 +563,11 @@ class TcpTransportExecutorTest extends TestCase
         $parser = new Parser();
         $dumper = new BinaryDumper();
 
-        $loop = Factory::create();
-
         $server = stream_socket_server('tcp://127.0.0.1:0');
-        $loop->addReadStream($server, function ($server) use ($loop, $parser, $dumper) {
+        Loop::addReadStream($server, function ($server) use ($parser, $dumper) {
             $client = stream_socket_accept($server);
-            $loop->addReadStream($client, function ($client) use ($loop, $parser, $dumper) {
-                $loop->removeReadStream($client);
+            Loop::addReadStream($client, function ($client) use ($parser, $dumper) {
+                Loop::removeReadStream($client);
                 $data = fread($client, 512);
 
                 list(, $length) = unpack('n', substr($data, 0, 2));
@@ -579,10 +582,13 @@ class TcpTransportExecutorTest extends TestCase
 
                 fwrite($client, $data);
             });
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -594,9 +600,9 @@ class TcpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\sleep(0.01, $loop);
+        \React\Async\await(\React\Promise\Timer\sleep(0.01));
         if ($exception === null) {
-            \Clue\React\Block\sleep(0.2, $loop);
+            \React\Async\await(\React\Promise\Timer\sleep(0.2));
         }
 
         /** @var \RuntimeException $exception */
@@ -609,13 +615,11 @@ class TcpTransportExecutorTest extends TestCase
         $parser = new Parser();
         $dumper = new BinaryDumper();
 
-        $loop = Factory::create();
-
         $server = stream_socket_server('tcp://127.0.0.1:0');
-        $loop->addReadStream($server, function ($server) use ($loop, $parser, $dumper) {
+        Loop::addReadStream($server, function ($server) use ($parser, $dumper) {
             $client = stream_socket_accept($server);
-            $loop->addReadStream($client, function ($client) use ($loop, $parser, $dumper) {
-                $loop->removeReadStream($client);
+            Loop::addReadStream($client, function ($client) use ($parser, $dumper) {
+                Loop::removeReadStream($client);
                 $data = fread($client, 512);
 
                 list(, $length) = unpack('n', substr($data, 0, 2));
@@ -630,10 +634,13 @@ class TcpTransportExecutorTest extends TestCase
 
                 fwrite($client, $data);
             });
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -645,9 +652,9 @@ class TcpTransportExecutorTest extends TestCase
             }
         );
 
-        \Clue\React\Block\sleep(0.01, $loop);
+        \React\Async\await(\React\Promise\Timer\sleep(0.01));
         if ($exception === null) {
-            \Clue\React\Block\sleep(0.2, $loop);
+            \React\Async\await(\React\Promise\Timer\sleep(0.2));
         }
 
         /** @var \RuntimeException $exception */
@@ -657,13 +664,11 @@ class TcpTransportExecutorTest extends TestCase
 
     public function testQueryResolvesIfServerSendsValidResponse()
     {
-        $loop = Factory::create();
-
         $server = stream_socket_server('tcp://127.0.0.1:0');
-        $loop->addReadStream($server, function ($server) use ($loop) {
+        Loop::addReadStream($server, function ($server) {
             $client = stream_socket_accept($server);
-            $loop->addReadStream($client, function ($client) use ($loop) {
-                $loop->removeReadStream($client);
+            Loop::addReadStream($client, function ($client) {
+                Loop::removeReadStream($client);
                 $data = fread($client, 512);
 
                 list(, $length) = unpack('n', substr($data, 0, 2));
@@ -671,15 +676,18 @@ class TcpTransportExecutorTest extends TestCase
 
                 fwrite($client, $data);
             });
+
+            Loop::removeReadStream($server);
+            fclose($server);
         });
 
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
         $promise = $executor->query($query);
-        $response = \Clue\React\Block\await($promise, $loop, 0.2);
+        $response = \React\Async\await(\React\Promise\Timer\timeout($promise, 0.2));
 
         $this->assertInstanceOf('React\Dns\Model\Message', $response);
     }

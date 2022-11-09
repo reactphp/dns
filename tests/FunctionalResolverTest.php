@@ -2,22 +2,21 @@
 
 namespace React\Tests\Dns;
 
-use React\EventLoop\Factory as LoopFactory;
 use React\Dns\Resolver\Factory;
-use React\Dns\RecordNotFoundException;
 use React\Dns\Model\Message;
+use React\EventLoop\Loop;
 
 class FunctionalResolverTest extends TestCase
 {
+    private $resolver;
+
     /**
      * @before
      */
     public function setUpResolver()
     {
-        $this->loop = LoopFactory::create();
-
         $factory = new Factory();
-        $this->resolver = $factory->create('8.8.8.8', $this->loop);
+        $this->resolver = $factory->create('8.8.8.8');
     }
 
     public function testResolveLocalhostResolves()
@@ -25,7 +24,7 @@ class FunctionalResolverTest extends TestCase
         $promise = $this->resolver->resolve('localhost');
         $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
 
-        $this->loop->run();
+        Loop::run();
     }
 
     public function testResolveAllLocalhostResolvesWithArray()
@@ -33,7 +32,7 @@ class FunctionalResolverTest extends TestCase
         $promise = $this->resolver->resolveAll('localhost', Message::TYPE_A);
         $promise->then($this->expectCallableOnceWith($this->isType('array')), $this->expectCallableNever());
 
-        $this->loop->run();
+        Loop::run();
     }
 
     /**
@@ -44,7 +43,7 @@ class FunctionalResolverTest extends TestCase
         $promise = $this->resolver->resolve('bing.com');
         $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
 
-        $this->loop->run();
+        Loop::run();
     }
 
     /**
@@ -52,13 +51,13 @@ class FunctionalResolverTest extends TestCase
      */
     public function testResolveBingleOverUdpResolves()
     {
-        $factory = new Factory($this->loop);
-        $this->resolver = $factory->create('udp://8.8.8.8', $this->loop);
+        $factory = new Factory();
+        $this->resolver = $factory->create('udp://8.8.8.8');
 
         $promise = $this->resolver->resolve('bing.com');
         $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
 
-        $this->loop->run();
+        Loop::run();
     }
 
     /**
@@ -66,13 +65,13 @@ class FunctionalResolverTest extends TestCase
      */
     public function testResolveBingOverTcpResolves()
     {
-        $factory = new Factory($this->loop);
-        $this->resolver = $factory->create('tcp://8.8.8.8', $this->loop);
+        $factory = new Factory();
+        $this->resolver = $factory->create('tcp://8.8.8.8');
 
         $promise = $this->resolver->resolve('bing.com');
         $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
 
-        $this->loop->run();
+        Loop::run();
     }
 
     /**
@@ -81,12 +80,12 @@ class FunctionalResolverTest extends TestCase
     public function testResolveAllBingMxResolvesWithCache()
     {
         $factory = new Factory();
-        $this->resolver = $factory->createCached('8.8.8.8', $this->loop);
+        $this->resolver = $factory->createCached('8.8.8.8');
 
         $promise = $this->resolver->resolveAll('bing.com', Message::TYPE_MX);
         $promise->then($this->expectCallableOnceWith($this->isType('array')), $this->expectCallableNever());
 
-        $this->loop->run();
+        Loop::run();
     }
     /**
      * @group internet
@@ -94,12 +93,12 @@ class FunctionalResolverTest extends TestCase
     public function testResolveAllbingCaaResolvesWithCache()
     {
         $factory = new Factory();
-        $this->resolver = $factory->createCached('8.8.8.8', $this->loop);
+        $this->resolver = $factory->createCached('8.8.8.8');
 
         $promise = $this->resolver->resolveAll('bing.com', Message::TYPE_CAA);
         $promise->then($this->expectCallableOnceWith($this->isType('array')), $this->expectCallableNever());
 
-        $this->loop->run();
+        Loop::run();
     }
 
     /**
@@ -109,7 +108,7 @@ class FunctionalResolverTest extends TestCase
     {
         $promise = $this->resolver->resolve('example.invalid');
 
-        $this->loop->run();
+        Loop::run();
 
         $exception = null;
         $promise->then(null, function ($reason) use (&$exception) {
@@ -133,7 +132,7 @@ class FunctionalResolverTest extends TestCase
         $promise->cancel();
 
         $time = microtime(true);
-        $this->loop->run();
+        Loop::run();
         $time = microtime(true) - $time;
 
         $this->assertLessThan(0.1, $time);
@@ -155,7 +154,7 @@ class FunctionalResolverTest extends TestCase
     {
         $promise = $this->resolver->resolveAll('bing.com', Message::TYPE_PTR);
 
-        $this->loop->run();
+        Loop::run();
 
         $exception = null;
         $promise->then(null, function ($reason) use (&$exception) {
@@ -170,9 +169,9 @@ class FunctionalResolverTest extends TestCase
 
     public function testInvalidResolverDoesNotResolvebing()
     {
-        $factory = new \React\Dns\Resolver\Factory();
-        $resolver = $factory->create('255.255.255.255', $this->loop);
-        $promise = $resolver->resolve('bing.com');
+        $factory = new Factory();
+        $this->resolver = $factory->create('255.255.255.255');
+        $promise = $this->resolver->resolve('google.com');
         $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
         $this->loop->run();
     }
@@ -184,7 +183,7 @@ class FunctionalResolverTest extends TestCase
         }
 
         $factory = new Factory();
-        $this->resolver = $factory->create('255.255.255.255', $this->loop);
+        $this->resolver = $factory->create('255.255.255.255');
 
         gc_collect_cycles();
         gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
@@ -202,7 +201,7 @@ class FunctionalResolverTest extends TestCase
         }
 
         $factory = new Factory();
-        $this->resolver = $factory->createCached('255.255.255.255', $this->loop);
+        $this->resolver = $factory->createCached('255.255.255.255');
 
         gc_collect_cycles();
         gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
@@ -220,7 +219,7 @@ class FunctionalResolverTest extends TestCase
         }
 
         $factory = new Factory();
-        $this->resolver = $factory->create('127.0.0.1', $this->loop);
+        $this->resolver = $factory->create('127.0.0.1');
 
         gc_collect_cycles();
         gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
@@ -239,7 +238,7 @@ class FunctionalResolverTest extends TestCase
         }
 
         $factory = new Factory();
-        $this->resolver = $factory->createCached('127.0.0.1', $this->loop);
+        $this->resolver = $factory->createCached('127.0.0.1');
 
         gc_collect_cycles();
         gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
