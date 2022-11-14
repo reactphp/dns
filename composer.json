@@ -33,13 +33,17 @@
         "react/promise-timer": "^1.9"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.3 || ^4.8.35",
+        "phpunit/phpunit": "^9.5 || ^4.8.35",
         "react/async": "^4 || ^3 || ^2"
     },
     "autoload": {
-        "psr-4": { "React\\Dns\\": "src" }
+        "psr-4": {
+            "React\\Dns\\": "src/"
+        }
     },
     "autoload-dev": {
-        "psr-4": { "React\\Tests\\Dns\\": "tests" }
+        "psr-4": {
+            "React\\Tests\\Dns\\": "tests/"
+        }
     }
 }
