@@ -170,10 +170,10 @@ class FunctionalResolverTest extends TestCase
     public function testInvalidResolverDoesNotResolvebing()
     {
         $factory = new Factory();
-        $this->resolver = $factory->create('255.255.255.255');
-        $promise = $this->resolver->resolve('google.com');
+        $this->resolver = $factory->create('255.255.255.255', $this->loop);
+
+        $promise = $this->resolver->resolve('bing.com');
         $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
-        $this->loop->run();
     }
 
     public function testResolveShouldNotCauseGarbageReferencesWhenUsingInvalidNameserver()
