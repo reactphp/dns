@@ -31,12 +31,12 @@ final class RetryExecutor implements ExecutorInterface
             }
         });
 
-        $executor = $this->executor;
         $success = function ($value) use ($deferred, &$errorback) {
             $errorback = null;
             $deferred->resolve($value);
         };
 
+        $executor = $this->executor;
         $errorback = function ($e) use ($deferred, &$promise, $query, $success, &$errorback, &$retries, $executor) {
             if (!$e instanceof TimeoutException) {
                 $errorback = null;
