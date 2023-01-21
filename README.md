@@ -116,7 +116,7 @@ See also the wiki for possible [cache implementations](https://github.com/reactp
 
 ### resolve()
 
-The `resolve(string $domain): PromiseInterface<string,Exception>` method can be used to
+The `resolve(string $domain): PromiseInterface<string>` method can be used to
 resolve the given $domain name to a single IPv4 address (type `A` query).
 
 ```php
@@ -152,7 +152,7 @@ $promise->cancel();
 
 ### resolveAll()
 
-The `resolveAll(string $host, int $type): PromiseInterface<array,Exception>` method can be used to
+The `resolveAll(string $host, int $type): PromiseInterface<array>` method can be used to
 resolve all record values for the given $domain name and query $type.
 
 ```php
