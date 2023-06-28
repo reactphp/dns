@@ -107,7 +107,9 @@ class CoopExecutorTest extends TestCase
 
         $connector = new CoopExecutor($base);
 
-        $connector->query($query);
+        $promise = $connector->query($query);
+
+        $promise->then(null, $this->expectCallableOnce()); // avoid reporting unhandled rejection
 
         $deferred->reject(new RuntimeException());
 
