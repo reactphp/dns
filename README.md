@@ -20,7 +20,7 @@ easily be used to create a DNS server.
 * [Advanced usage](#advanced-usage)
   * [UdpTransportExecutor](#udptransportexecutor)
   * [TcpTransportExecutor](#tcptransportexecutor)
-    * [DNS over TLS](#dns-over-tls-dot)
+  * [TlsTransportExecutor](#tlstransportexecutor)
   * [SelectiveTransportExecutor](#selectivetransportexecutor)
   * [HostsFileExecutor](#hostsfileexecutor)
 * [Install](#install)
@@ -337,7 +337,10 @@ $executor = new CoopExecutor(
   packages. Higher-level components should take advantage of the Socket
   component instead of reimplementing this socket logic from scratch.
 
-#### DNS over TLS (DoT)
+### TlsTransportExecutor
+The TlsTransportExecutor builds upon TcpTransportExecutor 
+providing support for DNS over TLS (DoT).
+
 DoT provides secure DNS lookups over Transport Layer Security (TLS).
 The tls:// scheme must be provided when configuring nameservers to 
 enable DoT communication to a TLS supporting DNS server.
