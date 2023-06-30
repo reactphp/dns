@@ -84,12 +84,12 @@ class FunctionalResolverTest extends TestCase
         }
 
         $factory = new Factory();
-        $this->resolver = $factory->create('tls://8.8.8.8?socket[tcp_nodelay]=true', $this->loop);
+        $this->resolver = $factory->create('tls://8.8.8.8?socket[tcp_nodelay]=true');
 
         $promise = $this->resolver->resolve('google.com');
         $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
 
-        $this->loop->run();
+        Loop::run();
     }
 
     /**
@@ -102,12 +102,12 @@ class FunctionalResolverTest extends TestCase
         }
 
         $factory = new Factory();
-        $this->resolver = $factory->create('tls://8.8.8.8:53', $this->loop);
+        $this->resolver = $factory->create('tls://8.8.8.8:53');
 
         $promise = $this->resolver->resolve('google.com');
         $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
 
-        $this->loop->run();
+        Loop::run();
     }
 
     /**
@@ -131,7 +131,7 @@ class FunctionalResolverTest extends TestCase
         /** @var \BadMethodCallException $exception */
         $this->assertInstanceOf('BadMethodCallException', $exception);
 
-        $this->loop->run();
+        Loop::run();
     }
 
     /**

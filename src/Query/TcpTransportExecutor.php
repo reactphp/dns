@@ -75,8 +75,6 @@ use React\Promise;
  *   packages. Higher-level components should take advantage of the Socket
  *   component instead of reimplementing this socket logic from scratch.
  *
- *  Support for DNS over TLS can be enabled via specifying the nameserver with scheme tls://
- *  @link https://tools.ietf.org/html/rfc7858
  */
 class TcpTransportExecutor implements ExecutorInterface
 {
@@ -88,7 +86,7 @@ class TcpTransportExecutor implements ExecutorInterface
     /**
      * @var ?resource
      */
-    private $socket;
+    protected $socket;
 
     /**
      * @var Promise\Deferred[]
@@ -99,12 +97,6 @@ class TcpTransportExecutor implements ExecutorInterface
      * @var string[]
      */
     private $names = array();
-
-    /** @var bool */
-    private $tls = false;
-
-    /** @var bool */
-    private $cryptoEnabled = false;
 
     /**
      * Maximum idle time when socket is current unused (i.e. no pending queries outstanding)
@@ -137,9 +129,13 @@ class TcpTransportExecutor implements ExecutorInterface
     private $readPending = false;
 
     /** @var string */
-    private $readChunk = 0xffff;
+    protected $readChunk = 0xffff;
 
-    private $connection_parameters = array();
+    /** @var null|int */
+    protected $writeChunk = null;
+
+    /** @var array Connection parameters to provide to stream_context_create */
+    private $connectionParameters = array();
 
     /**
      * @param string         $nameserver
@@ -153,17 +149,16 @@ class TcpTransportExecutor implements ExecutorInterface
         }
 
         $parts = \parse_url((\strpos($nameserver, '://') === false ? 'tcp://' : '') . $nameserver);
-        if (!isset($parts['scheme'], $parts['host']) || !in_array($parts['scheme'], array('tcp','tls'), true) || @\inet_pton(\trim($parts['host'], '[]')) === false) {
+        if (!isset($parts['scheme'], $parts['host']) || $parts['scheme'] !== 'tcp' || @\inet_pton(\trim($parts['host'], '[]')) === false) {
             throw new \InvalidArgumentException('Invalid nameserver address given');
         }
 
         //Parse any connection parameters to be supplied to stream_context_create()
         if (isset($parts['query'])) {
-            parse_str($parts['query'], $this->connection_parameters);
+            parse_str($parts['query'], $this->connectionParameters);
         }
 
-        $this->tls = $parts['scheme'] === 'tls';
-        $this->nameserver = 'tcp://' . $parts['host'] . ':' . (isset($parts['port']) ? $parts['port'] : ($this->tls ? 853 : 53));
+        $this->nameserver = 'tcp://' . $parts['host'] . ':' . (isset($parts['port']) ? $parts['port'] : 53);
         $this->loop = $loop ?: Loop::get();
         $this->parser = new Parser();
         $this->dumper = new BinaryDumper();
@@ -189,24 +184,8 @@ class TcpTransportExecutor implements ExecutorInterface
         $queryData = \pack('n', $length) . $queryData;
 
         if ($this->socket === null) {
-            //Setup TLS context if requested
-            $cOption = array();
-            if ($this->tls) {
-                if (!\function_exists('stream_socket_enable_crypto') || defined('HHVM_VERSION') || \PHP_VERSION_ID < 50600) {
-                    return Promise\reject(new \BadMethodCallException('Encryption not supported on your platform (HHVM < 3.8 or PHP < 5.6?)')); // @codeCoverageIgnore
-                }
-                // Setup sane defaults for SSL to ensure secure connection to the DNS server
-                $cOption['ssl'] = array(
-                    'verify_peer' => true,
-                    'verify_peer_name' => true,
-                    'allow_self_signed' => false,
-                );
-            }
-            $cOption = array_merge($cOption, $this->connection_parameters);
-            if (empty($cOption)) {
-                $cOption = null;
-            }
-            $context = stream_context_create($cOption);
+            //Setup stream context if requested ($options must be null if connectionParameters is an empty array
+            $context = stream_context_create((empty($this->connectionParameters) ? null : $this->connectionParameters));
             // create async TCP/IP connection (may take a while)
             $socket = @\stream_socket_client($this->nameserver, $errno, $errstr, 0, \STREAM_CLIENT_CONNECT | \STREAM_CLIENT_ASYNC_CONNECT, $context);
             if ($socket === false) {
@@ -218,7 +197,7 @@ class TcpTransportExecutor implements ExecutorInterface
 
             // set socket to non-blocking and wait for it to become writable (connection success/rejected)
             \stream_set_blocking($socket, false);
-            if (\function_exists('stream_set_chunk_size')) {
+            if ($this->readChunk !== -1 && \function_exists('stream_set_chunk_size')) {
                 \stream_set_chunk_size($socket, $this->readChunk); // @codeCoverageIgnore
             }
             $this->socket = $socket;
@@ -258,48 +237,6 @@ class TcpTransportExecutor implements ExecutorInterface
      */
     public function handleWritable()
     {
-        if ($this->tls && false === $this->cryptoEnabled) {
-            $error = null;
-            \set_error_handler(function ($_, $errstr) use (&$error) {
-                $error = \str_replace(array("\r", "\n"), ' ', $errstr);
-
-                // remove useless function name from error message
-                if (($pos = \strpos($error, "): ")) !== false) {
-                    $error = \substr($error, $pos + 3);
-                }
-            });
-
-            $method = \STREAM_CRYPTO_METHOD_TLS_CLIENT;
-            if (\PHP_VERSION_ID < 70200 && \PHP_VERSION_ID >= 50600) {
-                $method |= \STREAM_CRYPTO_METHOD_TLSv1_0_CLIENT | \STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT | \STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT; // @codeCoverageIgnore
-            }
-
-            $result = \stream_socket_enable_crypto($this->socket, true, $method);
-
-            \restore_error_handler();
-
-            if (true === $result) {
-                $this->cryptoEnabled = true;
-            } elseif (false === $result) {
-                if (\feof($this->socket) || $error === null) {
-                    // EOF or failed without error => connection closed during handshake
-                    $this->closeError(
-                        'Connection lost during TLS handshake (ECONNRESET)',
-                        \defined('SOCKET_ECONNRESET') ? \SOCKET_ECONNRESET : 104
-                    );
-                } else {
-                    // handshake failed with error message
-                    $this->closeError(
-                        $error
-                    );
-                }
-                return;
-            } else {
-                // need more data, will retry
-                return;
-            }
-        }
-
         if ($this->readPending === false) {
             $name = @\stream_socket_get_name($this->socket, true);
             if (!is_string($name)) { //PHP: false, HHVM: null on error
@@ -333,19 +270,7 @@ class TcpTransportExecutor implements ExecutorInterface
             $errstr = isset($m[2]) ? $m[2] : $error;
         });
 
-        // PHP < 7.1.4 (and PHP < 7.0.18) suffers from a bug when writing big
-        // chunks of data over TLS streams at once.
-        // We try to work around this by limiting the write chunk size to 8192
-        // bytes for older PHP versions only.
-        // This is only a work-around and has a noticable performance penalty on
-        // affected versions. Please update your PHP version.
-        // This applies only to configured TLS connections
-        // See https://github.com/reactphp/socket/issues/105
-        if ($this->tls && (\PHP_VERSION_ID < 70018 || (\PHP_VERSION_ID >= 70100 && \PHP_VERSION_ID < 70104))) {
-            $written = \fwrite($this->socket, $this->writeBuffer, 8192); // @codeCoverageIgnore
-        } else {
-            $written = \fwrite($this->socket, $this->writeBuffer);
-        }
+        $written = \fwrite($this->socket, $this->writeBuffer, $this->writeChunk);
 
         // Only report errors if *nothing* could be sent and an error has been raised, or we are unable to retrieve the remote socket name (connection dead) [HHVM].
         // Ignore non-fatal warnings if *some* data could be sent.
@@ -390,22 +315,7 @@ class TcpTransportExecutor implements ExecutorInterface
         }
         // @codeCoverageIgnoreEnd
 
-        // read one chunk of data from the DNS server
-        // any error is fatal, this is a stream of TCP/IP data
-        // PHP < 7.3.3 (and PHP < 7.2.15) suffers from a bug where feof() might
-        // block with 100% CPU usage on fragmented TLS records.
-        // We try to work around this by always consuming the complete receive
-        // buffer at once to avoid stale data in TLS buffers. This is known to
-        // work around high CPU usage for well-behaving peers, but this may
-        // cause very large data chunks for high throughput scenarios. The buggy
-        // behavior can still be triggered due to network I/O buffers or
-        // malicious peers on affected versions, upgrading is highly recommended.
-        // @link https://bugs.php.net/bug.php?id=77390
-        if ($this->tls && (\PHP_VERSION_ID < 70215 || (\PHP_VERSION_ID >= 70300 && \PHP_VERSION_ID < 70303))) {
-            $chunk = @\stream_get_contents($this->socket, -1); // @codeCoverageIgnore
-        } else {
-            $chunk = @\stream_get_contents($this->socket, $this->readChunk);
-        }
+        $chunk = @\stream_get_contents($this->socket, $this->readChunk);
 
         if ($chunk === false || $chunk === '') {
             $this->closeError('Connection to DNS server ' . $this->nameserver . ' lost');
