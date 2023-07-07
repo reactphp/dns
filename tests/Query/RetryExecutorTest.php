@@ -258,7 +258,9 @@ class RetryExecutorTest extends TestCase
         gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $retryExecutor->query($query);
+        $promise = $retryExecutor->query($query);
+
+        $promise->then(null, $this->expectCallableOnce()); // avoid reporting unhandled rejection
 
         $this->assertEquals(0, gc_collect_cycles());
     }
@@ -322,7 +324,9 @@ class RetryExecutorTest extends TestCase
         gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $retryExecutor->query($query);
+        $promise = $retryExecutor->query($query);
+
+        $promise->then(null, $this->expectCallableOnce()); // avoid reporting unhandled rejection
 
         $this->assertEquals(0, gc_collect_cycles());
     }

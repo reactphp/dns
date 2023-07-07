@@ -226,6 +226,9 @@ class SelectiveTransportExecutorTest extends TestCase
         gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
 
         $promise = $this->executor->query($query);
+
+        $promise->then(null, $this->expectCallableOnce()); // avoid reporting unhandled rejection
+
         unset($promise);
 
         $this->assertEquals(0, gc_collect_cycles());
