@@ -184,8 +184,9 @@ class FallbackExecutorTest extends TestCase
 
         $executor = new FallbackExecutor($primary, $secondary);
 
-        gc_collect_cycles();
-        gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
+        while (gc_collect_cycles()) {
+            // collect all garbage cycles
+        }
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
@@ -210,8 +211,9 @@ class FallbackExecutorTest extends TestCase
 
         $executor = new FallbackExecutor($primary, $secondary);
 
-        gc_collect_cycles();
-        gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
+        while (gc_collect_cycles()) {
+            // collect all garbage cycles
+        }
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
