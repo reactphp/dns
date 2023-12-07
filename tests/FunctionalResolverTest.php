@@ -38,9 +38,9 @@ class FunctionalResolverTest extends TestCase
     /**
      * @group internet
      */
-    public function testResolveGoogleResolves()
+    public function testResolveBingResolves()
     {
-        $promise = $this->resolver->resolve('google.com');
+        $promise = $this->resolver->resolve('bing.com');
         $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
 
         Loop::run();
@@ -49,12 +49,12 @@ class FunctionalResolverTest extends TestCase
     /**
      * @group internet
      */
-    public function testResolveGoogleOverUdpResolves()
+    public function testResolveBingleOverUdpResolves()
     {
         $factory = new Factory();
         $this->resolver = $factory->create('udp://8.8.8.8');
 
-        $promise = $this->resolver->resolve('google.com');
+        $promise = $this->resolver->resolve('bing.com');
         $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
 
         Loop::run();
@@ -63,12 +63,12 @@ class FunctionalResolverTest extends TestCase
     /**
      * @group internet
      */
-    public function testResolveGoogleOverTcpResolves()
+    public function testResolveBingOverTcpResolves()
     {
         $factory = new Factory();
         $this->resolver = $factory->create('tcp://8.8.8.8');
 
-        $promise = $this->resolver->resolve('google.com');
+        $promise = $this->resolver->resolve('bing.com');
         $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
 
         Loop::run();
@@ -77,12 +77,12 @@ class FunctionalResolverTest extends TestCase
     /**
      * @group internet
      */
-    public function testResolveAllGoogleMxResolvesWithCache()
+    public function testResolveAllBingMxResolvesWithCache()
     {
         $factory = new Factory();
         $this->resolver = $factory->createCached('8.8.8.8');
 
-        $promise = $this->resolver->resolveAll('google.com', Message::TYPE_MX);
+        $promise = $this->resolver->resolveAll('bing.com', Message::TYPE_MX);
         $promise->then($this->expectCallableOnceWith($this->isType('array')), $this->expectCallableNever());
 
         Loop::run();
@@ -90,12 +90,12 @@ class FunctionalResolverTest extends TestCase
     /**
      * @group internet
      */
-    public function testResolveAllGoogleCaaResolvesWithCache()
+    public function testResolveAllbingCaaResolvesWithCache()
     {
         $factory = new Factory();
         $this->resolver = $factory->createCached('8.8.8.8');
 
-        $promise = $this->resolver->resolveAll('google.com', Message::TYPE_CAA);
+        $promise = $this->resolver->resolveAll('bing.com', Message::TYPE_CAA);
         $promise->then($this->expectCallableOnceWith($this->isType('array')), $this->expectCallableNever());
 
         Loop::run();
@@ -114,11 +114,13 @@ class FunctionalResolverTest extends TestCase
         $promise->then(null, function ($reason) use (&$exception) {
             $exception = $reason;
         });
-
-        /** @var \React\Dns\RecordNotFoundException $exception */
-        $this->assertInstanceOf('React\Dns\RecordNotFoundException', $exception);
-        $this->assertEquals('DNS query for example.invalid (A) returned an error response (Non-Existent Domain / NXDOMAIN)', $exception->getMessage());
-        $this->assertEquals(Message::RCODE_NAME_ERROR, $exception->getCode());
+        $config = \React\Dns\Config\Config::loadSystemConfigBlocking();
+        if (!count($config->searches)) {
+            /** @var \React\Dns\RecordNotFoundException $exception */
+            $this->assertInstanceOf('React\Dns\RecordNotFoundException', $exception);
+            $this->assertEquals('DNS query for example.invalid (A) returned an error response (Non-Existent Domain / NXDOMAIN)', $exception->getMessage());
+            $this->assertEquals(Message::RCODE_NAME_ERROR, $exception->getCode());
+        }
     }
 
     public function testResolveCancelledRejectsImmediately()
@@ -126,7 +128,7 @@ class FunctionalResolverTest extends TestCase
         // max_nesting_level was set to 100 for PHP Versions < 5.4 which resulted in failing test for legacy PHP
         ini_set('xdebug.max_nesting_level', 256);
 
-        $promise = $this->resolver->resolve('google.com');
+        $promise = $this->resolver->resolve('bing.com');
         $promise->cancel();
 
         $time = microtime(true);
@@ -142,7 +144,7 @@ class FunctionalResolverTest extends TestCase
 
         /** @var \React\Dns\Query\CancellationException $exception */
         $this->assertInstanceOf('React\Dns\Query\CancellationException', $exception);
-        $this->assertEquals('DNS query for google.com (A) has been cancelled', $exception->getMessage());
+        $this->assertEquals('DNS query for bing.com (A) has been cancelled', $exception->getMessage());
     }
 
     /**
@@ -150,7 +152,7 @@ class FunctionalResolverTest extends TestCase
      */
     public function testResolveAllInvalidTypeRejects()
     {
-        $promise = $this->resolver->resolveAll('google.com', Message::TYPE_PTR);
+        $promise = $this->resolver->resolveAll('bing.com', Message::TYPE_PTR);
 
         Loop::run();
 
@@ -161,17 +163,18 @@ class FunctionalResolverTest extends TestCase
 
         /** @var \React\Dns\RecordNotFoundException $exception */
         $this->assertInstanceOf('React\Dns\RecordNotFoundException', $exception);
-        $this->assertEquals('DNS query for google.com (PTR) did not return a valid answer (NOERROR / NODATA)', $exception->getMessage());
+        $this->assertEquals('DNS query for bing.com (PTR) did not return a valid answer (NOERROR / NODATA)', $exception->getMessage());
         $this->assertEquals(0, $exception->getCode());
     }
 
-    public function testInvalidResolverDoesNotResolveGoogle()
+    public function testInvalidResolverDoesNotResolvebing()
     {
         $factory = new Factory();
         $this->resolver = $factory->create('255.255.255.255');
 
-        $promise = $this->resolver->resolve('google.com');
+        $promise = $this->resolver->resolve('bing.com');
         $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
+        Loop::run();
     }
 
     public function testResolveShouldNotCauseGarbageReferencesWhenUsingInvalidNameserver()
@@ -231,7 +234,7 @@ class FunctionalResolverTest extends TestCase
             // collect all garbage cycles
         }
 
-        $promise = $this->resolver->resolve('google.com');
+        $promise = $this->resolver->resolve('bing.com');
         $promise->cancel();
         $promise = null;
 
@@ -251,7 +254,7 @@ class FunctionalResolverTest extends TestCase
             // collect all garbage cycles
         }
 
-        $promise = $this->resolver->resolve('google.com');
+        $promise = $this->resolver->resolve('bing.com');
         $promise->cancel();
         $promise = null;
 

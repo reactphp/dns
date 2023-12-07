@@ -9,11 +9,13 @@ final class RetryExecutor implements ExecutorInterface
 {
     private $executor;
     private $retries;
+    private $config;
 
     public function __construct(ExecutorInterface $executor, $retries = 2)
     {
         $this->executor = $executor;
         $this->retries = $retries;
+        $this->config = \React\Dns\Config\Config::loadSystemConfigBlocking();
     }
 
     public function query(Query $query)

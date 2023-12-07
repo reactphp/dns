@@ -96,7 +96,13 @@ final class Config
                 $config->nameservers[] = $ip;
             }
         }
-
+        $matches = array();
+        preg_match_all('/^search.*\s*$/m', $contents, $matches);
+        if(isset($matches[0][0])){
+            $searches = preg_split('/\s+/', trim($matches[0][0]));
+            unset($searches[0]);
+            $config->searches= array_values($searches);
+        }
         return $config;
     }
 
@@ -134,4 +140,5 @@ final class Config
     }
 
     public $nameservers = array();
+    public $searches = array();
 }

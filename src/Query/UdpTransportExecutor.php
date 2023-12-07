@@ -5,6 +5,7 @@ namespace React\Dns\Query;
 use React\Dns\Model\Message;
 use React\Dns\Protocol\BinaryDumper;
 use React\Dns\Protocol\Parser;
+use React\Dns\RecordNotFoundException;
 use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use React\Promise\Deferred;
@@ -208,7 +209,13 @@ final class UdpTransportExecutor implements ExecutorInterface
                 ));
                 return;
             }
-
+            if($response->rcode == Message::RCODE_NAME_ERROR){
+                $deferred->reject(new RecordNotFoundException(
+                    'DNS query for ' . $query->describe() . ' returned an error response (Non-Existent Domain / NXDOMAIN)',
+                    $response->rcode
+                ));
+                return;
+            }
             $deferred->resolve($response);
         });
 
