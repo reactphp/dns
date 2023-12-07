@@ -370,8 +370,12 @@ class TcpTransportExecutorTest extends TestCase
         $query = new Query('google' . str_repeat('.com', 100), Message::TYPE_A, Message::CLASS_IN);
 
         // send a bunch of queries and keep reference to last promise
+        $exception = null;
         for ($i = 0; $i < 2000; ++$i) {
             $promise = $executor->query($query);
+            $promise->then(null, function (\Exception $reason) use (&$exception) {
+                $exception = $reason;
+            });
         }
 
         $client = stream_socket_accept($server);
@@ -398,11 +402,6 @@ class TcpTransportExecutorTest extends TestCase
 
         restore_error_handler();
         $this->assertNull($error);
-
-        $exception = null;
-        $promise->then(null, function ($reason) use (&$exception) {
-            $exception = $reason;
-        });
 
         // expect EPIPE (Broken pipe), except for macOS kernel race condition or legacy HHVM
         $this->setExpectedException(
@@ -472,7 +471,6 @@ class TcpTransportExecutorTest extends TestCase
             null,
             function ($e) use (&$wait) {
                 $wait = false;
-                throw $e;
             }
         );
 
@@ -509,7 +507,6 @@ class TcpTransportExecutorTest extends TestCase
             null,
             function ($e) use (&$wait) {
                 $wait = false;
-                throw $e;
             }
         );
 

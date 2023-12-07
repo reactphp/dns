@@ -269,7 +269,6 @@ class UdpTransportExecutorTest extends TestCase
             null,
             function ($e) use (&$wait) {
                 $wait = false;
-                throw $e;
             }
         );
 
@@ -307,7 +306,6 @@ class UdpTransportExecutorTest extends TestCase
             null,
             function ($e) use (&$wait) {
                 $wait = false;
-                throw $e;
             }
         );
 

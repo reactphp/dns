@@ -107,7 +107,9 @@ class CoopExecutorTest extends TestCase
 
         $connector = new CoopExecutor($base);
 
-        $connector->query($query);
+        $promise = $connector->query($query);
+
+        $promise->then(null, $this->expectCallableOnce()); // avoid reporting unhandled rejection
 
         $deferred->reject(new RuntimeException());
 
@@ -227,8 +229,9 @@ class CoopExecutorTest extends TestCase
         $base->expects($this->once())->method('query')->willReturn($deferred->promise());
         $connector = new CoopExecutor($base);
 
-        gc_collect_cycles();
-        gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
+        while (gc_collect_cycles()) {
+            // collect all garbage cycles
+        }
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 

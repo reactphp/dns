@@ -162,8 +162,9 @@ class SelectiveTransportExecutorTest extends TestCase
                 throw new \RuntimeException('Cancelled');
             }));
 
-        gc_collect_cycles();
-        gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
+        while (gc_collect_cycles()) {
+            // collect all garbage cycles
+        }
 
         $promise = $this->executor->query($query);
         $promise->cancel();
@@ -195,8 +196,9 @@ class SelectiveTransportExecutorTest extends TestCase
                 throw new \RuntimeException('Cancelled');
             }));
 
-        gc_collect_cycles();
-        gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
+        while (gc_collect_cycles()) {
+            // collect all garbage cycles
+        }
 
         $promise = $this->executor->query($query);
         $deferred->reject(new \RuntimeException('', defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90));
@@ -222,10 +224,14 @@ class SelectiveTransportExecutorTest extends TestCase
             ->with($query)
             ->willReturn(\React\Promise\reject(new \RuntimeException()));
 
-        gc_collect_cycles();
-        gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
+        while (gc_collect_cycles()) {
+            // collect all garbage cycles
+        }
 
         $promise = $this->executor->query($query);
+
+        $promise->then(null, $this->expectCallableOnce()); // avoid reporting unhandled rejection
+
         unset($promise);
 
         $this->assertEquals(0, gc_collect_cycles());
