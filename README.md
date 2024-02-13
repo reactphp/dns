@@ -5,6 +5,14 @@
 
 Async DNS resolver for [ReactPHP](https://reactphp.org/).
 
+> **Development version:** This branch contains the code for the upcoming v3
+> release. For the code of the current stable v1 release, check out the
+> [`1.x` branch](https://github.com/reactphp/dns/tree/1.x).
+>
+> The upcoming v3 release will be the way forward for this package. However,
+> we will still actively support v1 for those not yet on the latest version.
+> See also [installation instructions](#install) for more details.
+
 The main point of the DNS component is to provide async DNS resolution.
 However, it is really a toolkit for working with DNS messages, and could
 easily be used to create a DNS server.
@@ -406,11 +414,11 @@ $executor->query(
 The recommended way to install this library is [through Composer](https://getcomposer.org/).
 [New to Composer?](https://getcomposer.org/doc/00-intro.md)
 
-This project follows [SemVer](https://semver.org/).
-This will install the latest supported version:
+Once released, this project will follow [SemVer](https://semver.org/).
+At the moment, this will install the latest development version:
 
 ```bash
-composer require react/dns:^1.12
+composer require react/dns:^3@dev
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
