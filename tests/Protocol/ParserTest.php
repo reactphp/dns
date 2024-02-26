@@ -28,12 +28,12 @@ class ParserTest extends TestCase
 
     public function provideConvertTcpDumpToBinary()
     {
-        return array(
-            array(chr(0x72).chr(0x62), "72 62"),
-            array(chr(0x72).chr(0x62).chr(0x01).chr(0x00), "72 62 01 00"),
-            array(chr(0x72).chr(0x62).chr(0x01).chr(0x00).chr(0x00).chr(0x01), "72 62 01 00 00 01"),
-            array(chr(0x01).chr(0x00).chr(0x01), "01 00 01"),
-        );
+        return [
+            [chr(0x72).chr(0x62), "72 62"],
+            [chr(0x72).chr(0x62).chr(0x01).chr(0x00), "72 62 01 00"],
+            [chr(0x72).chr(0x62).chr(0x01).chr(0x00).chr(0x00).chr(0x01), "72 62 01 00 00 01"],
+            [chr(0x01).chr(0x00).chr(0x01), "01 00 01"],
+        ];
     }
 
     public function testParseRequest()
@@ -304,7 +304,7 @@ class ParserTest extends TestCase
         $this->assertSame(Message::TYPE_TXT, $response->answers[0]->type);
         $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
         $this->assertSame(86400, $response->answers[0]->ttl);
-        $this->assertSame(array('hello'), $response->answers[0]->data);
+        $this->assertSame(['hello'], $response->answers[0]->data);
     }
 
     public function testParseSPFResponse()
@@ -323,7 +323,7 @@ class ParserTest extends TestCase
         $this->assertSame(Message::TYPE_SPF, $response->answers[0]->type);
         $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
         $this->assertSame(86400, $response->answers[0]->ttl);
-        $this->assertSame(array('hello'), $response->answers[0]->data);
+        $this->assertSame(['hello'], $response->answers[0]->data);
     }
 
     public function testParseTXTResponseMultiple()
@@ -342,7 +342,7 @@ class ParserTest extends TestCase
         $this->assertSame(Message::TYPE_TXT, $response->answers[0]->type);
         $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
         $this->assertSame(86400, $response->answers[0]->ttl);
-        $this->assertSame(array('hello', 'world'), $response->answers[0]->data);
+        $this->assertSame(['hello', 'world'], $response->answers[0]->data);
     }
 
     public function testParseMXResponse()
@@ -361,7 +361,7 @@ class ParserTest extends TestCase
         $this->assertSame(Message::TYPE_MX, $response->answers[0]->type);
         $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
         $this->assertSame(86400, $response->answers[0]->ttl);
-        $this->assertSame(array('priority' => 10, 'target' => 'hello'), $response->answers[0]->data);
+        $this->assertSame(['priority' => 10, 'target' => 'hello'], $response->answers[0]->data);
     }
 
     public function testParseSRVResponse()
@@ -381,12 +381,12 @@ class ParserTest extends TestCase
         $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
         $this->assertSame(86400, $response->answers[0]->ttl);
         $this->assertSame(
-            array(
+            [
                 'priority' => 10,
                 'weight' => 20,
                 'port' => 8080,
                 'target' => 'test'
-            ),
+            ],
             $response->answers[0]->data
         );
     }
@@ -557,7 +557,7 @@ class ParserTest extends TestCase
         $this->assertSame(Message::TYPE_SSHFP, $response->answers[0]->type);
         $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
         $this->assertSame(86400, $response->answers[0]->ttl);
-        $this->assertSame(array('algorithm' => 1, 'type' => 1, 'fingerprint' => '69ac090c'), $response->answers[0]->data);
+        $this->assertSame(['algorithm' => 1, 'type' => 1, 'fingerprint' => '69ac090c'], $response->answers[0]->data);
     }
 
     public function testParseOptResponseWithoutOptions()
@@ -575,7 +575,7 @@ class ParserTest extends TestCase
         $this->assertSame(Message::TYPE_OPT, $response->answers[0]->type);
         $this->assertSame(1000, $response->answers[0]->class);
         $this->assertSame(0, $response->answers[0]->ttl);
-        $this->assertSame(array(), $response->answers[0]->data);
+        $this->assertSame([], $response->answers[0]->data);
     }
 
     public function testParseOptResponseWithOptTcpKeepaliveDesired()
@@ -594,7 +594,7 @@ class ParserTest extends TestCase
         $this->assertSame(Message::TYPE_OPT, $response->answers[0]->type);
         $this->assertSame(1000, $response->answers[0]->class);
         $this->assertSame(0, $response->answers[0]->ttl);
-        $this->assertSame(array(Message::OPT_TCP_KEEPALIVE => null), $response->answers[0]->data);
+        $this->assertSame([Message::OPT_TCP_KEEPALIVE => null], $response->answers[0]->data);
     }
 
     public function testParseOptResponseWithOptTcpKeepaliveGiven()
@@ -613,7 +613,7 @@ class ParserTest extends TestCase
         $this->assertSame(Message::TYPE_OPT, $response->answers[0]->type);
         $this->assertSame(1000, $response->answers[0]->class);
         $this->assertSame(0, $response->answers[0]->ttl);
-        $this->assertSame(array(Message::OPT_TCP_KEEPALIVE => 1.2), $response->answers[0]->data);
+        $this->assertSame([Message::OPT_TCP_KEEPALIVE => 1.2], $response->answers[0]->data);
     }
 
     public function testParseOptResponseWithCustomOptions()
@@ -633,7 +633,7 @@ class ParserTest extends TestCase
         $this->assertSame(Message::TYPE_OPT, $response->answers[0]->type);
         $this->assertSame(1000, $response->answers[0]->class);
         $this->assertSame(0, $response->answers[0]->ttl);
-        $this->assertSame(array(0xa0 => 'foo', 0x01 => ''), $response->answers[0]->data);
+        $this->assertSame([0xa0 => 'foo', 0x01 => ''], $response->answers[0]->data);
     }
 
     public function testParseSOAResponse()
@@ -656,7 +656,7 @@ class ParserTest extends TestCase
         $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
         $this->assertSame(86400, $response->answers[0]->ttl);
         $this->assertSame(
-            array(
+            [
                 'mname' => 'ns.hello',
                 'rname' => 'e.hello',
                 'serial' => 2018060501,
@@ -664,7 +664,7 @@ class ParserTest extends TestCase
                 'retry' => 3600,
                 'expire' => 604800,
                 'minimum' => 3600
-            ),
+            ],
             $response->answers[0]->data
         );
     }
@@ -686,7 +686,7 @@ class ParserTest extends TestCase
         $this->assertSame(Message::TYPE_CAA, $response->answers[0]->type);
         $this->assertSame(Message::CLASS_IN, $response->answers[0]->class);
         $this->assertSame(86400, $response->answers[0]->ttl);
-        $this->assertSame(array('flag' => 0, 'tag' => 'issue', 'value' => 'letsencrypt.org'), $response->answers[0]->data);
+        $this->assertSame(['flag' => 0, 'tag' => 'issue', 'value' => 'letsencrypt.org'], $response->answers[0]->data);
     }
 
     public function testParsePTRResponse()

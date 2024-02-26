@@ -59,8 +59,8 @@ class CoopExecutorTest extends TestCase
         $query2 = new Query('reactphp.org', Message::TYPE_AAAA, Message::CLASS_IN);
         $base = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
         $base->expects($this->exactly(2))->method('query')->withConsecutive(
-            array($query1),
-            array($query2)
+            [$query1],
+            [$query2]
         )->willReturn($pending);
         $connector = new CoopExecutor($base);
 

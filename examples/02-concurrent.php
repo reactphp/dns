@@ -15,7 +15,7 @@ $resolver = $factory->create($config);
 
 $names = array_slice($argv, 1);
 if (!$names) {
-    $names = array('google.com', 'www.google.com', 'gmail.com');
+    $names = ['google.com', 'www.google.com', 'gmail.com'];
 }
 
 foreach ($names as $name) {

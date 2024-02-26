@@ -32,32 +32,32 @@ class UdpTransportExecutorTest extends TestCase
 
     public static function provideDefaultPortProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 '8.8.8.8',
                 'udp://8.8.8.8:53'
-            ),
-            array(
+            ],
+            [
                 '1.2.3.4:5',
                 'udp://1.2.3.4:5'
-            ),
-            array(
+            ],
+            [
                 'udp://1.2.3.4',
                 'udp://1.2.3.4:53'
-            ),
-            array(
+            ],
+            [
                 'udp://1.2.3.4:53',
                 'udp://1.2.3.4:53'
-            ),
-            array(
+            ],
+            [
                 '::1',
                 'udp://[::1]:53'
-            ),
-            array(
+            ],
+            [
                 '[::1]:53',
                 'udp://[::1]:53'
-            )
-        );
+            ]
+        ];
     }
 
     public function testCtorWithoutLoopShouldAssignDefaultLoop()
@@ -122,10 +122,6 @@ class UdpTransportExecutorTest extends TestCase
 
     public function testQueryRejectsIfServerConnectionFails()
     {
-        if (defined('HHVM_VERSION')) {
-            $this->markTestSkipped('HHVM reports different error message for invalid addresses');
-        }
-
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->never())->method('addReadStream');
 

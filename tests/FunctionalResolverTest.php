@@ -123,9 +123,6 @@ class FunctionalResolverTest extends TestCase
 
     public function testResolveCancelledRejectsImmediately()
     {
-        // max_nesting_level was set to 100 for PHP Versions < 5.4 which resulted in failing test for legacy PHP
-        ini_set('xdebug.max_nesting_level', 256);
-
         $promise = $this->resolver->resolve('google.com');
         $promise->cancel();
 

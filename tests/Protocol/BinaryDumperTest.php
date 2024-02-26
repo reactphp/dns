@@ -87,7 +87,7 @@ class BinaryDumperTest extends TestCase
             Message::CLASS_IN
         );
 
-        $request->additional[] = new Record('', Message::TYPE_OPT, 1000, 0, array());
+        $request->additional[] = new Record('', Message::TYPE_OPT, 1000, 0, []);
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($request);
@@ -118,9 +118,9 @@ class BinaryDumperTest extends TestCase
             Message::CLASS_IN
         );
 
-        $request->additional[] = new Record('', Message::TYPE_OPT, 1000, 0, array(
+        $request->additional[] = new Record('', Message::TYPE_OPT, 1000, 0, [
             Message::OPT_TCP_KEEPALIVE => null,
-        ));
+        ]);
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($request);
@@ -151,9 +151,9 @@ class BinaryDumperTest extends TestCase
             Message::CLASS_IN
         );
 
-        $request->additional[] = new Record('', Message::TYPE_OPT, 1000, 0, array(
+        $request->additional[] = new Record('', Message::TYPE_OPT, 1000, 0, [
             Message::OPT_TCP_KEEPALIVE => 1.2,
-        ));
+        ]);
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($request);
@@ -184,9 +184,9 @@ class BinaryDumperTest extends TestCase
             Message::CLASS_IN
         );
 
-        $request->additional[] = new Record('', Message::TYPE_OPT, 1000, 0, array(
+        $request->additional[] = new Record('', Message::TYPE_OPT, 1000, 0, [
             Message::OPT_PADDING => "\x00\x00"
-        ));
+        ]);
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($request);
@@ -218,10 +218,10 @@ class BinaryDumperTest extends TestCase
             Message::CLASS_IN
         );
 
-        $request->additional[] = new Record('', Message::TYPE_OPT, 1000, 0, array(
+        $request->additional[] = new Record('', Message::TYPE_OPT, 1000, 0, [
             0xa0 => 'foo',
             0x01 => "\x00\x00"
-        ));
+        ]);
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($request);
@@ -282,12 +282,12 @@ class BinaryDumperTest extends TestCase
             Message::CLASS_IN
         );
 
-        $response->answers[] = new Record('igor.io', Message::TYPE_SRV, Message::CLASS_IN, 86400, array(
+        $response->answers[] = new Record('igor.io', Message::TYPE_SRV, Message::CLASS_IN, 86400, [
             'priority' => 10,
             'weight' => 20,
             'port' => 8080,
             'target' => 'test'
-        ));
+        ]);
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($response);
@@ -324,7 +324,7 @@ class BinaryDumperTest extends TestCase
             Message::CLASS_IN
         );
 
-        $response->answers[] = new Record('igor.io', Message::TYPE_SOA, Message::CLASS_IN, 86400, array(
+        $response->answers[] = new Record('igor.io', Message::TYPE_SOA, Message::CLASS_IN, 86400, [
             'mname' => 'ns.hello',
             'rname' => 'e.hello',
             'serial' => 2018060501,
@@ -332,7 +332,7 @@ class BinaryDumperTest extends TestCase
             'retry' => 3600,
             'expire' => 605800,
             'minimum' => 3600
-        ));
+        ]);
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($response);
@@ -433,11 +433,11 @@ class BinaryDumperTest extends TestCase
 
         $response->answers[] = new Record('igor.io', Message::TYPE_A, Message::CLASS_IN, 0, '127.0.0.1');
         $response->answers[] = new Record('igor.io', Message::TYPE_AAAA, Message::CLASS_IN, 0, '::1');
-        $response->answers[] = new Record('igor.io', Message::TYPE_TXT, Message::CLASS_IN, 0, array('hello', 'world'));
-        $response->answers[] = new Record('igor.io', Message::TYPE_SPF, Message::CLASS_IN, 0, array('v=spf1 -all'));
-        $response->answers[] = new Record('igor.io', Message::TYPE_MX, Message::CLASS_IN, 0, array('priority' => 0, 'target' => ''));
-        $response->answers[] = new Record('igor.io', Message::TYPE_CAA, Message::CLASS_IN, 0, array('flag' => 0, 'tag' => 'issue', 'value' => 'letsencrypt.org'));
-        $response->answers[] = new Record('igor.io', Message::TYPE_SSHFP, Message::CLASS_IN, 0, array('algorithm' => 1, 'type' => '1', 'fingerprint' => '69ac090c'));
+        $response->answers[] = new Record('igor.io', Message::TYPE_TXT, Message::CLASS_IN, 0, ['hello', 'world']);
+        $response->answers[] = new Record('igor.io', Message::TYPE_SPF, Message::CLASS_IN, 0, ['v=spf1 -all']);
+        $response->answers[] = new Record('igor.io', Message::TYPE_MX, Message::CLASS_IN, 0, ['priority' => 0, 'target' => '']);
+        $response->answers[] = new Record('igor.io', Message::TYPE_CAA, Message::CLASS_IN, 0, ['flag' => 0, 'tag' => 'issue', 'value' => 'letsencrypt.org']);
+        $response->answers[] = new Record('igor.io', Message::TYPE_SSHFP, Message::CLASS_IN, 0, ['algorithm' => 1, 'type' => '1', 'fingerprint' => '69ac090c']);
 
         $dumper = new BinaryDumper();
         $data = $dumper->toBinary($response);

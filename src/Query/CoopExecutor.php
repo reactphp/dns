@@ -37,8 +37,8 @@ use React\Promise\Promise;
 final class CoopExecutor implements ExecutorInterface
 {
     private $executor;
-    private $pending = array();
-    private $counts = array();
+    private $pending = [];
+    private $counts = [];
 
     public function __construct(ExecutorInterface $base)
     {

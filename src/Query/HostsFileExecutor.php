@@ -29,7 +29,7 @@ final class HostsFileExecutor implements ExecutorInterface
     {
         if ($query->class === Message::CLASS_IN && ($query->type === Message::TYPE_A || $query->type === Message::TYPE_AAAA)) {
             // forward lookup for type A or AAAA
-            $records = array();
+            $records = [];
             $expectsColon = $query->type === Message::TYPE_AAAA;
             foreach ($this->hosts->getIpsForHost($query->name) as $ip) {
                 // ensure this is an IPv4/IPV6 address according to query type
@@ -48,7 +48,7 @@ final class HostsFileExecutor implements ExecutorInterface
             $ip = $this->getIpFromHost($query->name);
 
             if ($ip !== null) {
-                $records = array();
+                $records = [];
                 foreach ($this->hosts->getHostsForIp($ip) as $host) {
                     $records[] = new Record($query->name, $query->type, $query->class, 0, $host);
                 }

@@ -29,7 +29,7 @@ class ConfigTest extends TestCase
     {
         $config = Config::loadResolvConfBlocking(__DIR__ . '/../Fixtures/etc/resolv.conf');
 
-        $this->assertEquals(array('8.8.8.8'), $config->nameservers);
+        $this->assertEquals(['8.8.8.8'], $config->nameservers);
     }
 
     public function testLoadThrowsWhenPathIsInvalid()
@@ -41,7 +41,7 @@ class ConfigTest extends TestCase
     public function testParsesSingleEntryFile()
     {
         $contents = 'nameserver 8.8.8.8';
-        $expected = array('8.8.8.8');
+        $expected = ['8.8.8.8'];
 
         $config = Config::loadResolvConfBlocking('data://text/plain;base64,' . base64_encode($contents));
         $this->assertEquals($expected, $config->nameservers);
@@ -50,7 +50,7 @@ class ConfigTest extends TestCase
     public function testParsesNameserverWithoutIpv6ScopeId()
     {
         $contents = 'nameserver ::1%lo';
-        $expected = array('::1');
+        $expected = ['::1'];
 
         $config = Config::loadResolvConfBlocking('data://text/plain;base64,' . base64_encode($contents));
         $this->assertEquals($expected, $config->nameservers);
@@ -71,7 +71,7 @@ domain v.cablecom.net
 nameserver 127.0.0.1
 nameserver ::1
 ';
-        $expected = array('127.0.0.1', '::1');
+        $expected = ['127.0.0.1', '::1'];
 
         $config = Config::loadResolvConfBlocking('data://text/plain;base64,' . base64_encode($contents));
         $this->assertEquals($expected, $config->nameservers);
@@ -79,7 +79,7 @@ nameserver ::1
 
     public function testParsesEmptyFileWithoutNameserverEntries()
     {
-        $expected = array();
+        $expected = [];
 
         $config = Config::loadResolvConfBlocking('data://text/plain;base64,');
         $this->assertEquals($expected, $config->nameservers);
@@ -97,7 +97,7 @@ nameserver 4.5.6.7 5.6.7.8
 NameServer 7.8.9.10
 nameserver localhost
 ';
-        $expected = array();
+        $expected = [];
 
         $config = Config::loadResolvConfBlocking('data://text/plain;base64,' . base64_encode($contents));
         $this->assertEquals($expected, $config->nameservers);
@@ -126,7 +126,7 @@ ACE,
 ACE,{192.168.2.1}
 ACE,
 ';
-        $expected = array('192.168.2.1');
+        $expected = ['192.168.2.1'];
 
         $config = Config::loadWmicBlocking($this->echoCommand($contents));
 
@@ -139,7 +139,7 @@ ACE,
 Node,DNSServerSearchOrder
 ACE,
 ';
-        $expected = array();
+        $expected = [];
 
         $config = Config::loadWmicBlocking($this->echoCommand($contents));
 
@@ -156,7 +156,7 @@ ACE,
 ACE,{192.168.2.2}
 ACE,
 ';
-        $expected = array('192.168.2.1', '192.168.2.2');
+        $expected = ['192.168.2.1', '192.168.2.2'];
 
         $config = Config::loadWmicBlocking($this->echoCommand($contents));
 
@@ -171,7 +171,7 @@ ACE,
 ACE,{192.168.2.1;192.168.2.2}
 ACE,
 ';
-        $expected = array('192.168.2.1', '192.168.2.2');
+        $expected = ['192.168.2.1', '192.168.2.2'];
 
         $config = Config::loadWmicBlocking($this->echoCommand($contents));
 
@@ -186,7 +186,7 @@ ACE,
 ACE,{"192.168.2.1","192.168.2.2"}
 ACE,
 ';
-        $expected = array('192.168.2.1', '192.168.2.2');
+        $expected = ['192.168.2.1', '192.168.2.2'];
 
         $config = Config::loadWmicBlocking($this->echoCommand($contents));
 

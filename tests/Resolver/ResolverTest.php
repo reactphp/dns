@@ -51,7 +51,7 @@ class ResolverTest extends TestCase
             }));
 
         $resolver = new Resolver($executor);
-        $resolver->resolveAll('reactphp.org', Message::TYPE_AAAA)->then($this->expectCallableOnceWith(array('::1')));
+        $resolver->resolveAll('reactphp.org', Message::TYPE_AAAA)->then($this->expectCallableOnceWith(['::1']));
     }
 
     /** @test */
@@ -66,14 +66,14 @@ class ResolverTest extends TestCase
                 $response = new Message();
                 $response->qr = true;
                 $response->questions[] = new Query($query->name, $query->type, $query->class);
-                $response->answers[] = new Record($query->name, Message::TYPE_TXT, $query->class, 3600, array('ignored'));
+                $response->answers[] = new Record($query->name, Message::TYPE_TXT, $query->class, 3600, ['ignored']);
                 $response->answers[] = new Record($query->name, $query->type, $query->class, 3600, '::1');
 
                 return Promise\resolve($response);
             }));
 
         $resolver = new Resolver($executor);
-        $resolver->resolveAll('reactphp.org', Message::TYPE_AAAA)->then($this->expectCallableOnceWith(array('::1')));
+        $resolver->resolveAll('reactphp.org', Message::TYPE_AAAA)->then($this->expectCallableOnceWith(['::1']));
     }
 
     /** @test */
@@ -97,7 +97,7 @@ class ResolverTest extends TestCase
 
         $resolver = new Resolver($executor);
         $resolver->resolveAll('reactphp.org', Message::TYPE_AAAA)->then(
-            $this->expectCallableOnceWith($this->equalTo(array('::1', '::2')))
+            $this->expectCallableOnceWith($this->equalTo(['::1', '::2']))
         );
     }
 
@@ -173,32 +173,32 @@ class ResolverTest extends TestCase
 
     public function provideRcodeErrors()
     {
-        return array(
-            array(
+        return [
+            [
                 Message::RCODE_FORMAT_ERROR,
                 'DNS query for example.com (A) returned an error response (Format Error)',
-            ),
-            array(
+            ],
+            [
                 Message::RCODE_SERVER_FAILURE,
                 'DNS query for example.com (A) returned an error response (Server Failure)',
-            ),
-            array(
+            ],
+            [
                 Message::RCODE_NAME_ERROR,
                 'DNS query for example.com (A) returned an error response (Non-Existent Domain / NXDOMAIN)'
-            ),
-            array(
+            ],
+            [
                 Message::RCODE_NOT_IMPLEMENTED,
                 'DNS query for example.com (A) returned an error response (Not Implemented)'
-            ),
-            array(
+            ],
+            [
                 Message::RCODE_REFUSED,
                 'DNS query for example.com (A) returned an error response (Refused)'
-            ),
-            array(
+            ],
+            [
                 99,
                 'DNS query for example.com (A) returned an error response (Unknown error response code 99)'
-            )
-        );
+            ]
+        ];
     }
 
     /**
