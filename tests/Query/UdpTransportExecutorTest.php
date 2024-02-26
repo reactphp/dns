@@ -19,9 +19,9 @@ class UdpTransportExecutorTest extends TestCase
      */
     public function testCtorShouldAcceptNameserverAddresses($input, $expected)
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
-        $executor = new UdpTransportExecutor($input, $loop);
+        $executor = new UdpTransportExecutor($input);
 
         $ref = new \ReflectionProperty($executor, 'nameserver');
         $ref->setAccessible(true);
@@ -60,47 +60,37 @@ class UdpTransportExecutorTest extends TestCase
         );
     }
 
-    public function testCtorWithoutLoopShouldAssignDefaultLoop()
-    {
-        $executor = new UdpTransportExecutor('127.0.0.1');
-
-        $ref = new \ReflectionProperty($executor, 'loop');
-        $ref->setAccessible(true);
-        $loop = $ref->getValue($executor);
-
-        $this->assertInstanceOf('React\EventLoop\LoopInterface', $loop);
-    }
-
     public function testCtorShouldThrowWhenNameserverAddressIsInvalid()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
         $this->setExpectedException('InvalidArgumentException');
-        new UdpTransportExecutor('///', $loop);
+        new UdpTransportExecutor('///');
     }
 
     public function testCtorShouldThrowWhenNameserverAddressContainsHostname()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
         $this->setExpectedException('InvalidArgumentException');
-        new UdpTransportExecutor('localhost', $loop);
+        new UdpTransportExecutor('localhost');
     }
 
     public function testCtorShouldThrowWhenNameserverSchemeIsInvalid()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
         $this->setExpectedException('InvalidArgumentException');
-        new UdpTransportExecutor('tcp://1.2.3.4', $loop);
+        new UdpTransportExecutor('tcp://1.2.3.4');
     }
 
     public function testQueryRejectsIfMessageExceedsUdpSize()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->never())->method('addReadStream');
+        Loop::set($loop);
 
-        $executor = new UdpTransportExecutor('8.8.8.8:53', $loop);
+        $executor = new UdpTransportExecutor('8.8.8.8:53');
 
         $query = new Query('google.' . str_repeat('.com', 200), Message::TYPE_A, Message::CLASS_IN);
         $promise = $executor->query($query);
@@ -128,8 +118,9 @@ class UdpTransportExecutorTest extends TestCase
 
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->never())->method('addReadStream');
+        Loop::set($loop);
 
-        $executor = new UdpTransportExecutor('::1', $loop);
+        $executor = new UdpTransportExecutor('::1');
 
         $ref = new \ReflectionProperty($executor, 'nameserver');
         $ref->setAccessible(true);
@@ -156,8 +147,9 @@ class UdpTransportExecutorTest extends TestCase
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->never())->method('addReadStream');
+        Loop::set($loop);
 
-        $executor = new UdpTransportExecutor('0.0.0.0', $loop);
+        $executor = new UdpTransportExecutor('0.0.0.0');
 
         // increase hard-coded maximum packet size to allow sending excessive data
         $ref = new \ReflectionProperty($executor, 'maxPacketSize');
@@ -202,8 +194,9 @@ class UdpTransportExecutorTest extends TestCase
             $callback = $ref;
             return true;
         }));
+        Loop::set($loop);
 
-        $executor = new UdpTransportExecutor('0.0.0.0', $loop);
+        $executor = new UdpTransportExecutor('0.0.0.0');
 
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
         $promise = $executor->query($query);
@@ -231,8 +224,9 @@ class UdpTransportExecutorTest extends TestCase
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->once())->method('addReadStream');
         $loop->expects($this->once())->method('removeReadStream');
+        Loop::set($loop);
 
-        $executor = new UdpTransportExecutor('8.8.8.8:53', $loop);
+        $executor = new UdpTransportExecutor('8.8.8.8:53');
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
         $promise = $executor->query($query);

@@ -7,6 +7,7 @@ use React\Dns\Query\CancellationException;
 use React\Dns\Query\Query;
 use React\Dns\Query\TimeoutException;
 use React\Dns\Query\TimeoutExecutor;
+use React\EventLoop\Loop;
 use React\Promise;
 use React\Promise\Deferred;
 use React\Tests\Dns\TestCase;
@@ -25,19 +26,9 @@ class TimeoutExecutorTest extends TestCase
         $this->wrapped = $this->getMockBuilder('React\Dns\Query\ExecutorInterface')->getMock();
 
         $this->loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->loop);
 
-        $this->executor = new TimeoutExecutor($this->wrapped, 5.0, $this->loop);
-    }
-
-    public function testCtorWithoutLoopShouldAssignDefaultLoop()
-    {
-        $executor = new TimeoutExecutor($this->executor, 5.0);
-
-        $ref = new \ReflectionProperty($executor, 'loop');
-        $ref->setAccessible(true);
-        $loop = $ref->getValue($executor);
-
-        $this->assertInstanceOf('React\EventLoop\LoopInterface', $loop);
+        $this->executor = new TimeoutExecutor($this->wrapped, 5.0);
     }
 
     public function testCancellingPromiseWillCancelWrapped()

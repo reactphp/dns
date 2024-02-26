@@ -8,10 +8,16 @@ use React\Dns\Protocol\Parser;
 use React\Dns\Query\Query;
 use React\Dns\Query\TcpTransportExecutor;
 use React\EventLoop\Loop;
+use React\EventLoop\StreamSelectLoop;
 use React\Tests\Dns\TestCase;
 
 class TcpTransportExecutorTest extends TestCase
 {
+    public function setUp(): void
+    {
+        Loop::set(new StreamSelectLoop());
+    }
+
     /**
      * @dataProvider provideDefaultPortProvider
      * @param string $input
@@ -19,9 +25,9 @@ class TcpTransportExecutorTest extends TestCase
      */
     public function testCtorShouldAcceptNameserverAddresses($input, $expected)
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
-        $executor = new TcpTransportExecutor($input, $loop);
+        $executor = new TcpTransportExecutor($input);
 
         $ref = new \ReflectionProperty($executor, 'nameserver');
         $ref->setAccessible(true);
@@ -60,47 +66,37 @@ class TcpTransportExecutorTest extends TestCase
         );
     }
 
-    public function testCtorWithoutLoopShouldAssignDefaultLoop()
-    {
-        $executor = new TcpTransportExecutor('127.0.0.1');
-
-        $ref = new \ReflectionProperty($executor, 'loop');
-        $ref->setAccessible(true);
-        $loop = $ref->getValue($executor);
-
-        $this->assertInstanceOf('React\EventLoop\LoopInterface', $loop);
-    }
-
     public function testCtorShouldThrowWhenNameserverAddressIsInvalid()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
         $this->setExpectedException('InvalidArgumentException');
-        new TcpTransportExecutor('///', $loop);
+        new TcpTransportExecutor('///');
     }
 
     public function testCtorShouldThrowWhenNameserverAddressContainsHostname()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
         $this->setExpectedException('InvalidArgumentException');
-        new TcpTransportExecutor('localhost', $loop);
+        new TcpTransportExecutor('localhost');
     }
 
     public function testCtorShouldThrowWhenNameserverSchemeIsInvalid()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
         $this->setExpectedException('InvalidArgumentException');
-        new TcpTransportExecutor('udp://1.2.3.4', $loop);
+        new TcpTransportExecutor('udp://1.2.3.4');
     }
 
     public function testQueryRejectsIfMessageExceedsMaximumMessageSize()
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->never())->method('addWriteStream');
+        Loop::set($loop);
 
-        $executor = new TcpTransportExecutor('8.8.8.8:53', $loop);
+        $executor = new TcpTransportExecutor('8.8.8.8:53');
 
         $query = new Query('google.' . str_repeat('.com', 60000), Message::TYPE_A, Message::CLASS_IN);
         $promise = $executor->query($query);
@@ -123,8 +119,9 @@ class TcpTransportExecutorTest extends TestCase
 
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->never())->method('addWriteStream');
+        Loop::set($loop);
 
-        $executor = new TcpTransportExecutor('::1', $loop);
+        $executor = new TcpTransportExecutor('::1');
 
         $ref = new \ReflectionProperty($executor, 'nameserver');
         $ref->setAccessible(true);
@@ -154,11 +151,12 @@ class TcpTransportExecutorTest extends TestCase
         $timer = $this->getMockBuilder('React\EventLoop\TimerInterface')->getMock();
         $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything())->willReturn($timer);
         $loop->expects($this->never())->method('cancelTimer');
+        Loop::set($loop);
 
         $server = stream_socket_server('tcp://127.0.0.1:0');
         $address = stream_socket_get_name($server, false);
 
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
         $promise = $executor->query($query);
@@ -189,11 +187,12 @@ class TcpTransportExecutorTest extends TestCase
             return true;
         }))->willReturn($timer);
         $loop->expects($this->once())->method('cancelTimer')->with($timer);
+        Loop::set($loop);
 
         $server = stream_socket_server('tcp://127.0.0.1:0');
         $address = stream_socket_get_name($server, false);
 
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
         $promise = $executor->query($query);
@@ -217,11 +216,12 @@ class TcpTransportExecutorTest extends TestCase
 
         $loop->expects($this->never())->method('addTimer');
         $loop->expects($this->never())->method('cancelTimer');
+        Loop::set($loop);
 
         $server = stream_socket_server('tcp://127.0.0.1:0');
         $address = stream_socket_get_name($server, false);
 
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
         $promise1 = $executor->query($query);
@@ -239,11 +239,12 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->never())->method('removeWriteStream');
         $loop->expects($this->never())->method('addReadStream');
         $loop->expects($this->never())->method('removeReadStream');
+        Loop::set($loop);
 
         $server = stream_socket_server('tcp://127.0.0.1:0');
         $address = stream_socket_get_name($server, false);
 
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
         $promise = $executor->query($query);
@@ -284,11 +285,12 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->once())->method('addReadStream');
         $loop->expects($this->never())->method('removeWriteStream');
         $loop->expects($this->never())->method('removeReadStream');
+        Loop::set($loop);
 
         $server = stream_socket_server('tcp://127.0.0.1:0');
 
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google' . str_repeat('.com', 100), Message::TYPE_A, Message::CLASS_IN);
 
@@ -327,11 +329,12 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->once())->method('addReadStream');
         $loop->expects($this->never())->method('removeWriteStream');
         $loop->expects($this->never())->method('removeReadStream');
+        Loop::set($loop);
 
         $server = stream_socket_server('tcp://127.0.0.1:0');
 
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google' . str_repeat('.com', 100), Message::TYPE_A, Message::CLASS_IN);
 
@@ -361,11 +364,12 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->once())->method('addReadStream');
         $loop->expects($this->once())->method('removeWriteStream');
         $loop->expects($this->once())->method('removeReadStream');
+        Loop::set($loop);
 
         $server = stream_socket_server('tcp://127.0.0.1:0');
 
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google' . str_repeat('.com', 100), Message::TYPE_A, Message::CLASS_IN);
 
@@ -567,7 +571,7 @@ class TcpTransportExecutorTest extends TestCase
                 Loop::removeReadStream($client);
                 $data = fread($client, 512);
 
-                list(, $length) = unpack('n', substr($data, 0, 2));
+                [, $length] = unpack('n', substr($data, 0, 2));
                 assert(strlen($data) - 2 === $length);
                 $data = substr($data, 2);
 
@@ -619,7 +623,7 @@ class TcpTransportExecutorTest extends TestCase
                 Loop::removeReadStream($client);
                 $data = fread($client, 512);
 
-                list(, $length) = unpack('n', substr($data, 0, 2));
+                [, $length] = unpack('n', substr($data, 0, 2));
                 assert(strlen($data) - 2 === $length);
                 $data = substr($data, 2);
 
@@ -668,7 +672,7 @@ class TcpTransportExecutorTest extends TestCase
                 Loop::removeReadStream($client);
                 $data = fread($client, 512);
 
-                list(, $length) = unpack('n', substr($data, 0, 2));
+                [, $length] = unpack('n', substr($data, 0, 2));
                 assert(strlen($data) - 2 === $length);
 
                 fwrite($client, $data);
@@ -699,10 +703,11 @@ class TcpTransportExecutorTest extends TestCase
 
         $loop->expects($this->never())->method('addTimer');
         $loop->expects($this->never())->method('cancelTimer');
+        Loop::set($loop);
 
         $server = stream_socket_server('tcp://127.0.0.1:0');
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -733,10 +738,11 @@ class TcpTransportExecutorTest extends TestCase
 
         $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything());
         $loop->expects($this->never())->method('cancelTimer');
+        Loop::set($loop);
 
         $server = stream_socket_server('tcp://127.0.0.1:0');
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -767,10 +773,11 @@ class TcpTransportExecutorTest extends TestCase
         $timer = $this->getMockBuilder('React\EventLoop\TimerInterface')->getMock();
         $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything())->willReturn($timer);
         $loop->expects($this->never())->method('cancelTimer');
+        Loop::set($loop);
 
         $server = stream_socket_server('tcp://127.0.0.1:0');
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -801,10 +808,11 @@ class TcpTransportExecutorTest extends TestCase
 
         $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything());
         $loop->expects($this->never())->method('cancelTimer');
+        Loop::set($loop);
 
         $server = stream_socket_server('tcp://127.0.0.1:0');
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -842,10 +850,11 @@ class TcpTransportExecutorTest extends TestCase
             return true;
         }))->willReturn($timer);
         $loop->expects($this->once())->method('cancelTimer')->with($timer);
+        Loop::set($loop);
 
         $server = stream_socket_server('tcp://127.0.0.1:0');
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -880,10 +889,11 @@ class TcpTransportExecutorTest extends TestCase
         $timer = $this->getMockBuilder('React\EventLoop\TimerInterface')->getMock();
         $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything())->willReturn($timer);
         $loop->expects($this->once())->method('cancelTimer')->with($timer);
+        Loop::set($loop);
 
         $server = stream_socket_server('tcp://127.0.0.1:0');
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
@@ -918,10 +928,11 @@ class TcpTransportExecutorTest extends TestCase
         $timer = $this->getMockBuilder('React\EventLoop\TimerInterface')->getMock();
         $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything())->willReturn($timer);
         $loop->expects($this->once())->method('cancelTimer')->with($timer);
+        Loop::set($loop);
 
         $server = stream_socket_server('tcp://127.0.0.1:0');
         $address = stream_socket_get_name($server, false);
-        $executor = new TcpTransportExecutor($address, $loop);
+        $executor = new TcpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
