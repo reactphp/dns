@@ -6,7 +6,6 @@ use React\Dns\Model\Message;
 use React\Dns\Protocol\BinaryDumper;
 use React\Dns\Protocol\Parser;
 use React\EventLoop\Loop;
-use React\EventLoop\LoopInterface;
 use React\Promise\Deferred;
 
 /**
@@ -78,7 +77,6 @@ use React\Promise\Deferred;
 class TcpTransportExecutor implements ExecutorInterface
 {
     private $nameserver;
-    private $loop;
     private $parser;
     private $dumper;
 
@@ -132,9 +130,8 @@ class TcpTransportExecutor implements ExecutorInterface
 
     /**
      * @param string         $nameserver
-     * @param ?LoopInterface $loop
      */
-    public function __construct($nameserver, LoopInterface $loop = null)
+    public function __construct($nameserver)
     {
         if (\strpos($nameserver, '[') === false && \substr_count($nameserver, ':') >= 2 && \strpos($nameserver, '://') === false) {
             // several colons, but not enclosed in square brackets => enclose IPv6 address in square brackets
@@ -147,7 +144,6 @@ class TcpTransportExecutor implements ExecutorInterface
         }
 
         $this->nameserver = 'tcp://' . $parts['host'] . ':' . (isset($parts['port']) ? $parts['port'] : 53);
-        $this->loop = $loop ?: Loop::get();
         $this->parser = new Parser();
         $this->dumper = new BinaryDumper();
     }
@@ -190,7 +186,7 @@ class TcpTransportExecutor implements ExecutorInterface
         }
 
         if ($this->idleTimer !== null) {
-            $this->loop->cancelTimer($this->idleTimer);
+            Loop::get()->cancelTimer($this->idleTimer);
             $this->idleTimer = null;
         }
 
@@ -198,7 +194,7 @@ class TcpTransportExecutor implements ExecutorInterface
         $this->writeBuffer .= $queryData;
         if (!$this->writePending) {
             $this->writePending = true;
-            $this->loop->addWriteStream($this->socket, array($this, 'handleWritable'));
+            Loop::get()->addWriteStream($this->socket, array($this, 'handleWritable'));
         }
 
         $names =& $this->names;
@@ -243,7 +239,7 @@ class TcpTransportExecutor implements ExecutorInterface
             }
 
             $this->readPending = true;
-            $this->loop->addReadStream($this->socket, array($this, 'handleRead'));
+            Loop::get()->addReadStream($this->socket, array($this, 'handleRead'));
         }
 
         $errno = 0;
@@ -271,7 +267,7 @@ class TcpTransportExecutor implements ExecutorInterface
         if (isset($this->writeBuffer[$written])) {
             $this->writeBuffer = \substr($this->writeBuffer, $written);
         } else {
-            $this->loop->removeWriteStream($this->socket);
+            Loop::get()->removeWriteStream($this->socket);
             $this->writePending = false;
             $this->writeBuffer = '';
         }
@@ -336,18 +332,18 @@ class TcpTransportExecutor implements ExecutorInterface
     {
         $this->readBuffer = '';
         if ($this->readPending) {
-            $this->loop->removeReadStream($this->socket);
+            Loop::get()->removeReadStream($this->socket);
             $this->readPending = false;
         }
 
         $this->writeBuffer = '';
         if ($this->writePending) {
-            $this->loop->removeWriteStream($this->socket);
+            Loop::get()->removeWriteStream($this->socket);
             $this->writePending = false;
         }
 
         if ($this->idleTimer !== null) {
-            $this->loop->cancelTimer($this->idleTimer);
+            Loop::get()->cancelTimer($this->idleTimer);
             $this->idleTimer = null;
         }
 
@@ -370,7 +366,7 @@ class TcpTransportExecutor implements ExecutorInterface
     {
         if ($this->idleTimer === null && !$this->names) {
             $that = $this;
-            $this->idleTimer = $this->loop->addTimer($this->idlePeriod, function () use ($that) {
+            $this->idleTimer = Loop::get()->addTimer($this->idlePeriod, function () use ($that) {
                 $that->closeError('Idle timeout');
             });
         }

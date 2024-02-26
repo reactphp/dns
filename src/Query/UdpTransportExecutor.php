@@ -6,7 +6,6 @@ use React\Dns\Model\Message;
 use React\Dns\Protocol\BinaryDumper;
 use React\Dns\Protocol\Parser;
 use React\EventLoop\Loop;
-use React\EventLoop\LoopInterface;
 use React\Promise\Deferred;
 
 /**
@@ -83,7 +82,6 @@ use React\Promise\Deferred;
 final class UdpTransportExecutor implements ExecutorInterface
 {
     private $nameserver;
-    private $loop;
     private $parser;
     private $dumper;
 
@@ -95,10 +93,9 @@ final class UdpTransportExecutor implements ExecutorInterface
     private $maxPacketSize = 512;
 
     /**
-     * @param string         $nameserver
-     * @param ?LoopInterface $loop
+     * @param string $nameserver
      */
-    public function __construct($nameserver, LoopInterface $loop = null)
+    public function __construct($nameserver)
     {
         if (\strpos($nameserver, '[') === false && \substr_count($nameserver, ':') >= 2 && \strpos($nameserver, '://') === false) {
             // several colons, but not enclosed in square brackets => enclose IPv6 address in square brackets
@@ -111,7 +108,6 @@ final class UdpTransportExecutor implements ExecutorInterface
         }
 
         $this->nameserver = 'udp://' . $parts['host'] . ':' . (isset($parts['port']) ? $parts['port'] : 53);
-        $this->loop = $loop ?: Loop::get();
         $this->parser = new Parser();
         $this->dumper = new BinaryDumper();
     }
@@ -163,10 +159,9 @@ final class UdpTransportExecutor implements ExecutorInterface
             ));
         }
 
-        $loop = $this->loop;
-        $deferred = new Deferred(function () use ($loop, $socket, $query) {
+        $deferred = new Deferred(function () use ($socket, $query) {
             // cancellation should remove socket from loop and close socket
-            $loop->removeReadStream($socket);
+            Loop::get()->removeReadStream($socket);
             \fclose($socket);
 
             throw new CancellationException('DNS query for ' . $query->describe() . ' has been cancelled');
@@ -175,7 +170,7 @@ final class UdpTransportExecutor implements ExecutorInterface
         $max = $this->maxPacketSize;
         $parser = $this->parser;
         $nameserver = $this->nameserver;
-        $loop->addReadStream($socket, function ($socket) use ($loop, $deferred, $query, $parser, $request, $max, $nameserver) {
+        Loop::get()->addReadStream($socket, function ($socket) use ($deferred, $query, $parser, $request, $max, $nameserver) {
             // try to read a single data packet from the DNS server
             // ignoring any errors, this is uses UDP packets and not a stream of data
             $data = @\fread($socket, $max);
@@ -198,7 +193,7 @@ final class UdpTransportExecutor implements ExecutorInterface
             }
 
             // we only react to the first valid message, so remove socket from loop and close
-            $loop->removeReadStream($socket);
+            Loop::get()->removeReadStream($socket);
             \fclose($socket);
 
             if ($response->tc) {

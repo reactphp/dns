@@ -5,6 +5,7 @@ namespace React\Tests\Dns\Resolver;
 use React\Dns\Config\Config;
 use React\Dns\Query\HostsFileExecutor;
 use React\Dns\Resolver\Factory;
+use React\EventLoop\Loop;
 use React\Tests\Dns\TestCase;
 
 class FactoryTest extends TestCase
@@ -21,10 +22,10 @@ class FactoryTest extends TestCase
     /** @test */
     public function createWithoutSchemeShouldCreateResolverWithSelectiveUdpAndTcpExecutorStack()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
         $factory = new Factory();
-        $resolver = $factory->create('8.8.8.8:53', $loop);
+        $resolver = $factory->create('8.8.8.8:53');
 
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
 
@@ -76,10 +77,10 @@ class FactoryTest extends TestCase
     /** @test */
     public function createWithUdpSchemeShouldCreateResolverWithUdpExecutorStack()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
         $factory = new Factory();
-        $resolver = $factory->create('udp://8.8.8.8:53', $loop);
+        $resolver = $factory->create('udp://8.8.8.8:53');
 
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
 
@@ -109,10 +110,10 @@ class FactoryTest extends TestCase
     /** @test */
     public function createWithTcpSchemeShouldCreateResolverWithTcpExecutorStack()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
         $factory = new Factory();
-        $resolver = $factory->create('tcp://8.8.8.8:53', $loop);
+        $resolver = $factory->create('tcp://8.8.8.8:53');
 
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
 
@@ -142,13 +143,13 @@ class FactoryTest extends TestCase
     /** @test */
     public function createWithConfigWithTcpNameserverSchemeShouldCreateResolverWithTcpExecutorStack()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
         $config = new Config();
         $config->nameservers[] = 'tcp://8.8.8.8:53';
 
         $factory = new Factory();
-        $resolver = $factory->create($config, $loop);
+        $resolver = $factory->create($config);
 
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
 
@@ -178,14 +179,14 @@ class FactoryTest extends TestCase
     /** @test */
     public function createWithConfigWithTwoNameserversWithTcpSchemeShouldCreateResolverWithFallbackExecutorStack()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
         $config = new Config();
         $config->nameservers[] = 'tcp://8.8.8.8:53';
         $config->nameservers[] = 'tcp://1.1.1.1:53';
 
         $factory = new Factory();
-        $resolver = $factory->create($config, $loop);
+        $resolver = $factory->create($config);
 
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
 
@@ -245,7 +246,7 @@ class FactoryTest extends TestCase
     /** @test */
     public function createWithConfigWithThreeNameserversWithTcpSchemeShouldCreateResolverWithNestedFallbackExecutorStack()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
         $config = new Config();
         $config->nameservers[] = 'tcp://8.8.8.8:53';
@@ -253,7 +254,7 @@ class FactoryTest extends TestCase
         $config->nameservers[] = 'tcp://9.9.9.9:53';
 
         $factory = new Factory();
-        $resolver = $factory->create($config, $loop);
+        $resolver = $factory->create($config);
 
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
 
@@ -337,29 +338,29 @@ class FactoryTest extends TestCase
     /** @test */
     public function createShouldThrowWhenNameserverIsInvalid()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
         $factory = new Factory();
 
         $this->setExpectedException('InvalidArgumentException');
-        $factory->create('///', $loop);
+        $factory->create('///');
     }
 
     /** @test */
     public function createShouldThrowWhenConfigHasNoNameservers()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
         $factory = new Factory();
 
         $this->setExpectedException('UnderflowException');
-        $factory->create(new Config(), $loop);
+        $factory->create(new Config());
     }
 
     /** @test */
     public function createShouldThrowWhenConfigHasInvalidNameserver()
     {
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($this->getMockBuilder('React\EventLoop\LoopInterface')->getMock());
 
         $factory = new Factory();
 
@@ -367,7 +368,7 @@ class FactoryTest extends TestCase
         $config->nameservers[] = '///';
 
         $this->setExpectedException('InvalidArgumentException');
-        $factory->create($config, $loop);
+        $factory->create($config);
     }
 
     /** @test */
@@ -388,9 +389,10 @@ class FactoryTest extends TestCase
     {
         $cache = $this->getMockBuilder('React\Cache\CacheInterface')->getMock();
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        Loop::set($loop);
 
         $factory = new Factory();
-        $resolver = $factory->createCached('8.8.8.8:53', $loop, $cache);
+        $resolver = $factory->createCached('8.8.8.8:53', $cache);
 
         $this->assertInstanceOf('React\Dns\Resolver\Resolver', $resolver);
         $executor = $this->getResolverPrivateExecutor($resolver);

@@ -126,23 +126,13 @@ final class Message
      * DNS response messages can not guess the message ID to avoid possible
      * cache poisoning attacks.
      *
-     * The `random_int()` function is only available on PHP 7+ or when
-     * https://github.com/paragonie/random_compat is installed. As such, using
-     * the latest supported PHP version is highly recommended. This currently
-     * falls back to a less secure random number generator on older PHP versions
-     * in the hope that this system is properly protected against outside
-     * attackers, for example by using one of the common local DNS proxy stubs.
-     *
      * @return int
      * @see self::getId()
      * @codeCoverageIgnore
      */
     private static function generateId()
     {
-        if (function_exists('random_int')) {
-            return random_int(0, 0xffff);
-        }
-        return mt_rand(0, 0xffff);
+        return \random_int(0, 0xffff);
     }
 
     /**

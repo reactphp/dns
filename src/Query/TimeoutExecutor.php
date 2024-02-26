@@ -3,19 +3,16 @@
 namespace React\Dns\Query;
 
 use React\EventLoop\Loop;
-use React\EventLoop\LoopInterface;
 use React\Promise\Promise;
 
 final class TimeoutExecutor implements ExecutorInterface
 {
     private $executor;
-    private $loop;
     private $timeout;
 
-    public function __construct(ExecutorInterface $executor, $timeout, LoopInterface $loop = null)
+    public function __construct(ExecutorInterface $executor, $timeout)
     {
         $this->executor = $executor;
-        $this->loop = $loop ?: Loop::get();
         $this->timeout = $timeout;
     }
 
@@ -23,19 +20,18 @@ final class TimeoutExecutor implements ExecutorInterface
     {
         $promise = $this->executor->query($query);
 
-        $loop = $this->loop;
         $time = $this->timeout;
-        return new Promise(function ($resolve, $reject) use ($loop, $time, $promise, $query) {
+        return new Promise(function ($resolve, $reject) use ($time, $promise, $query) {
             $timer = null;
-            $promise = $promise->then(function ($v) use (&$timer, $loop, $resolve) {
+            $promise = $promise->then(function ($v) use (&$timer, $resolve) {
                 if ($timer) {
-                    $loop->cancelTimer($timer);
+                    Loop::get()->cancelTimer($timer);
                 }
                 $timer = false;
                 $resolve($v);
-            }, function ($v) use (&$timer, $loop, $reject) {
+            }, function ($v) use (&$timer, $reject) {
                 if ($timer) {
-                    $loop->cancelTimer($timer);
+                    Loop::get()->cancelTimer($timer);
                 }
                 $timer = false;
                 $reject($v);
@@ -47,7 +43,7 @@ final class TimeoutExecutor implements ExecutorInterface
             }
 
             // start timeout timer which will cancel the pending promise
-            $timer = $loop->addTimer($time, function () use ($time, &$promise, $reject, $query) {
+            $timer = Loop::get()->addTimer($time, function () use ($time, &$promise, $reject, $query) {
                 $reject(new TimeoutException(
                     'DNS query for ' . $query->describe() . ' timed out'
                 ));

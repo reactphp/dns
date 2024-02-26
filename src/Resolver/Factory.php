@@ -16,8 +16,6 @@ use React\Dns\Query\SelectiveTransportExecutor;
 use React\Dns\Query\TcpTransportExecutor;
 use React\Dns\Query\TimeoutExecutor;
 use React\Dns\Query\UdpTransportExecutor;
-use React\EventLoop\Loop;
-use React\EventLoop\LoopInterface;
 
 final class Factory
 {
@@ -31,14 +29,13 @@ final class Factory
      * tertiary DNS server.
      *
      * @param Config|string  $config DNS Config object (recommended) or single nameserver address
-     * @param ?LoopInterface $loop
      * @return \React\Dns\Resolver\ResolverInterface
      * @throws \InvalidArgumentException for invalid DNS server address
      * @throws \UnderflowException when given DNS Config object has an empty list of nameservers
      */
-    public function create($config, LoopInterface $loop = null)
+    public function create($config)
     {
-        $executor = $this->decorateHostsFileExecutor($this->createExecutor($config, $loop ?: Loop::get()));
+        $executor = $this->decorateHostsFileExecutor($this->createExecutor($config));
 
         return new Resolver($executor);
     }
@@ -53,20 +50,19 @@ final class Factory
      * tertiary DNS server.
      *
      * @param Config|string   $config DNS Config object (recommended) or single nameserver address
-     * @param ?LoopInterface  $loop
      * @param ?CacheInterface $cache
      * @return \React\Dns\Resolver\ResolverInterface
      * @throws \InvalidArgumentException for invalid DNS server address
      * @throws \UnderflowException when given DNS Config object has an empty list of nameservers
      */
-    public function createCached($config, LoopInterface $loop = null, CacheInterface $cache = null)
+    public function createCached($config, CacheInterface $cache = null)
     {
         // default to keeping maximum of 256 responses in cache unless explicitly given
         if (!($cache instanceof CacheInterface)) {
             $cache = new ArrayCache(256);
         }
 
-        $executor = $this->createExecutor($config, $loop ?: Loop::get());
+        $executor = $this->createExecutor($config);
         $executor = new CachingExecutor($executor, $cache);
         $executor = $this->decorateHostsFileExecutor($executor);
 
@@ -105,12 +101,11 @@ final class Factory
 
     /**
      * @param Config|string $nameserver
-     * @param LoopInterface $loop
      * @return CoopExecutor
      * @throws \InvalidArgumentException for invalid DNS server address
      * @throws \UnderflowException when given DNS Config object has an empty list of nameservers
      */
-    private function createExecutor($nameserver, LoopInterface $loop)
+    private function createExecutor($nameserver)
     {
         if ($nameserver instanceof Config) {
             if (!$nameserver->nameservers) {
@@ -128,10 +123,10 @@ final class Factory
                 return new CoopExecutor(
                     new RetryExecutor(
                         new FallbackExecutor(
-                            $this->createSingleExecutor($primary, $loop),
+                            $this->createSingleExecutor($primary),
                             new FallbackExecutor(
-                                $this->createSingleExecutor($secondary, $loop),
-                                $this->createSingleExecutor($tertiary, $loop)
+                                $this->createSingleExecutor($secondary),
+                                $this->createSingleExecutor($tertiary)
                             )
                         )
                     )
@@ -141,8 +136,8 @@ final class Factory
                 return new CoopExecutor(
                     new RetryExecutor(
                         new FallbackExecutor(
-                            $this->createSingleExecutor($primary, $loop),
-                            $this->createSingleExecutor($secondary, $loop)
+                            $this->createSingleExecutor($primary),
+                            $this->createSingleExecutor($secondary)
                         )
                     )
                 );
@@ -152,27 +147,26 @@ final class Factory
             }
         }
 
-        return new CoopExecutor(new RetryExecutor($this->createSingleExecutor($nameserver, $loop)));
+        return new CoopExecutor(new RetryExecutor($this->createSingleExecutor($nameserver)));
     }
 
     /**
      * @param string $nameserver
-     * @param LoopInterface $loop
      * @return ExecutorInterface
      * @throws \InvalidArgumentException for invalid DNS server address
      */
-    private function createSingleExecutor($nameserver, LoopInterface $loop)
+    private function createSingleExecutor($nameserver)
     {
         $parts = \parse_url($nameserver);
 
         if (isset($parts['scheme']) && $parts['scheme'] === 'tcp') {
-            $executor = $this->createTcpExecutor($nameserver, $loop);
+            $executor = $this->createTcpExecutor($nameserver);
         } elseif (isset($parts['scheme']) && $parts['scheme'] === 'udp') {
-            $executor = $this->createUdpExecutor($nameserver, $loop);
+            $executor = $this->createUdpExecutor($nameserver);
         } else {
             $executor = new SelectiveTransportExecutor(
-                $this->createUdpExecutor($nameserver, $loop),
-                $this->createTcpExecutor($nameserver, $loop)
+                $this->createUdpExecutor($nameserver),
+                $this->createTcpExecutor($nameserver)
             );
         }
 
@@ -181,34 +175,29 @@ final class Factory
 
     /**
      * @param string $nameserver
-     * @param LoopInterface $loop
      * @return TimeoutExecutor
      * @throws \InvalidArgumentException for invalid DNS server address
      */
-    private function createTcpExecutor($nameserver, LoopInterface $loop)
+    private function createTcpExecutor($nameserver)
     {
         return new TimeoutExecutor(
-            new TcpTransportExecutor($nameserver, $loop),
-            5.0,
-            $loop
+            new TcpTransportExecutor($nameserver),
+            5.0
         );
     }
 
     /**
      * @param string $nameserver
-     * @param LoopInterface $loop
      * @return TimeoutExecutor
      * @throws \InvalidArgumentException for invalid DNS server address
      */
-    private function createUdpExecutor($nameserver, LoopInterface $loop)
+    private function createUdpExecutor($nameserver)
     {
         return new TimeoutExecutor(
             new UdpTransportExecutor(
-                $nameserver,
-                $loop
+                $nameserver
             ),
-            5.0,
-            $loop
+            5.0
         );
     }
 }
