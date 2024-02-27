@@ -29,12 +29,11 @@ final class Resolver implements ResolverInterface
     public function resolveAll($domain, $type)
     {
         $query = new Query($domain, $type, Message::CLASS_IN);
-        $that = $this;
 
         return $this->executor->query(
             $query
-        )->then(function (Message $response) use ($query, $that) {
-            return $that->extractValues($query, $response);
+        )->then(function (Message $response) use ($query) {
+            return $this->extractValues($query, $response);
         });
     }
 

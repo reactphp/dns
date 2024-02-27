@@ -90,12 +90,12 @@ class TcpTransportExecutor implements ExecutorInterface
     /**
      * @var Deferred[]
      */
-    private $pending = array();
+    private $pending = [];
 
     /**
      * @var string[]
      */
-    private $names = array();
+    private $names = [];
 
     /**
      * Maximum idle time when socket is current unused (i.e. no pending queries outstanding)
@@ -198,16 +198,15 @@ class TcpTransportExecutor implements ExecutorInterface
         $this->writeBuffer .= $queryData;
         if (!$this->writePending) {
             $this->writePending = true;
-            $this->loop->addWriteStream($this->socket, array($this, 'handleWritable'));
+            $this->loop->addWriteStream($this->socket, [$this, 'handleWritable']);
         }
 
         $names =& $this->names;
-        $that = $this;
-        $deferred = new Deferred(function () use ($that, &$names, $request) {
+        $deferred = new Deferred(function () use (&$names, $request) {
             // remove from list of pending names, but remember pending query
             $name = $names[$request->id];
             unset($names[$request->id]);
-            $that->checkIdle();
+            $this->checkIdle();
 
             throw new CancellationException('DNS query for ' . $name . ' has been cancelled');
         });
@@ -243,7 +242,7 @@ class TcpTransportExecutor implements ExecutorInterface
             }
 
             $this->readPending = true;
-            $this->loop->addReadStream($this->socket, array($this, 'handleRead'));
+            $this->loop->addReadStream($this->socket, [$this, 'handleRead']);
         }
 
         $errno = 0;
@@ -360,7 +359,7 @@ class TcpTransportExecutor implements ExecutorInterface
                 $code
             ));
         }
-        $this->pending = $this->names = array();
+        $this->pending = $this->names = [];
     }
 
     /**
@@ -369,9 +368,8 @@ class TcpTransportExecutor implements ExecutorInterface
     public function checkIdle()
     {
         if ($this->idleTimer === null && !$this->names) {
-            $that = $this;
-            $this->idleTimer = $this->loop->addTimer($this->idlePeriod, function () use ($that) {
-                $that->closeError('Idle timeout');
+            $this->idleTimer = $this->loop->addTimer($this->idlePeriod, function () {
+                $this->closeError('Idle timeout');
             });
         }
     }

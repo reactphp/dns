@@ -20,7 +20,7 @@ class MessageTest extends TestCase
     public function testCreateResponseWithNoAnswers()
     {
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
-        $answers = array();
+        $answers = [];
         $request = Message::createResponseWithAnswersForQuery($query, $answers);
 
         $this->assertTrue($request->qr);

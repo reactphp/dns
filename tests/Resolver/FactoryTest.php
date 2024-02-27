@@ -341,7 +341,7 @@ class FactoryTest extends TestCase
 
         $factory = new Factory();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $factory->create('///', $loop);
     }
 
@@ -352,7 +352,7 @@ class FactoryTest extends TestCase
 
         $factory = new Factory();
 
-        $this->setExpectedException('UnderflowException');
+        $this->expectException('UnderflowException');
         $factory->create(new Config(), $loop);
     }
 
@@ -366,7 +366,7 @@ class FactoryTest extends TestCase
         $config = new Config();
         $config->nameservers[] = '///';
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $factory->create($config, $loop);
     }
 

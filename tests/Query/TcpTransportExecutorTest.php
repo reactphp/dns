@@ -32,32 +32,32 @@ class TcpTransportExecutorTest extends TestCase
 
     public static function provideDefaultPortProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 '8.8.8.8',
                 'tcp://8.8.8.8:53'
-            ),
-            array(
+            ],
+            [
                 '1.2.3.4:5',
                 'tcp://1.2.3.4:5'
-            ),
-            array(
+            ],
+            [
                 'tcp://1.2.3.4',
                 'tcp://1.2.3.4:53'
-            ),
-            array(
+            ],
+            [
                 'tcp://1.2.3.4:53',
                 'tcp://1.2.3.4:53'
-            ),
-            array(
+            ],
+            [
                 '::1',
                 'tcp://[::1]:53'
-            ),
-            array(
+            ],
+            [
                 '[::1]:53',
                 'tcp://[::1]:53'
-            )
-        );
+            ]
+        ];
     }
 
     public function testCtorWithoutLoopShouldAssignDefaultLoop()
@@ -75,7 +75,7 @@ class TcpTransportExecutorTest extends TestCase
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         new TcpTransportExecutor('///', $loop);
     }
 
@@ -83,7 +83,7 @@ class TcpTransportExecutorTest extends TestCase
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         new TcpTransportExecutor('localhost', $loop);
     }
 
@@ -91,7 +91,7 @@ class TcpTransportExecutorTest extends TestCase
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         new TcpTransportExecutor('udp://1.2.3.4', $loop);
     }
 
@@ -117,10 +117,6 @@ class TcpTransportExecutorTest extends TestCase
 
     public function testQueryRejectsIfServerConnectionFails()
     {
-        if (defined('HHVM_VERSION')) {
-            $this->markTestSkipped('HHVM reports different error message for invalid addresses');
-        }
-
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->never())->method('addWriteStream');
 
@@ -403,11 +399,11 @@ class TcpTransportExecutorTest extends TestCase
         restore_error_handler();
         $this->assertNull($error);
 
-        // expect EPIPE (Broken pipe), except for macOS kernel race condition or legacy HHVM
-        $this->setExpectedException(
+        // expect EPIPE (Broken pipe), except for macOS kernel race condition
+        $this->expectException(
             'RuntimeException',
             'Unable to send query to DNS server tcp://' . $address . ' (',
-            defined('SOCKET_EPIPE') && !defined('HHVM_VERSION') ? (PHP_OS !== 'Darwin' || $writePending ? SOCKET_EPIPE : SOCKET_EPROTOTYPE) : null
+            defined('SOCKET_EPIPE') ? (PHP_OS !== 'Darwin' || $writePending ? SOCKET_EPIPE : SOCKET_EPROTOTYPE) : null
         );
         throw $exception;
     }

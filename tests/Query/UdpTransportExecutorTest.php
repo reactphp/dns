@@ -32,32 +32,32 @@ class UdpTransportExecutorTest extends TestCase
 
     public static function provideDefaultPortProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 '8.8.8.8',
                 'udp://8.8.8.8:53'
-            ),
-            array(
+            ],
+            [
                 '1.2.3.4:5',
                 'udp://1.2.3.4:5'
-            ),
-            array(
+            ],
+            [
                 'udp://1.2.3.4',
                 'udp://1.2.3.4:53'
-            ),
-            array(
+            ],
+            [
                 'udp://1.2.3.4:53',
                 'udp://1.2.3.4:53'
-            ),
-            array(
+            ],
+            [
                 '::1',
                 'udp://[::1]:53'
-            ),
-            array(
+            ],
+            [
                 '[::1]:53',
                 'udp://[::1]:53'
-            )
-        );
+            ]
+        ];
     }
 
     public function testCtorWithoutLoopShouldAssignDefaultLoop()
@@ -75,7 +75,7 @@ class UdpTransportExecutorTest extends TestCase
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         new UdpTransportExecutor('///', $loop);
     }
 
@@ -83,7 +83,7 @@ class UdpTransportExecutorTest extends TestCase
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         new UdpTransportExecutor('localhost', $loop);
     }
 
@@ -91,7 +91,7 @@ class UdpTransportExecutorTest extends TestCase
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         new UdpTransportExecutor('tcp://1.2.3.4', $loop);
     }
 
@@ -112,7 +112,7 @@ class UdpTransportExecutorTest extends TestCase
             $exception = $reason;
         });
 
-        $this->setExpectedException(
+            $this->expectException(
             'RuntimeException',
             'DNS query for ' . $query->name . ' (A) failed: Query too large for UDP transport',
             defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90
@@ -122,10 +122,6 @@ class UdpTransportExecutorTest extends TestCase
 
     public function testQueryRejectsIfServerConnectionFails()
     {
-        if (defined('HHVM_VERSION')) {
-            $this->markTestSkipped('HHVM reports different error message for invalid addresses');
-        }
-
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
         $loop->expects($this->never())->method('addReadStream');
 
@@ -145,7 +141,7 @@ class UdpTransportExecutorTest extends TestCase
             $exception = $reason;
         });
 
-        $this->setExpectedException(
+            $this->expectException(
             'RuntimeException',
             'DNS query for google.com (A) failed: Unable to connect to DNS server /// (Failed to parse address "///")'
         );
@@ -183,7 +179,7 @@ class UdpTransportExecutorTest extends TestCase
         });
 
         // ECONNREFUSED (Connection refused) on Linux, EMSGSIZE (Message too long) on macOS
-        $this->setExpectedException(
+            $this->expectException(
             'RuntimeException',
             'DNS query for ' . $query->name . ' (A) failed: Unable to send query to DNS server udp://0.0.0.0:53 ('
         );
@@ -340,7 +336,7 @@ class UdpTransportExecutorTest extends TestCase
 
         $promise = $executor->query($query);
 
-        $this->setExpectedException(
+        $this->expectException(
             'RuntimeException',
             'DNS query for google.com (A) failed: The DNS server udp://' . $address . ' returned a truncated result for a UDP query',
             defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90

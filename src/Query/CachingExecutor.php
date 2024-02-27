@@ -28,13 +28,12 @@ final class CachingExecutor implements ExecutorInterface
     {
         $id = $query->name . ':' . $query->type . ':' . $query->class;
         $cache = $this->cache;
-        $that = $this;
         $executor = $this->executor;
 
         $pending = $cache->get($id);
-        return new Promise(function ($resolve, $reject) use ($query, $id, $cache, $executor, &$pending, $that) {
+        return new Promise(function ($resolve, $reject) use ($query, $id, $cache, $executor, &$pending) {
             $pending->then(
-                function ($message) use ($query, $id, $cache, $executor, &$pending, $that) {
+                function ($message) use ($query, $id, $cache, $executor, &$pending) {
                     // return cached response message on cache hit
                     if ($message !== null) {
                         return $message;
@@ -42,10 +41,10 @@ final class CachingExecutor implements ExecutorInterface
 
                     // perform DNS lookup if not already cached
                     return $pending = $executor->query($query)->then(
-                        function (Message $message) use ($cache, $id, $that) {
+                        function (Message $message) use ($cache, $id) {
                             // DNS response message received => store in cache when not truncated and return
                             if (!$message->tc) {
-                                $cache->set($id, $message, $that->ttl($message));
+                                $cache->set($id, $message, $this->ttl($message));
                             }
 
                             return $message;
