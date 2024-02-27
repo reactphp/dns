@@ -27,7 +27,7 @@ class HostsFileTest extends TestCase
 
     public function testLoadThrowsForInvalidPath()
     {
-        $this->setExpectedException('RuntimeException');
+        $this->expectException('RuntimeException');
         HostsFile::loadFromPathBlocking('does/not/exist');
     }
 

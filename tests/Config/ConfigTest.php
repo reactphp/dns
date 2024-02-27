@@ -34,7 +34,7 @@ class ConfigTest extends TestCase
 
     public function testLoadThrowsWhenPathIsInvalid()
     {
-        $this->setExpectedException('RuntimeException');
+        $this->expectException('RuntimeException');
         Config::loadResolvConfBlocking(__DIR__ . '/invalid.conf');
     }
 

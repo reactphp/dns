@@ -75,7 +75,7 @@ class UdpTransportExecutorTest extends TestCase
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         new UdpTransportExecutor('///', $loop);
     }
 
@@ -83,7 +83,7 @@ class UdpTransportExecutorTest extends TestCase
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         new UdpTransportExecutor('localhost', $loop);
     }
 
@@ -91,7 +91,7 @@ class UdpTransportExecutorTest extends TestCase
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         new UdpTransportExecutor('tcp://1.2.3.4', $loop);
     }
 
@@ -112,7 +112,7 @@ class UdpTransportExecutorTest extends TestCase
             $exception = $reason;
         });
 
-        $this->setExpectedException(
+            $this->expectException(
             'RuntimeException',
             'DNS query for ' . $query->name . ' (A) failed: Query too large for UDP transport',
             defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90
@@ -141,7 +141,7 @@ class UdpTransportExecutorTest extends TestCase
             $exception = $reason;
         });
 
-        $this->setExpectedException(
+            $this->expectException(
             'RuntimeException',
             'DNS query for google.com (A) failed: Unable to connect to DNS server /// (Failed to parse address "///")'
         );
@@ -179,7 +179,7 @@ class UdpTransportExecutorTest extends TestCase
         });
 
         // ECONNREFUSED (Connection refused) on Linux, EMSGSIZE (Message too long) on macOS
-        $this->setExpectedException(
+            $this->expectException(
             'RuntimeException',
             'DNS query for ' . $query->name . ' (A) failed: Unable to send query to DNS server udp://0.0.0.0:53 ('
         );
@@ -336,7 +336,7 @@ class UdpTransportExecutorTest extends TestCase
 
         $promise = $executor->query($query);
 
-        $this->setExpectedException(
+        $this->expectException(
             'RuntimeException',
             'DNS query for google.com (A) failed: The DNS server udp://' . $address . ' returned a truncated result for a UDP query',
             defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90

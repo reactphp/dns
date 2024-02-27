@@ -75,7 +75,7 @@ class TcpTransportExecutorTest extends TestCase
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         new TcpTransportExecutor('///', $loop);
     }
 
@@ -83,7 +83,7 @@ class TcpTransportExecutorTest extends TestCase
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         new TcpTransportExecutor('localhost', $loop);
     }
 
@@ -91,7 +91,7 @@ class TcpTransportExecutorTest extends TestCase
     {
         $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         new TcpTransportExecutor('udp://1.2.3.4', $loop);
     }
 
@@ -400,7 +400,7 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertNull($error);
 
         // expect EPIPE (Broken pipe), except for macOS kernel race condition
-        $this->setExpectedException(
+        $this->expectException(
             'RuntimeException',
             'Unable to send query to DNS server tcp://' . $address . ' (',
             defined('SOCKET_EPIPE') ? (PHP_OS !== 'Darwin' || $writePending ? SOCKET_EPIPE : SOCKET_EPROTOTYPE) : null
