@@ -8,7 +8,7 @@ use React\Dns\Model\Message;
 
 class MessageTest extends TestCase
 {
-    public function testCreateRequestDesiresRecusion()
+    public function testCreateRequestDesiresRecusion(): void
     {
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $request = Message::createRequestForQuery($query);
@@ -17,7 +17,7 @@ class MessageTest extends TestCase
         $this->assertTrue($request->rd);
     }
 
-    public function testCreateResponseWithNoAnswers()
+    public function testCreateResponseWithNoAnswers(): void
     {
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $answers = [];

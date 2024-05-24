@@ -5,6 +5,7 @@ namespace React\Dns\Query;
 use React\Dns\Config\HostsFile;
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
+use React\Promise\PromiseInterface;
 use function React\Promise\resolve;
 
 /**
@@ -16,7 +17,14 @@ use function React\Promise\resolve;
  */
 final class HostsFileExecutor implements ExecutorInterface
 {
+    /**
+     * @var HostsFile
+     */
     private $hosts;
+
+    /**
+     * @var ExecutorInterface
+     */
     private $fallback;
 
     public function __construct(HostsFile $hosts, ExecutorInterface $fallback)
@@ -25,7 +33,7 @@ final class HostsFileExecutor implements ExecutorInterface
         $this->fallback = $fallback;
     }
 
-    public function query(Query $query)
+    public function query(Query $query): PromiseInterface
     {
         if ($query->class === Message::CLASS_IN && ($query->type === Message::TYPE_A || $query->type === Message::TYPE_AAAA)) {
             // forward lookup for type A or AAAA
@@ -64,7 +72,7 @@ final class HostsFileExecutor implements ExecutorInterface
         return $this->fallback->query($query);
     }
 
-    private function getIpFromHost($host)
+    private function getIpFromHost(string $host): ?string
     {
         if (substr($host, -13) === '.in-addr.arpa') {
             // IPv4: read as IP and reverse bytes
@@ -73,7 +81,12 @@ final class HostsFileExecutor implements ExecutorInterface
                 return null;
             }
 
-            return inet_ntop(strrev($ip));
+            $inetIp = inet_ntop(strrev($ip));
+            if ($inetIp !== false) {
+                return $inetIp;
+            }
+
+            return null;
         } elseif (substr($host, -9) === '.ip6.arpa') {
             // IPv6: replace dots, reverse nibbles and interpret as hexadecimal string
             $ip = @inet_ntop(pack('H*', strrev(str_replace('.', '', substr($host, 0, -9)))));

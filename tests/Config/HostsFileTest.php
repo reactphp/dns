@@ -7,14 +7,14 @@ use React\Tests\Dns\TestCase;
 
 class HostsFileTest extends TestCase
 {
-    public function testLoadsFromDefaultPath()
+    public function testLoadsFromDefaultPath(): void
     {
         $hosts = HostsFile::loadFromPathBlocking();
 
         $this->assertInstanceOf(HostsFile::class, $hosts);
     }
 
-    public function testDefaultShouldHaveLocalhostMapped()
+    public function testDefaultShouldHaveLocalhostMapped(): void
     {
         if (DIRECTORY_SEPARATOR === '\\') {
             $this->markTestSkipped('Not supported on Windows');
@@ -25,13 +25,13 @@ class HostsFileTest extends TestCase
         $this->assertContains('127.0.0.1', $hosts->getIpsForHost('localhost'));
     }
 
-    public function testLoadThrowsForInvalidPath()
+    public function testLoadThrowsForInvalidPath(): void
     {
         $this->expectException(\RuntimeException::class);
         HostsFile::loadFromPathBlocking('does/not/exist');
     }
 
-    public function testContainsSingleLocalhostEntry()
+    public function testContainsSingleLocalhostEntry(): void
     {
         $hosts = new HostsFile('127.0.0.1 localhost');
 
@@ -39,7 +39,7 @@ class HostsFileTest extends TestCase
         $this->assertEquals([], $hosts->getIpsForHost('example.com'));
     }
 
-    public function testNonIpReturnsNothingForInvalidHosts()
+    public function testNonIpReturnsNothingForInvalidHosts(): void
     {
         $hosts = new HostsFile('a b');
 
@@ -47,14 +47,14 @@ class HostsFileTest extends TestCase
         $this->assertEquals([], $hosts->getIpsForHost('b'));
     }
 
-    public function testIgnoresIpv6ZoneId()
+    public function testIgnoresIpv6ZoneId(): void
     {
         $hosts = new HostsFile('fe80::1%lo0 localhost');
 
         $this->assertEquals(['fe80::1'], $hosts->getIpsForHost('localhost'));
     }
 
-    public function testSkipsComments()
+    public function testSkipsComments(): void
     {
         $hosts = new HostsFile('# start' . PHP_EOL .'#127.0.0.1 localhost' . PHP_EOL . '127.0.0.2 localhost # example.com');
 
@@ -62,21 +62,21 @@ class HostsFileTest extends TestCase
         $this->assertEquals([], $hosts->getIpsForHost('example.com'));
     }
 
-    public function testContainsSingleLocalhostEntryWithCaseIgnored()
+    public function testContainsSingleLocalhostEntryWithCaseIgnored(): void
     {
         $hosts = new HostsFile('127.0.0.1 LocalHost');
 
         $this->assertEquals(['127.0.0.1'], $hosts->getIpsForHost('LOCALHOST'));
     }
 
-    public function testEmptyFileContainsNothing()
+    public function testEmptyFileContainsNothing(): void
     {
         $hosts = new HostsFile('');
 
         $this->assertEquals([], $hosts->getIpsForHost('example.com'));
     }
 
-    public function testSingleEntryWithMultipleNames()
+    public function testSingleEntryWithMultipleNames(): void
     {
         $hosts = new HostsFile('127.0.0.1 localhost example.com');
 
@@ -84,21 +84,21 @@ class HostsFileTest extends TestCase
         $this->assertEquals(['127.0.0.1'], $hosts->getIpsForHost('localhost'));
     }
 
-    public function testMergesEntriesOverMultipleLines()
+    public function testMergesEntriesOverMultipleLines(): void
     {
         $hosts = new HostsFile("127.0.0.1 localhost\n127.0.0.2 localhost\n127.0.0.3 a localhost b\n127.0.0.4 a localhost");
 
         $this->assertEquals(['127.0.0.1', '127.0.0.2', '127.0.0.3', '127.0.0.4'], $hosts->getIpsForHost('localhost'));
     }
 
-    public function testMergesIpv4AndIpv6EntriesOverMultipleLines()
+    public function testMergesIpv4AndIpv6EntriesOverMultipleLines(): void
     {
         $hosts = new HostsFile("127.0.0.1 localhost\n::1 localhost");
 
         $this->assertEquals(['127.0.0.1', '::1'], $hosts->getIpsForHost('localhost'));
     }
 
-    public function testReverseLookup()
+    public function testReverseLookup(): void
     {
         $hosts = new HostsFile('127.0.0.1 localhost');
 
@@ -106,7 +106,7 @@ class HostsFileTest extends TestCase
         $this->assertEquals([], $hosts->getHostsForIp('192.168.1.1'));
     }
 
-    public function testReverseSkipsComments()
+    public function testReverseSkipsComments(): void
     {
         $hosts = new HostsFile("# start\n#127.0.0.1 localhosted\n127.0.0.2\tlocalhost\t# example.com\n\t127.0.0.3\t\texample.org\t\t");
 
@@ -115,7 +115,7 @@ class HostsFileTest extends TestCase
         $this->assertEquals(['example.org'], $hosts->getHostsForIp('127.0.0.3'));
     }
 
-    public function testReverseNonIpReturnsNothing()
+    public function testReverseNonIpReturnsNothing(): void
     {
         $hosts = new HostsFile('127.0.0.1 localhost');
 
@@ -123,7 +123,7 @@ class HostsFileTest extends TestCase
         $this->assertEquals([], $hosts->getHostsForIp('127.0.0.1.1'));
     }
 
-    public function testReverseNonIpReturnsNothingForInvalidHosts()
+    public function testReverseNonIpReturnsNothingForInvalidHosts(): void
     {
         $hosts = new HostsFile('a b');
 
@@ -131,35 +131,35 @@ class HostsFileTest extends TestCase
         $this->assertEquals([], $hosts->getHostsForIp('b'));
     }
 
-    public function testReverseLookupReturnsLowerCaseHost()
+    public function testReverseLookupReturnsLowerCaseHost(): void
     {
         $hosts = new HostsFile('127.0.0.1 LocalHost');
 
         $this->assertEquals(['localhost'], $hosts->getHostsForIp('127.0.0.1'));
     }
 
-    public function testReverseLookupChecksNormalizedIpv6()
+    public function testReverseLookupChecksNormalizedIpv6(): void
     {
         $hosts = new HostsFile('FE80::00a1 localhost');
 
         $this->assertEquals(['localhost'], $hosts->getHostsForIp('fe80::A1'));
     }
 
-    public function testReverseLookupIgnoresIpv6ZoneId()
+    public function testReverseLookupIgnoresIpv6ZoneId(): void
     {
         $hosts = new HostsFile('fe80::1%lo0 localhost');
 
         $this->assertEquals(['localhost'], $hosts->getHostsForIp('fe80::1'));
     }
 
-    public function testReverseLookupReturnsMultipleHostsOverSingleLine()
+    public function testReverseLookupReturnsMultipleHostsOverSingleLine(): void
     {
         $hosts = new HostsFile("::1 ip6-localhost ip6-loopback");
 
         $this->assertEquals(['ip6-localhost', 'ip6-loopback'], $hosts->getHostsForIp('::1'));
     }
 
-    public function testReverseLookupReturnsMultipleHostsOverMultipleLines()
+    public function testReverseLookupReturnsMultipleHostsOverMultipleLines(): void
     {
         $hosts = new HostsFile("::1 ip6-localhost\n::1 ip6-loopback");
 

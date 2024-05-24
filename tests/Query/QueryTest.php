@@ -8,14 +8,14 @@ use React\Tests\Dns\TestCase;
 
 class QueryTest extends TestCase
 {
-    public function testDescribeSimpleAQuery()
+    public function testDescribeSimpleAQuery(): void
     {
         $query = new Query('example.com', Message::TYPE_A, Message::CLASS_IN);
 
         $this->assertEquals('example.com (A)', $query->describe());
     }
 
-    public function testDescribeUnknownType()
+    public function testDescribeUnknownType(): void
     {
         $query = new Query('example.com', 0, 0);
 

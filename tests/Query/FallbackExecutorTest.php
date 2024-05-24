@@ -14,7 +14,7 @@ use function React\Promise\resolve;
 
 class FallbackExecutorTest extends TestCase
 {
-    public function testQueryWillReturnPendingPromiseWhenPrimaryExecutorIsStillPending()
+    public function testQueryWillReturnPendingPromiseWhenPrimaryExecutorIsStillPending(): void
     {
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
@@ -31,7 +31,7 @@ class FallbackExecutorTest extends TestCase
         $promise->then($this->expectCallableNever(), $this->expectCallableNever());
     }
 
-    public function testQueryWillResolveWithMessageWhenPrimaryExecutorResolvesWithMessage()
+    public function testQueryWillResolveWithMessageWhenPrimaryExecutorResolvesWithMessage(): void
     {
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
@@ -48,7 +48,7 @@ class FallbackExecutorTest extends TestCase
         $promise->then($this->expectCallableOnceWith($this->isInstanceOf(Message::class)), $this->expectCallableNever());
     }
 
-    public function testQueryWillReturnPendingPromiseWhenPrimaryExecutorRejectsPromiseAndSecondaryExecutorIsStillPending()
+    public function testQueryWillReturnPendingPromiseWhenPrimaryExecutorRejectsPromiseAndSecondaryExecutorIsStillPending(): void
     {
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
@@ -66,7 +66,7 @@ class FallbackExecutorTest extends TestCase
         $promise->then($this->expectCallableNever(), $this->expectCallableNever());
     }
 
-    public function testQueryWillResolveWithMessageWhenPrimaryExecutorRejectsPromiseAndSecondaryExecutorResolvesWithMessage()
+    public function testQueryWillResolveWithMessageWhenPrimaryExecutorRejectsPromiseAndSecondaryExecutorResolvesWithMessage(): void
     {
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
@@ -84,7 +84,7 @@ class FallbackExecutorTest extends TestCase
         $promise->then($this->expectCallableOnceWith($this->isInstanceOf(Message::class)), $this->expectCallableNever());
     }
 
-    public function testQueryWillRejectWithExceptionMessagesConcatenatedAfterColonWhenPrimaryExecutorRejectsPromiseAndSecondaryExecutorRejectsPromiseWithMessageWithColon()
+    public function testQueryWillRejectWithExceptionMessagesConcatenatedAfterColonWhenPrimaryExecutorRejectsPromiseAndSecondaryExecutorRejectsPromiseWithMessageWithColon(): void
     {
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
@@ -99,7 +99,7 @@ class FallbackExecutorTest extends TestCase
         $promise = $executor->query($query);
 
         $this->assertInstanceOf(PromiseInterface::class, $promise);
-        $promise->then($this->expectCallableNever(), $this->expectCallableOnce($this->isInstanceOf(\Exception::class)));
+        $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
 
         $exception = null;
         $promise->then(null, function ($reason) use (&$exception) {
@@ -110,7 +110,7 @@ class FallbackExecutorTest extends TestCase
         $this->assertEquals('DNS query for reactphp.org (A) failed: Unable to connect to DNS server A. Unable to connect to DNS server B', $exception->getMessage());
     }
 
-    public function testQueryWillRejectWithExceptionMessagesConcatenatedInFullWhenPrimaryExecutorRejectsPromiseAndSecondaryExecutorRejectsPromiseWithMessageWithNoColon()
+    public function testQueryWillRejectWithExceptionMessagesConcatenatedInFullWhenPrimaryExecutorRejectsPromiseAndSecondaryExecutorRejectsPromiseWithMessageWithNoColon(): void
     {
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
@@ -125,7 +125,7 @@ class FallbackExecutorTest extends TestCase
         $promise = $executor->query($query);
 
         $this->assertInstanceOf(PromiseInterface::class, $promise);
-        $promise->then($this->expectCallableNever(), $this->expectCallableOnce($this->isInstanceOf(\Exception::class)));
+        $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
 
         $exception = null;
         $promise->then(null, function ($reason) use (&$exception) {
@@ -136,7 +136,7 @@ class FallbackExecutorTest extends TestCase
         $this->assertEquals('Reason A. Reason B', $exception->getMessage());
     }
 
-    public function testCancelQueryWillReturnRejectedPromiseWithoutCallingSecondaryExecutorWhenPrimaryExecutorIsStillPending()
+    public function testCancelQueryWillReturnRejectedPromiseWithoutCallingSecondaryExecutorWhenPrimaryExecutorIsStillPending(): void
     {
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
@@ -155,7 +155,7 @@ class FallbackExecutorTest extends TestCase
         $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
     }
 
-    public function testCancelQueryWillReturnRejectedPromiseWhenPrimaryExecutorRejectsAndSecondaryExecutorIsStillPending()
+    public function testCancelQueryWillReturnRejectedPromiseWhenPrimaryExecutorRejectsAndSecondaryExecutorIsStillPending(): void
     {
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
@@ -174,7 +174,7 @@ class FallbackExecutorTest extends TestCase
         $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
     }
 
-    public function testCancelQueryShouldNotCauseGarbageReferencesWhenCancellingPrimaryExecutor()
+    public function testCancelQueryShouldNotCauseGarbageReferencesWhenCancellingPrimaryExecutor(): void
     {
         if (class_exists('React\Promise\When')) {
             $this->markTestSkipped('Not supported on legacy Promise v1 API');
@@ -201,7 +201,7 @@ class FallbackExecutorTest extends TestCase
         $this->assertEquals(0, gc_collect_cycles());
     }
 
-    public function testCancelQueryShouldNotCauseGarbageReferencesWhenCancellingSecondaryExecutor()
+    public function testCancelQueryShouldNotCauseGarbageReferencesWhenCancellingSecondaryExecutor(): void
     {
         if (class_exists('React\Promise\When')) {
             $this->markTestSkipped('Not supported on legacy Promise v1 API');

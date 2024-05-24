@@ -24,10 +24,9 @@ class HostsFile
     /**
      * Returns the default path for the hosts file on this system
      *
-     * @return string
      * @codeCoverageIgnore
      */
-    public static function getDefaultPath()
+    public static function getDefaultPath(): string
     {
         // use static path for all Unix-based systems
         if (DIRECTORY_SEPARATOR !== '\\') {
@@ -59,7 +58,7 @@ class HostsFile
      * @return self
      * @throws RuntimeException if the path can not be loaded (does not exist)
      */
-    public static function loadFromPathBlocking($path = null)
+    public static function loadFromPathBlocking(?string $path = null): self
     {
         if ($path === null) {
             $path = self::getDefaultPath();
@@ -73,6 +72,9 @@ class HostsFile
         return new self($contents);
     }
 
+    /**
+     * @var string
+     */
     private $contents;
 
     /**
@@ -80,9 +82,13 @@ class HostsFile
      *
      * @param string $contents
      */
-    public function __construct($contents)
+    public function __construct(string $contents)
     {
-        // remove all comments from the contents
+        /**
+         * remove all comments from the contents
+         *
+         * @var string $contents
+         */
         $contents = preg_replace('/[ \t]*#.*/', '', strtolower($contents));
 
         $this->contents = $contents;
@@ -92,17 +98,27 @@ class HostsFile
      * Returns all IPs for the given hostname
      *
      * @param string $name
-     * @return string[]
+     * @return iterable<string>
      */
-    public function getIpsForHost($name)
+    public function getIpsForHost(string $name): iterable
     {
         $name = strtolower($name);
 
+        $lines = preg_split('/\r?\n/', $this->contents);
+        if (!is_array($lines)) {
+            return [];
+        }
+
         $ips = [];
-        foreach (preg_split('/\r?\n/', $this->contents) as $line) {
+        foreach ($lines as $line) {
             $parts = preg_split('/\s+/', $line);
+
+            if (!is_array($parts)) {
+                continue;
+            }
+
             $ip = array_shift($parts);
-            if ($parts && array_search($name, $parts) !== false) {
+            if ($ip !== null && $parts && array_search($name, $parts) !== false) {
                 // remove IPv6 zone ID (`fe80::1%lo0` => `fe80:1`)
                 if (strpos($ip, ':') !== false && ($pos = strpos($ip, '%')) !== false) {
                     $ip = substr($ip, 0, $pos);
@@ -121,9 +137,9 @@ class HostsFile
      * Returns all hostnames for the given IPv4 or IPv6 address
      *
      * @param string $ip
-     * @return string[]
+     * @return iterable<string>
      */
-    public function getHostsForIp($ip)
+    public function getHostsForIp(string $ip): iterable
     {
         // check binary representation of IP to avoid string case and short notation
         $ip = @inet_pton($ip);
@@ -131,9 +147,17 @@ class HostsFile
             return [];
         }
 
-        $names = [];
-        foreach (preg_split('/\r?\n/', $this->contents) as $line) {
+        $lines = preg_split('/\r?\n/', $this->contents);
+        if (!is_array($lines)) {
+            return [];
+        }
+
+        $ips = [];
+        foreach ($lines as $line) {
             $parts = preg_split('/\s+/', $line, -1, PREG_SPLIT_NO_EMPTY);
+            if (!is_array($parts)) {
+                continue;
+            }
             $addr = (string) array_shift($parts);
 
             // remove IPv6 zone ID (`fe80::1%lo0` => `fe80:1`)
@@ -143,11 +167,11 @@ class HostsFile
 
             if (@inet_pton($addr) === $ip) {
                 foreach ($parts as $part) {
-                    $names[] = $part;
+                    $ips[] = $part;
                 }
             }
         }
 
-        return $names;
+        return $ips;
     }
 }

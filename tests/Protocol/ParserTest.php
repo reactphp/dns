@@ -8,12 +8,15 @@ use React\Tests\Dns\TestCase;
 
 class ParserTest extends TestCase
 {
+    /**
+     * @var Parser
+     */
     private $parser;
 
     /**
      * @before
      */
-    public function setUpParser()
+    public function setUpParser(): void
     {
         $this->parser = new Parser();
     }
@@ -21,12 +24,15 @@ class ParserTest extends TestCase
     /**
      * @dataProvider provideConvertTcpDumpToBinary
      */
-    public function testConvertTcpDumpToBinary($expected, $data)
+    public function testConvertTcpDumpToBinary(string $expected, string $data): void
     {
         $this->assertSame($expected, $this->convertTcpDumpToBinary($data));
     }
 
-    public function provideConvertTcpDumpToBinary()
+    /**
+     * @return iterable<array{string, string}>
+     */
+    public function provideConvertTcpDumpToBinary(): iterable
     {
         yield [chr(0x72).chr(0x62), "72 62"];
         yield [chr(0x72).chr(0x62).chr(0x01).chr(0x00), "72 62 01 00"];
@@ -34,7 +40,7 @@ class ParserTest extends TestCase
         yield [chr(0x01).chr(0x00).chr(0x01), "01 00 01"];
     }
 
-    public function testParseRequest()
+    public function testParseRequest(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
@@ -63,7 +69,7 @@ class ParserTest extends TestCase
         $this->assertSame(Message::CLASS_IN, $request->questions[0]->class);
     }
 
-    public function testParseResponse()
+    public function testParseResponse(): void
     {
         $data = "";
         $data .= "72 62 81 80 00 01 00 01 00 00 00 00"; // header
@@ -101,7 +107,7 @@ class ParserTest extends TestCase
         $this->assertSame('178.79.169.131', $response->answers[0]->data);
     }
 
-    public function testParseRequestWithTwoQuestions()
+    public function testParseRequestWithTwoQuestions(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 02 00 00 00 00 00 00";     // header
@@ -123,7 +129,7 @@ class ParserTest extends TestCase
         $this->assertSame(Message::CLASS_IN, $request->questions[1]->class);
     }
 
-    public function testParseAnswerWithInlineData()
+    public function testParseAnswerWithInlineData(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -142,7 +148,7 @@ class ParserTest extends TestCase
         $this->assertSame('178.79.169.131', $response->answers[0]->data);
     }
 
-    public function testParseAnswerWithExcessiveTtlReturnsZeroTtl()
+    public function testParseAnswerWithExcessiveTtlReturnsZeroTtl(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -161,7 +167,7 @@ class ParserTest extends TestCase
         $this->assertSame('178.79.169.131', $response->answers[0]->data);
     }
 
-    public function testParseAnswerWithTtlExactlyBoundaryReturnsZeroTtl()
+    public function testParseAnswerWithTtlExactlyBoundaryReturnsZeroTtl(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -180,7 +186,7 @@ class ParserTest extends TestCase
         $this->assertSame('178.79.169.131', $response->answers[0]->data);
     }
 
-    public function testParseAnswerWithMaximumTtlReturnsExactTtl()
+    public function testParseAnswerWithMaximumTtlReturnsExactTtl(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -199,7 +205,7 @@ class ParserTest extends TestCase
         $this->assertSame('178.79.169.131', $response->answers[0]->data);
     }
 
-    public function testParseAnswerWithUnknownType()
+    public function testParseAnswerWithUnknownType(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -218,7 +224,7 @@ class ParserTest extends TestCase
         $this->assertSame('hello', $response->answers[0]->data);
     }
 
-    public function testParseResponseWithCnameAndOffsetPointers()
+    public function testParseResponseWithCnameAndOffsetPointers(): void
     {
         $data = "";
         $data .= "9e 8d 81 80 00 01 00 01 00 00 00 00";                 // header
@@ -248,7 +254,7 @@ class ParserTest extends TestCase
         $this->assertSame('googlemail.l.google.com', $response->answers[0]->data);
     }
 
-    public function testParseAAAAResponse()
+    public function testParseAAAAResponse(): void
     {
         $data = "";
         $data .= "cd 72 81 80 00 01 00 01 00 00 00 00 06";          // header
@@ -286,7 +292,7 @@ class ParserTest extends TestCase
         $this->assertSame('2a00:1450:4009:809::200e', $response->answers[0]->data);
     }
 
-    public function testParseTXTResponse()
+    public function testParseTXTResponse(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -305,7 +311,7 @@ class ParserTest extends TestCase
         $this->assertSame(['hello'], $response->answers[0]->data);
     }
 
-    public function testParseSPFResponse()
+    public function testParseSPFResponse(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -324,7 +330,7 @@ class ParserTest extends TestCase
         $this->assertSame(['hello'], $response->answers[0]->data);
     }
 
-    public function testParseTXTResponseMultiple()
+    public function testParseTXTResponseMultiple(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -343,7 +349,7 @@ class ParserTest extends TestCase
         $this->assertSame(['hello', 'world'], $response->answers[0]->data);
     }
 
-    public function testParseMXResponse()
+    public function testParseMXResponse(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -362,7 +368,7 @@ class ParserTest extends TestCase
         $this->assertSame(['priority' => 10, 'target' => 'hello'], $response->answers[0]->data);
     }
 
-    public function testParseSRVResponse()
+    public function testParseSRVResponse(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -389,7 +395,7 @@ class ParserTest extends TestCase
         );
     }
 
-    public function testParseMessageResponseWithTwoAnswers()
+    public function testParseMessageResponseWithTwoAnswers(): void
     {
         $data = "";
         $data .= "bc 73 81 80 00 01 00 02 00 00 00 00";                 // header
@@ -431,7 +437,7 @@ class ParserTest extends TestCase
         $this->assertSame('193.223.78.152', $response->answers[1]->data);
     }
 
-    public function testParseMessageResponseWithTwoAuthorityRecords()
+    public function testParseMessageResponseWithTwoAuthorityRecords(): void
     {
         $data = "";
         $data .= "bc 73 81 80 00 01 00 00 00 02 00 00";                 // header
@@ -475,7 +481,7 @@ class ParserTest extends TestCase
         $this->assertSame('193.223.78.152', $response->authority[1]->data);
     }
 
-    public function testParseMessageResponseWithAnswerAndAdditionalRecord()
+    public function testParseMessageResponseWithAnswerAndAdditionalRecord(): void
     {
         $data = "";
         $data .= "bc 73 81 80 00 01 00 01 00 00 00 01";                 // header
@@ -520,7 +526,7 @@ class ParserTest extends TestCase
         $this->assertSame('193.223.78.152', $response->additional[0]->data);
     }
 
-    public function testParseNSResponse()
+    public function testParseNSResponse(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -539,7 +545,7 @@ class ParserTest extends TestCase
         $this->assertSame('hello', $response->answers[0]->data);
     }
 
-    public function testParseSSHFPResponse()
+    public function testParseSSHFPResponse(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -558,7 +564,7 @@ class ParserTest extends TestCase
         $this->assertSame(['algorithm' => 1, 'type' => 1, 'fingerprint' => '69ac090c'], $response->answers[0]->data);
     }
 
-    public function testParseOptResponseWithoutOptions()
+    public function testParseOptResponseWithoutOptions(): void
     {
         $data = "";
         $data .= "00";                                  // answer: empty domain
@@ -576,7 +582,7 @@ class ParserTest extends TestCase
         $this->assertSame([], $response->answers[0]->data);
     }
 
-    public function testParseOptResponseWithOptTcpKeepaliveDesired()
+    public function testParseOptResponseWithOptTcpKeepaliveDesired(): void
     {
         $data = "";
         $data .= "00";                                  // answer: empty domain
@@ -595,7 +601,7 @@ class ParserTest extends TestCase
         $this->assertSame([Message::OPT_TCP_KEEPALIVE => null], $response->answers[0]->data);
     }
 
-    public function testParseOptResponseWithOptTcpKeepaliveGiven()
+    public function testParseOptResponseWithOptTcpKeepaliveGiven(): void
     {
         $data = "";
         $data .= "00";                                  // answer: empty domain
@@ -614,7 +620,7 @@ class ParserTest extends TestCase
         $this->assertSame([Message::OPT_TCP_KEEPALIVE => 1.2], $response->answers[0]->data);
     }
 
-    public function testParseOptResponseWithCustomOptions()
+    public function testParseOptResponseWithCustomOptions(): void
     {
         $data = "";
         $data .= "00";                                  // answer: empty domain
@@ -634,7 +640,7 @@ class ParserTest extends TestCase
         $this->assertSame([0xa0 => 'foo', 0x01 => ''], $response->answers[0]->data);
     }
 
-    public function testParseSOAResponse()
+    public function testParseSOAResponse(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -667,7 +673,7 @@ class ParserTest extends TestCase
         );
     }
 
-    public function testParseCAAResponse()
+    public function testParseCAAResponse(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -687,7 +693,7 @@ class ParserTest extends TestCase
         $this->assertSame(['flag' => 0, 'tag' => 'issue', 'value' => 'letsencrypt.org'], $response->answers[0]->data);
     }
 
-    public function testParsePTRResponse()
+    public function testParsePTRResponse(): void
     {
         $data = "";
         $data .= "5d d8 81 80 00 01 00 01 00 00 00 00";             // header
@@ -727,7 +733,7 @@ class ParserTest extends TestCase
         $this->assertSame('google-public-dns-b.google.com', $response->answers[0]->data);
     }
 
-    public function testParsePTRResponseWithSpecialCharactersEscaped()
+    public function testParsePTRResponseWithSpecialCharactersEscaped(): void
     {
         $data = "";
         $data .= "5d d8 81 80 00 01 00 01 00 00 00 00";             // header
@@ -757,7 +763,7 @@ class ParserTest extends TestCase
         $this->assertSame('3rd\.\ Floor\ Copy\ Room._printer._tcp.dns-sd.org', $response->answers[0]->data);
     }
 
-    public function testParseIncompleteQuestionThrows()
+    public function testParseIncompleteQuestionThrows(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
@@ -770,7 +776,7 @@ class ParserTest extends TestCase
         $this->parser->parseMessage($data);
     }
 
-    public function testParseIncompleteQuestionLabelThrows()
+    public function testParseIncompleteQuestionLabelThrows(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
@@ -782,7 +788,7 @@ class ParserTest extends TestCase
         $this->parser->parseMessage($data);
     }
 
-    public function testParseIncompleteQuestionNameThrows()
+    public function testParseIncompleteQuestionNameThrows(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
@@ -794,7 +800,7 @@ class ParserTest extends TestCase
         $this->parser->parseMessage($data);
     }
 
-    public function testParseIncompleteOffsetPointerInQuestionNameThrows()
+    public function testParseIncompleteOffsetPointerInQuestionNameThrows(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
@@ -806,7 +812,7 @@ class ParserTest extends TestCase
         $this->parser->parseMessage($data);
     }
 
-    public function testParseInvalidOffsetPointerInQuestionNameThrows()
+    public function testParseInvalidOffsetPointerInQuestionNameThrows(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
@@ -818,7 +824,7 @@ class ParserTest extends TestCase
         $this->parser->parseMessage($data);
     }
 
-    public function testParseInvalidOffsetPointerToSameLabelInQuestionNameThrows()
+    public function testParseInvalidOffsetPointerToSameLabelInQuestionNameThrows(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
@@ -830,7 +836,7 @@ class ParserTest extends TestCase
         $this->parser->parseMessage($data);
     }
 
-    public function testParseInvalidOffsetPointerToPreviousLabelInQuestionNameThrows()
+    public function testParseInvalidOffsetPointerToPreviousLabelInQuestionNameThrows(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
@@ -842,7 +848,7 @@ class ParserTest extends TestCase
         $this->parser->parseMessage($data);
     }
 
-    public function testParseInvalidOffsetPointerToStartOfMessageInQuestionNameThrows()
+    public function testParseInvalidOffsetPointerToStartOfMessageInQuestionNameThrows(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
@@ -854,7 +860,7 @@ class ParserTest extends TestCase
         $this->parser->parseMessage($data);
     }
 
-    public function testParseIncompleteAnswerFieldsThrows()
+    public function testParseIncompleteAnswerFieldsThrows(): void
     {
         $data = "";
         $data .= "72 62 81 80 00 01 00 01 00 00 00 00"; // header
@@ -868,7 +874,7 @@ class ParserTest extends TestCase
         $this->parser->parseMessage($data);
     }
 
-    public function testParseMessageResponseWithIncompleteAuthorityRecordThrows()
+    public function testParseMessageResponseWithIncompleteAuthorityRecordThrows(): void
     {
         $data = "";
         $data .= "72 62 81 80 00 01 00 00 00 01 00 00"; // header
@@ -882,7 +888,7 @@ class ParserTest extends TestCase
         $this->parser->parseMessage($data);
     }
 
-    public function testParseMessageResponseWithIncompleteAdditionalRecordThrows()
+    public function testParseMessageResponseWithIncompleteAdditionalRecordThrows(): void
     {
         $data = "";
         $data .= "72 62 81 80 00 01 00 00 00 00 00 01"; // header
@@ -896,7 +902,7 @@ class ParserTest extends TestCase
         $this->parser->parseMessage($data);
     }
 
-    public function testParseIncompleteAnswerRecordDataThrows()
+    public function testParseIncompleteAnswerRecordDataThrows(): void
     {
         $data = "";
         $data .= "72 62 81 80 00 01 00 01 00 00 00 00"; // header
@@ -913,7 +919,7 @@ class ParserTest extends TestCase
         $this->parser->parseMessage($data);
     }
 
-    public function testParseInvalidNSResponseWhereDomainNameIsMissing()
+    public function testParseInvalidNSResponseWhereDomainNameIsMissing(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -925,7 +931,7 @@ class ParserTest extends TestCase
         $this->parseAnswer($data);
     }
 
-    public function testParseInvalidAResponseWhereIPIsMissing()
+    public function testParseInvalidAResponseWhereIPIsMissing(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -937,7 +943,7 @@ class ParserTest extends TestCase
         $this->parseAnswer($data);
     }
 
-    public function testParseInvalidAAAAResponseWhereIPIsMissing()
+    public function testParseInvalidAAAAResponseWhereIPIsMissing(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -949,7 +955,7 @@ class ParserTest extends TestCase
         $this->parseAnswer($data);
     }
 
-    public function testParseInvalidTXTResponseWhereTxtChunkExceedsLimit()
+    public function testParseInvalidTXTResponseWhereTxtChunkExceedsLimit(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -962,7 +968,7 @@ class ParserTest extends TestCase
         $this->parseAnswer($data);
     }
 
-    public function testParseInvalidMXResponseWhereDomainNameIsIncomplete()
+    public function testParseInvalidMXResponseWhereDomainNameIsIncomplete(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -975,7 +981,7 @@ class ParserTest extends TestCase
         $this->parseAnswer($data);
     }
 
-    public function testParseInvalidMXResponseWhereDomainNameIsMissing()
+    public function testParseInvalidMXResponseWhereDomainNameIsMissing(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -988,7 +994,7 @@ class ParserTest extends TestCase
         $this->parseAnswer($data);
     }
 
-    public function testParseInvalidSRVResponseWhereDomainNameIsIncomplete()
+    public function testParseInvalidSRVResponseWhereDomainNameIsIncomplete(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -1001,7 +1007,7 @@ class ParserTest extends TestCase
         $this->parseAnswer($data);
     }
 
-    public function testParseInvalidSRVResponseWhereDomainNameIsMissing()
+    public function testParseInvalidSRVResponseWhereDomainNameIsMissing(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -1014,7 +1020,7 @@ class ParserTest extends TestCase
         $this->parseAnswer($data);
     }
 
-    public function testParseInvalidSSHFPResponseWhereRecordIsTooSmall()
+    public function testParseInvalidSSHFPResponseWhereRecordIsTooSmall(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -1027,7 +1033,7 @@ class ParserTest extends TestCase
         $this->parseAnswer($data);
     }
 
-    public function testParseInvalidOPTResponseWhereRecordIsTooSmall()
+    public function testParseInvalidOPTResponseWhereRecordIsTooSmall(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -1040,7 +1046,7 @@ class ParserTest extends TestCase
         $this->parseAnswer($data);
     }
 
-    public function testParseInvalidOPTResponseWhereRecordLengthDoesNotMatchOptType()
+    public function testParseInvalidOPTResponseWhereRecordLengthDoesNotMatchOptType(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -1053,7 +1059,7 @@ class ParserTest extends TestCase
         $this->parseAnswer($data);
     }
 
-    public function testParseInvalidSOAResponseWhereFlagsAreMissing()
+    public function testParseInvalidSOAResponseWhereFlagsAreMissing(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -1067,7 +1073,7 @@ class ParserTest extends TestCase
         $this->parseAnswer($data);
     }
 
-    public function testParseInvalidCAAResponseEmtpyData()
+    public function testParseInvalidCAAResponseEmtpyData(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -1079,7 +1085,7 @@ class ParserTest extends TestCase
         $this->parseAnswer($data);
     }
 
-    public function testParseInvalidCAAResponseMissingValue()
+    public function testParseInvalidCAAResponseMissingValue(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -1092,7 +1098,7 @@ class ParserTest extends TestCase
         $this->parseAnswer($data);
     }
 
-    public function testParseInvalidCAAResponseIncompleteTag()
+    public function testParseInvalidCAAResponseIncompleteTag(): void
     {
         $data = "";
         $data .= "04 69 67 6f 72 02 69 6f 00";          // answer: igor.io
@@ -1106,14 +1112,14 @@ class ParserTest extends TestCase
         $this->parseAnswer($data);
     }
 
-    private function convertTcpDumpToBinary($input)
+    private function convertTcpDumpToBinary(string $input): string
     {
         // sudo ngrep -d en1 -x port 53
 
         return pack('H*', str_replace(' ', '', $input));
     }
 
-    private function parseAnswer($answerData)
+    private function parseAnswer(string $answerData): Message
     {
         $data  = "72 62 81 80 00 00 00 01 00 00 00 00"; // header with one answer only
         $data .= $answerData;

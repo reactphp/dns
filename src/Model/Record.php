@@ -131,18 +131,18 @@ final class Record
      *   considered a BC break. See the format definition of known types above
      *   for more details.
      *
-     * @var string|string[]|array
+     * @var string|array<string, string|int|float|null>|array<string|int|float|null>
      */
     public $data;
 
     /**
-     * @param string                $name
-     * @param int                   $type
-     * @param int                   $class
-     * @param int                   $ttl
-     * @param string|string[]|array $data
+     * @param string                                             $name
+     * @param int                                                $type
+     * @param int                                                $class
+     * @param int                                                $ttl
+     * @param string|array<string, string|int|float|null>|array<string|int|float|null> $data
      */
-    public function __construct($name, $type, $class, $ttl, $data)
+    public function __construct(string $name, int $type, int $class, int $ttl, $data)
     {
         $this->name     = $name;
         $this->type     = $type;

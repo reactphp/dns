@@ -17,10 +17,13 @@ $factory = new Factory();
 $resolver = $factory->create($config);
 
 $name = $argv[1] ?? 'google.com';
-$type = constant('React\Dns\Model\Message::TYPE_' . ($argv[2] ?? 'TXT'));
+assert(is_string($name));
 
-$resolver->resolveAll($name, $type)->then(function (array $values) {
+$type = constant('React\Dns\Model\Message::TYPE_' . ($type ?? 'TXT'));
+assert(is_int($type));
+
+$resolver->resolveAll($name, $type)->then(static function (array $values): void {
     var_dump($values);
-}, function (Exception $e) {
+}, function (Throwable $e) {
     echo $e->getMessage() . PHP_EOL;
 });

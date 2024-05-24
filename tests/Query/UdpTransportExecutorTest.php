@@ -23,7 +23,7 @@ class UdpTransportExecutorTest extends TestCase
      * @param string $input
      * @param string $expected
      */
-    public function testCtorShouldAcceptNameserverAddresses($input, $expected)
+    public function testCtorShouldAcceptNameserverAddresses(string $input, string $expected): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -36,7 +36,10 @@ class UdpTransportExecutorTest extends TestCase
         $this->assertEquals($expected, $value);
     }
 
-    public static function provideDefaultPortProvider()
+    /**
+     * @return iterable<array{string, string}>
+     */
+    public static function provideDefaultPortProvider(): iterable
     {
         yield [
             '8.8.8.8',
@@ -64,7 +67,7 @@ class UdpTransportExecutorTest extends TestCase
         ];
     }
 
-    public function testCtorWithoutLoopShouldAssignDefaultLoop()
+    public function testCtorWithoutLoopShouldAssignDefaultLoop(): void
     {
         $executor = new UdpTransportExecutor('127.0.0.1');
 
@@ -75,7 +78,7 @@ class UdpTransportExecutorTest extends TestCase
         $this->assertInstanceOf(LoopInterface::class, $loop);
     }
 
-    public function testCtorShouldThrowWhenNameserverAddressIsInvalid()
+    public function testCtorShouldThrowWhenNameserverAddressIsInvalid(): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -83,7 +86,7 @@ class UdpTransportExecutorTest extends TestCase
         new UdpTransportExecutor('///', $loop);
     }
 
-    public function testCtorShouldThrowWhenNameserverAddressContainsHostname()
+    public function testCtorShouldThrowWhenNameserverAddressContainsHostname(): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -91,7 +94,7 @@ class UdpTransportExecutorTest extends TestCase
         new UdpTransportExecutor('localhost', $loop);
     }
 
-    public function testCtorShouldThrowWhenNameserverSchemeIsInvalid()
+    public function testCtorShouldThrowWhenNameserverSchemeIsInvalid(): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -99,7 +102,7 @@ class UdpTransportExecutorTest extends TestCase
         new UdpTransportExecutor('tcp://1.2.3.4', $loop);
     }
 
-    public function testQueryRejectsIfMessageExceedsUdpSize()
+    public function testQueryRejectsIfMessageExceedsUdpSize(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->never())->method('addReadStream');
@@ -111,20 +114,14 @@ class UdpTransportExecutorTest extends TestCase
 
         $this->assertInstanceOf(PromiseInterface::class, $promise);
 
-        $exception = null;
-        $promise->then(null, function ($reason) use (&$exception) {
-            $exception = $reason;
-        });
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('DNS query for ' . $query->name . ' (A) failed: Query too large for UDP transport');
+        $this->expectExceptionCode(defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90);
 
-        $this->expectException(
-            \RuntimeException::class,
-            'DNS query for ' . $query->name . ' (A) failed: Query too large for UDP transport',
-            defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90
-        );
-        throw $exception;
+        await($promise);
     }
 
-    public function testQueryRejectsIfServerConnectionFails()
+    public function testQueryRejectsIfServerConnectionFails(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->never())->method('addReadStream');
@@ -140,19 +137,13 @@ class UdpTransportExecutorTest extends TestCase
 
         $this->assertInstanceOf(PromiseInterface::class, $promise);
 
-        $exception = null;
-        $promise->then(null, function ($reason) use (&$exception) {
-            $exception = $reason;
-        });
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('DNS query for google.com (A) failed: Unable to connect to DNS server /// (Failed to parse address "///")');
 
-        $this->expectException(
-            \RuntimeException::class,
-            'DNS query for google.com (A) failed: Unable to connect to DNS server /// (Failed to parse address "///")'
-        );
-        throw $exception;
+        await($promise);
     }
 
-    public function testQueryRejectsIfSendToServerFailsAfterConnectionWithoutCallingCustomErrorHandler()
+    public function testQueryRejectsIfSendToServerFailsAfterConnectionWithoutCallingCustomErrorHandler(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->never())->method('addReadStream');
@@ -165,8 +156,10 @@ class UdpTransportExecutorTest extends TestCase
         $ref->setValue($executor, PHP_INT_MAX);
 
         $error = null;
-        set_error_handler(function ($_, $errstr) use (&$error) {
+        set_error_handler(function (int $_, string $errstr) use (&$error): bool {
             $error = $errstr;
+
+            return true;
         });
 
         $query = new Query(str_repeat('a.', 100000) . '.example', Message::TYPE_A, Message::CLASS_IN);
@@ -177,20 +170,14 @@ class UdpTransportExecutorTest extends TestCase
 
         $this->assertInstanceOf(PromiseInterface::class, $promise);
 
-        $exception = null;
-        $promise->then(null, function ($reason) use (&$exception) {
-            $exception = $reason;
-        });
-
         // ECONNREFUSED (Connection refused) on Linux, EMSGSIZE (Message too long) on macOS
-        $this->expectException(
-            \RuntimeException::class,
-            'DNS query for ' . $query->name . ' (A) failed: Unable to send query to DNS server udp://0.0.0.0:53 ('
-        );
-        throw $exception;
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('DNS query for ' . $query->name . ' (A) failed: Unable to send query to DNS server udp://0.0.0.0:53 (');
+
+        await($promise);
     }
 
-    public function testQueryKeepsPendingIfReadFailsBecauseServerRefusesConnection()
+    public function testQueryKeepsPendingIfReadFailsBecauseServerRefusesConnection(): void
     {
         $socket = null;
         $callback = null;
@@ -226,7 +213,7 @@ class UdpTransportExecutorTest extends TestCase
     /**
      * @group internet
      */
-    public function testQueryRejectsOnCancellation()
+    public function testQueryRejectsOnCancellation(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->once())->method('addReadStream');
@@ -248,9 +235,12 @@ class UdpTransportExecutorTest extends TestCase
         $this->assertEquals('DNS query for google.com (A) has been cancelled', $exception->getMessage());
     }
 
-    public function testQueryKeepsPendingIfServerSendsInvalidMessage()
+    public function testQueryKeepsPendingIfServerSendsInvalidMessage(): void
     {
         $server = stream_socket_server('udp://127.0.0.1:0', $errno, $errstr, STREAM_SERVER_BIND);
+        if ($server === false) {
+            $this->fail('Unable to start UDP server');
+        }
         Loop::addReadStream($server, function ($server) {
             $data = stream_socket_recvfrom($server, 512, 0, $peer);
             stream_socket_sendto($server, 'invalid', 0, $peer);
@@ -260,6 +250,9 @@ class UdpTransportExecutorTest extends TestCase
         });
 
         $address = stream_socket_get_name($server, false);
+        if ($address === false) {
+            $this->fail('Unable get UDP socket name');
+        }
         $executor = new UdpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
@@ -278,13 +271,17 @@ class UdpTransportExecutorTest extends TestCase
         $promise->cancel();
     }
 
-    public function testQueryKeepsPendingIfServerSendsInvalidId()
+    public function testQueryKeepsPendingIfServerSendsInvalidId(): void
     {
         $parser = new Parser();
         $dumper = new BinaryDumper();
 
         $server = stream_socket_server('udp://127.0.0.1:0', $errno, $errstr, STREAM_SERVER_BIND);
+        if ($server === false) {
+            $this->fail('Unable to start UDP server');
+        }
         Loop::addReadStream($server, function ($server) use ($parser, $dumper) {
+            /** @var string $data */
             $data = stream_socket_recvfrom($server, 512, 0, $peer);
 
             $message = $parser->parseMessage($data);
@@ -297,6 +294,9 @@ class UdpTransportExecutorTest extends TestCase
         });
 
         $address = stream_socket_get_name($server, false);
+        if ($address === false) {
+            $this->fail('Unable get UDP socket name');
+        }
         $executor = new UdpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
@@ -315,13 +315,17 @@ class UdpTransportExecutorTest extends TestCase
         $promise->cancel();
     }
 
-    public function testQueryRejectsIfServerSendsTruncatedResponse()
+    public function testQueryRejectsIfServerSendsTruncatedResponse(): void
     {
         $parser = new Parser();
         $dumper = new BinaryDumper();
 
         $server = stream_socket_server('udp://127.0.0.1:0', $errno, $errstr, STREAM_SERVER_BIND);
+        if ($server === false) {
+            $this->fail('Unable to start UDP server');
+        }
         Loop::addReadStream($server, function ($server) use ($parser, $dumper) {
+            /** @var string $data */
             $data = stream_socket_recvfrom($server, 512, 0, $peer);
 
             $message = $parser->parseMessage($data);
@@ -334,27 +338,33 @@ class UdpTransportExecutorTest extends TestCase
         });
 
         $address = stream_socket_get_name($server, false);
+        if ($address === false) {
+            $this->fail('Unable get UDP socket name');
+        }
         $executor = new UdpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
 
         $promise = $executor->query($query);
 
-        $this->expectException(
-            \RuntimeException::class,
-            'DNS query for google.com (A) failed: The DNS server udp://' . $address . ' returned a truncated result for a UDP query',
-            defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90
-        );
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('DNS query for google.com (A) failed: The DNS server udp://' . $address . ' returned a truncated result for a UDP query');
+        $this->expectExceptionCode(defined('SOCKET_EMSGSIZE') ? SOCKET_EMSGSIZE : 90);
+
         await(timeout($promise, 0.1));
     }
 
-    public function testQueryResolvesIfServerSendsValidResponse()
+    public function testQueryResolvesIfServerSendsValidResponse(): void
     {
         $parser = new Parser();
         $dumper = new BinaryDumper();
 
         $server = stream_socket_server('udp://127.0.0.1:0', $errno, $errstr, STREAM_SERVER_BIND);
+        if ($server === false) {
+            $this->fail('Unable to start UDP server');
+        }
         Loop::addReadStream($server, function ($server) use ($parser, $dumper) {
+            /** @var string $data */
             $data = stream_socket_recvfrom($server, 512, 0, $peer);
 
             $message = $parser->parseMessage($data);
@@ -366,6 +376,9 @@ class UdpTransportExecutorTest extends TestCase
         });
 
         $address = stream_socket_get_name($server, false);
+        if ($address === false) {
+            $this->fail('Unable get UDP socket name');
+        }
         $executor = new UdpTransportExecutor($address);
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);

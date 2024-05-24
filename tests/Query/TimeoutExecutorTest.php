@@ -2,7 +2,9 @@
 
 namespace React\Tests\Dns\Query;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use React\Dns\Model\Message;
+use React\Dns\Model\Record;
 use React\Dns\Query\CancellationException;
 use React\Dns\Query\ExecutorInterface;
 use React\Dns\Query\Query;
@@ -17,14 +19,25 @@ use function React\Promise\resolve;
 
 class TimeoutExecutorTest extends TestCase
 {
+    /**
+     * @var ExecutorInterface&MockObject
+     */
     private $wrapped;
+
+    /**
+     * @var ExecutorInterface
+     */
     private $executor;
+
+    /**
+     * @var LoopInterface&MockObject
+     */
     private $loop;
 
     /**
      * @before
      */
-    public function setUpExecutor()
+    public function setUpExecutor(): void
     {
         $this->wrapped = $this->createMock(ExecutorInterface::class);
 
@@ -33,7 +46,7 @@ class TimeoutExecutorTest extends TestCase
         $this->executor = new TimeoutExecutor($this->wrapped, 5.0, $this->loop);
     }
 
-    public function testCtorWithoutLoopShouldAssignDefaultLoop()
+    public function testCtorWithoutLoopShouldAssignDefaultLoop(): void
     {
         $executor = new TimeoutExecutor($this->executor, 5.0);
 
@@ -44,7 +57,7 @@ class TimeoutExecutorTest extends TestCase
         $this->assertInstanceOf(LoopInterface::class, $loop);
     }
 
-    public function testCancellingPromiseWillCancelWrapped()
+    public function testCancellingPromiseWillCancelWrapped(): void
     {
         $timer = $this->createMock(TimerInterface::class);
         $this->loop->expects($this->once())->method('addTimer')->with(5.0, $this->anything())->willReturn($timer);
@@ -74,7 +87,7 @@ class TimeoutExecutorTest extends TestCase
         $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
     }
 
-    public function testResolvesPromiseWithoutStartingTimerWhenWrappedReturnsResolvedPromise()
+    public function testResolvesPromiseWithoutStartingTimerWhenWrappedReturnsResolvedPromise(): void
     {
         $this->loop->expects($this->never())->method('addTimer');
         $this->loop->expects($this->never())->method('cancelTimer');
@@ -82,7 +95,7 @@ class TimeoutExecutorTest extends TestCase
         $this->wrapped
             ->expects($this->once())
             ->method('query')
-            ->willReturn(resolve('0.0.0.0'));
+            ->willReturn(resolve($this->createStandardResponse()));
 
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $promise = $this->executor->query($query);
@@ -90,7 +103,7 @@ class TimeoutExecutorTest extends TestCase
         $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
     }
 
-    public function testResolvesPromiseAfterCancellingTimerWhenWrappedReturnsPendingPromiseThatResolves()
+    public function testResolvesPromiseAfterCancellingTimerWhenWrappedReturnsPendingPromiseThatResolves(): void
     {
         $timer = $this->createMock(TimerInterface::class);
         $this->loop->expects($this->once())->method('addTimer')->with(5.0, $this->anything())->willReturn($timer);
@@ -105,12 +118,12 @@ class TimeoutExecutorTest extends TestCase
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
         $promise = $this->executor->query($query);
 
-        $deferred->resolve('0.0.0.0');
+        $deferred->resolve($this->createStandardResponse());
 
         $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
     }
 
-    public function testRejectsPromiseWithoutStartingTimerWhenWrappedReturnsRejectedPromise()
+    public function testRejectsPromiseWithoutStartingTimerWhenWrappedReturnsRejectedPromise(): void
     {
         $this->loop->expects($this->never())->method('addTimer');
         $this->loop->expects($this->never())->method('cancelTimer');
@@ -126,7 +139,7 @@ class TimeoutExecutorTest extends TestCase
         $promise->then($this->expectCallableNever(), $this->expectCallableOnceWith(new \RuntimeException()));
     }
 
-    public function testRejectsPromiseAfterCancellingTimerWhenWrappedReturnsPendingPromiseThatRejects()
+    public function testRejectsPromiseAfterCancellingTimerWhenWrappedReturnsPendingPromiseThatRejects(): void
     {
         $timer = $this->createMock(TimerInterface::class);
         $this->loop->expects($this->once())->method('addTimer')->with(5.0, $this->anything())->willReturn($timer);
@@ -146,7 +159,7 @@ class TimeoutExecutorTest extends TestCase
         $promise->then($this->expectCallableNever(), $this->expectCallableOnceWith(new \RuntimeException()));
     }
 
-    public function testRejectsPromiseAndCancelsPendingQueryWhenTimeoutTriggers()
+    public function testRejectsPromiseAndCancelsPendingQueryWhenTimeoutTriggers(): void
     {
         $timerCallback = null;
         $timer = $this->createMock(TimerInterface::class);
@@ -188,5 +201,16 @@ class TimeoutExecutorTest extends TestCase
         assert($exception instanceof TimeoutException);
         $this->assertInstanceOf(TimeoutException::class, $exception);
         $this->assertEquals('DNS query for igor.io (A) timed out' , $exception->getMessage());
+    }
+
+
+    protected function createStandardResponse(): Message
+    {
+        $response = new Message();
+        $response->qr = true;
+        $response->questions[] = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
+        $response->answers[] = new Record('igor.io', Message::TYPE_A, Message::CLASS_IN, 3600, '0.0.0.0');
+
+        return $response;
     }
 }

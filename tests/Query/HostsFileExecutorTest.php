@@ -2,6 +2,7 @@
 
 namespace React\Tests\Dns\Query;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use React\Dns\Config\HostsFile;
 use React\Dns\Model\Message;
 use React\Dns\Query\ExecutorInterface;
@@ -11,21 +12,32 @@ use React\Tests\Dns\TestCase;
 
 class HostsFileExecutorTest extends TestCase
 {
+    /**
+     * @var HostsFile&MockObject
+     */
     private $hosts;
+
+    /**
+     * @var ExecutorInterface&MockObject
+     */
     private $fallback;
+
+    /**
+     * @var ExecutorInterface
+     */
     private $executor;
 
     /**
      * @before
      */
-    public function setUpMocks()
+    public function setUpMocks(): void
     {
         $this->hosts = $this->createMock(HostsFile::class);
         $this->fallback = $this->createMock(ExecutorInterface::class);
         $this->executor = new HostsFileExecutor($this->hosts, $this->fallback);
     }
 
-    public function testDoesNotTryToGetIpsForMxQuery()
+    public function testDoesNotTryToGetIpsForMxQuery(): void
     {
         $this->hosts->expects($this->never())->method('getIpsForHost');
         $this->fallback->expects($this->once())->method('query');
@@ -33,7 +45,7 @@ class HostsFileExecutorTest extends TestCase
         $this->executor->query(new Query('google.com', Message::TYPE_MX, Message::CLASS_IN));
     }
 
-    public function testFallsBackIfNoIpsWereFound()
+    public function testFallsBackIfNoIpsWereFound(): void
     {
         $this->hosts->expects($this->once())->method('getIpsForHost')->willReturn([]);
         $this->fallback->expects($this->once())->method('query');
@@ -41,7 +53,7 @@ class HostsFileExecutorTest extends TestCase
         $this->executor->query(new Query('google.com', Message::TYPE_A, Message::CLASS_IN));
     }
 
-    public function testReturnsResponseMessageIfIpsWereFound()
+    public function testReturnsResponseMessageIfIpsWereFound(): void
     {
         $this->hosts->expects($this->once())->method('getIpsForHost')->willReturn(['127.0.0.1']);
         $this->fallback->expects($this->never())->method('query');
@@ -49,7 +61,7 @@ class HostsFileExecutorTest extends TestCase
         $ret = $this->executor->query(new Query('google.com', Message::TYPE_A, Message::CLASS_IN));
     }
 
-    public function testFallsBackIfNoIpv4Matches()
+    public function testFallsBackIfNoIpv4Matches(): void
     {
         $this->hosts->expects($this->once())->method('getIpsForHost')->willReturn(['::1']);
         $this->fallback->expects($this->once())->method('query');
@@ -57,7 +69,7 @@ class HostsFileExecutorTest extends TestCase
         $ret = $this->executor->query(new Query('google.com', Message::TYPE_A, Message::CLASS_IN));
     }
 
-    public function testReturnsResponseMessageIfIpv6AddressesWereFound()
+    public function testReturnsResponseMessageIfIpv6AddressesWereFound(): void
     {
         $this->hosts->expects($this->once())->method('getIpsForHost')->willReturn(['::1']);
         $this->fallback->expects($this->never())->method('query');
@@ -65,7 +77,7 @@ class HostsFileExecutorTest extends TestCase
         $ret = $this->executor->query(new Query('google.com', Message::TYPE_AAAA, Message::CLASS_IN));
     }
 
-    public function testFallsBackIfNoIpv6Matches()
+    public function testFallsBackIfNoIpv6Matches(): void
     {
         $this->hosts->expects($this->once())->method('getIpsForHost')->willReturn(['127.0.0.1']);
         $this->fallback->expects($this->once())->method('query');
@@ -73,7 +85,7 @@ class HostsFileExecutorTest extends TestCase
         $ret = $this->executor->query(new Query('google.com', Message::TYPE_AAAA, Message::CLASS_IN));
     }
 
-    public function testDoesReturnReverseIpv4Lookup()
+    public function testDoesReturnReverseIpv4Lookup(): void
     {
         $this->hosts->expects($this->once())->method('getHostsForIp')->with('127.0.0.1')->willReturn(['localhost']);
         $this->fallback->expects($this->never())->method('query');
@@ -81,7 +93,7 @@ class HostsFileExecutorTest extends TestCase
         $this->executor->query(new Query('1.0.0.127.in-addr.arpa', Message::TYPE_PTR, Message::CLASS_IN));
     }
 
-    public function testFallsBackIfNoReverseIpv4Matches()
+    public function testFallsBackIfNoReverseIpv4Matches(): void
     {
         $this->hosts->expects($this->once())->method('getHostsForIp')->with('127.0.0.1')->willReturn([]);
         $this->fallback->expects($this->once())->method('query');
@@ -89,7 +101,7 @@ class HostsFileExecutorTest extends TestCase
         $this->executor->query(new Query('1.0.0.127.in-addr.arpa', Message::TYPE_PTR, Message::CLASS_IN));
     }
 
-    public function testDoesReturnReverseIpv6Lookup()
+    public function testDoesReturnReverseIpv6Lookup(): void
     {
         $this->hosts->expects($this->once())->method('getHostsForIp')->with('2a02:2e0:3fe:100::6')->willReturn(['ip6-localhost']);
         $this->fallback->expects($this->never())->method('query');
@@ -97,7 +109,7 @@ class HostsFileExecutorTest extends TestCase
         $this->executor->query(new Query('6.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1.0.e.f.3.0.0.e.2.0.2.0.a.2.ip6.arpa', Message::TYPE_PTR, Message::CLASS_IN));
     }
 
-    public function testFallsBackForInvalidAddress()
+    public function testFallsBackForInvalidAddress(): void
     {
         $this->hosts->expects($this->never())->method('getHostsForIp');
         $this->fallback->expects($this->once())->method('query');
@@ -105,7 +117,7 @@ class HostsFileExecutorTest extends TestCase
         $this->executor->query(new Query('example.com', Message::TYPE_PTR, Message::CLASS_IN));
     }
 
-    public function testReverseFallsBackForInvalidIpv4Address()
+    public function testReverseFallsBackForInvalidIpv4Address(): void
     {
         $this->hosts->expects($this->never())->method('getHostsForIp');
         $this->fallback->expects($this->once())->method('query');
@@ -113,7 +125,7 @@ class HostsFileExecutorTest extends TestCase
         $this->executor->query(new Query('::1.in-addr.arpa', Message::TYPE_PTR, Message::CLASS_IN));
     }
 
-    public function testReverseFallsBackForInvalidLengthIpv6Address()
+    public function testReverseFallsBackForInvalidLengthIpv6Address(): void
     {
         $this->hosts->expects($this->never())->method('getHostsForIp');
         $this->fallback->expects($this->once())->method('query');
@@ -121,7 +133,7 @@ class HostsFileExecutorTest extends TestCase
         $this->executor->query(new Query('abcd.ip6.arpa', Message::TYPE_PTR, Message::CLASS_IN));
     }
 
-    public function testReverseFallsBackForInvalidHexIpv6Address()
+    public function testReverseFallsBackForInvalidHexIpv6Address(): void
     {
         $this->hosts->expects($this->never())->method('getHostsForIp');
         $this->fallback->expects($this->once())->method('query');

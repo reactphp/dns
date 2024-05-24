@@ -15,15 +15,16 @@ $factory = new Factory();
 $resolver = $factory->create($config);
 
 $name = $argv[1] ?? 'www.google.com';
+assert(is_string($name));
 
-$resolver->resolveAll($name, Message::TYPE_A)->then(function (array $ips) use ($name) {
+$resolver->resolveAll($name, Message::TYPE_A)->then(static function (array $ips) use ($name): void {
     echo 'IPv4 addresses for ' . $name . ': ' . implode(', ', $ips) . PHP_EOL;
-}, function (Exception $e) use ($name) {
+}, function (Throwable $e) use ($name) {
     echo 'No IPv4 addresses for ' . $name . ': ' . $e->getMessage() . PHP_EOL;
 });
 
-$resolver->resolveAll($name, Message::TYPE_AAAA)->then(function (array $ips) use ($name) {
+$resolver->resolveAll($name, Message::TYPE_AAAA)->then(static function (array $ips) use ($name): void {
     echo 'IPv6 addresses for ' . $name . ': ' . implode(', ', $ips) . PHP_EOL;
-}, function (Exception $e) use ($name) {
+}, function (Throwable $e) use ($name) {
     echo 'No IPv6 addresses for ' . $name . ': ' . $e->getMessage() . PHP_EOL;
 });

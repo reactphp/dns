@@ -17,4 +17,6 @@ $name = $argv[1] ?? 'www.google.com';
 
 $resolver->resolve($name)->then(function ($ip) use ($name) {
     echo 'IP for ' . $name . ': ' . $ip . PHP_EOL;
-}, 'printf');
+}, static function (Throwable $error) {
+    echo $error;
+});

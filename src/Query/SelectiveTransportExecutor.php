@@ -2,7 +2,9 @@
 
 namespace React\Dns\Query;
 
+use React\Dns\Model\Message;
 use React\Promise\Promise;
+use React\Promise\PromiseInterface;
 
 /**
  * Send DNS queries over a UDP or TCP/IP stream transport.
@@ -52,7 +54,14 @@ use React\Promise\Promise;
  */
 class SelectiveTransportExecutor implements ExecutorInterface
 {
+    /**
+     * @var ExecutorInterface
+     */
     private $datagramExecutor;
+
+    /**
+     * @var ExecutorInterface
+     */
     private $streamExecutor;
 
     public function __construct(ExecutorInterface $datagramExecutor, ExecutorInterface $streamExecutor)
@@ -61,14 +70,15 @@ class SelectiveTransportExecutor implements ExecutorInterface
         $this->streamExecutor = $streamExecutor;
     }
 
-    public function query(Query $query)
+    public function query(Query $query): PromiseInterface
     {
         $pending = $this->datagramExecutor->query($query);
 
-        return new Promise(function ($resolve, $reject) use (&$pending, $query) {
+        /** @var Promise<Message> */
+        return new Promise(function ($resolve, $reject) use (&$pending, $query): void {
             $pending->then(
                 $resolve,
-                function ($e) use (&$pending, $query, $resolve, $reject) {
+                function (\Throwable $e) use (&$pending, $query, $resolve, $reject) {
                     if ($e->getCode() === (\defined('SOCKET_EMSGSIZE') ? \SOCKET_EMSGSIZE : 90)) {
                         $pending = $this->streamExecutor->query($query)->then($resolve, $reject);
                     } else {
@@ -77,7 +87,7 @@ class SelectiveTransportExecutor implements ExecutorInterface
                 }
             );
         }, function () use (&$pending) {
-            $pending->cancel();
+            $pending->cancel(); /** @phpstan-ignore-line $pending will never be null when we reach this */
             $pending = null;
         });
     }

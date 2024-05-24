@@ -24,7 +24,7 @@ class TcpTransportExecutorTest extends TestCase
      * @param string $input
      * @param string $expected
      */
-    public function testCtorShouldAcceptNameserverAddresses($input, $expected)
+    public function testCtorShouldAcceptNameserverAddresses(string $input, string $expected): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -37,7 +37,10 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertEquals($expected, $value);
     }
 
-    public static function provideDefaultPortProvider()
+    /**
+     * @return iterable<array{string, string}>
+     */
+    public static function provideDefaultPortProvider(): iterable
     {
         yield [
             '8.8.8.8',
@@ -65,7 +68,7 @@ class TcpTransportExecutorTest extends TestCase
         ];
     }
 
-    public function testCtorWithoutLoopShouldAssignDefaultLoop()
+    public function testCtorWithoutLoopShouldAssignDefaultLoop(): void
     {
         $executor = new TcpTransportExecutor('127.0.0.1');
 
@@ -76,7 +79,7 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertInstanceOf(LoopInterface::class, $loop);
     }
 
-    public function testCtorShouldThrowWhenNameserverAddressIsInvalid()
+    public function testCtorShouldThrowWhenNameserverAddressIsInvalid(): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -84,7 +87,7 @@ class TcpTransportExecutorTest extends TestCase
         new TcpTransportExecutor('///', $loop);
     }
 
-    public function testCtorShouldThrowWhenNameserverAddressContainsHostname()
+    public function testCtorShouldThrowWhenNameserverAddressContainsHostname(): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -92,7 +95,7 @@ class TcpTransportExecutorTest extends TestCase
         new TcpTransportExecutor('localhost', $loop);
     }
 
-    public function testCtorShouldThrowWhenNameserverSchemeIsInvalid()
+    public function testCtorShouldThrowWhenNameserverSchemeIsInvalid(): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -100,7 +103,7 @@ class TcpTransportExecutorTest extends TestCase
         new TcpTransportExecutor('udp://1.2.3.4', $loop);
     }
 
-    public function testQueryRejectsIfMessageExceedsMaximumMessageSize()
+    public function testQueryRejectsIfMessageExceedsMaximumMessageSize(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->never())->method('addWriteStream');
@@ -120,7 +123,7 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertEquals('DNS query for '. $query->name . ' (A) failed: Query too large for TCP transport', $exception->getMessage());
     }
 
-    public function testQueryRejectsIfServerConnectionFails()
+    public function testQueryRejectsIfServerConnectionFails(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->never())->method('addWriteStream');
@@ -144,7 +147,7 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertEquals('DNS query for google.com (A) failed: Unable to connect to DNS server /// (Failed to parse address "///")', $exception->getMessage());
     }
 
-    public function testQueryRejectsOnCancellationWithoutClosingSocketButStartsIdleTimer()
+    public function testQueryRejectsOnCancellationWithoutClosingSocketButStartsIdleTimer(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->once())->method('addWriteStream');
@@ -156,7 +159,9 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything())->willReturn($timer);
         $loop->expects($this->never())->method('cancelTimer');
 
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
 
         $executor = new TcpTransportExecutor($address, $loop);
@@ -175,7 +180,7 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertEquals('DNS query for google.com (A) has been cancelled', $exception->getMessage());
     }
 
-    public function testTriggerIdleTimerAfterQueryRejectedOnCancellationWillCloseSocket()
+    public function testTriggerIdleTimerAfterQueryRejectedOnCancellationWillCloseSocket(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->once())->method('addWriteStream');
@@ -191,7 +196,9 @@ class TcpTransportExecutorTest extends TestCase
         }))->willReturn($timer);
         $loop->expects($this->once())->method('cancelTimer')->with($timer);
 
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
 
         $executor = new TcpTransportExecutor($address, $loop);
@@ -208,7 +215,7 @@ class TcpTransportExecutorTest extends TestCase
         $timerCallback();
     }
 
-    public function testQueryRejectsOnCancellationWithoutClosingSocketAndWithoutStartingIdleTimerWhenOtherQueryIsStillPending()
+    public function testQueryRejectsOnCancellationWithoutClosingSocketAndWithoutStartingIdleTimerWhenOtherQueryIsStillPending(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->once())->method('addWriteStream');
@@ -219,7 +226,9 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->never())->method('addTimer');
         $loop->expects($this->never())->method('cancelTimer');
 
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
 
         $executor = new TcpTransportExecutor($address, $loop);
@@ -233,7 +242,7 @@ class TcpTransportExecutorTest extends TestCase
         $promise2->then(null, $this->expectCallableOnce());
     }
 
-    public function testQueryAgainAfterPreviousWasCancelledReusesExistingSocket()
+    public function testQueryAgainAfterPreviousWasCancelledReusesExistingSocket(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->once())->method('addWriteStream');
@@ -241,7 +250,9 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->never())->method('addReadStream');
         $loop->expects($this->never())->method('removeReadStream');
 
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
 
         $executor = new TcpTransportExecutor($address, $loop);
@@ -253,7 +264,7 @@ class TcpTransportExecutorTest extends TestCase
         $executor->query($query);
     }
 
-    public function testQueryRejectsWhenServerIsNotListening()
+    public function testQueryRejectsWhenServerIsNotListening(): void
     {
         $executor = new TcpTransportExecutor('127.0.0.1:1');
 
@@ -278,7 +289,7 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertEquals(defined('SOCKET_ECONNREFUSED') ? SOCKET_ECONNREFUSED : 111, $exception->getCode());
     }
 
-    public function testQueryStaysPendingWhenClientCanNotSendExcessiveMessageInOneChunk()
+    public function testQueryStaysPendingWhenClientCanNotSendExcessiveMessageInOneChunk(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->once())->method('addWriteStream');
@@ -286,8 +297,10 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->never())->method('removeWriteStream');
         $loop->expects($this->never())->method('removeReadStream');
 
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
 
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address, $loop);
 
@@ -303,17 +316,20 @@ class TcpTransportExecutorTest extends TestCase
 
         $executor->handleWritable();
 
-        $promise->then(null, 'printf');
+        $promise->then(null, static function(\Throwable $error): void {
+            echo $error;
+        });
         $promise->then($this->expectCallableNever(), $this->expectCallableNever());
 
         $ref = new \ReflectionProperty($executor, 'writePending');
         $ref->setAccessible(true);
+        /** @var bool $writePending */
         $writePending = $ref->getValue($executor);
 
         $this->assertTrue($writePending);
     }
 
-    public function testQueryStaysPendingWhenClientCanNotSendExcessiveMessageInOneChunkWhenServerClosesSocket()
+    public function testQueryStaysPendingWhenClientCanNotSendExcessiveMessageInOneChunkWhenServerClosesSocket(): void
     {
         if (PHP_OS === 'Darwin') {
             // Skip on macOS because it exhibits what looks like a kernal race condition when sending excessive data to a socket that is about to shut down (EPROTOTYPE)
@@ -329,8 +345,10 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->never())->method('removeWriteStream');
         $loop->expects($this->never())->method('removeReadStream');
 
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
 
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address, $loop);
 
@@ -341,6 +359,7 @@ class TcpTransportExecutorTest extends TestCase
             $promise = $executor->query($query);
         }
 
+        /** @var resource $client */
         $client = stream_socket_accept($server);
         fclose($client);
 
@@ -350,12 +369,13 @@ class TcpTransportExecutorTest extends TestCase
 
         $ref = new \ReflectionProperty($executor, 'writePending');
         $ref->setAccessible(true);
+        /** @var bool $writePending */
         $writePending = $ref->getValue($executor);
 
         $this->assertTrue($writePending);
     }
 
-    public function testQueryRejectsWhenClientKeepsSendingWhenServerClosesSocketWithoutCallingCustomErrorHandler()
+    public function testQueryRejectsWhenClientKeepsSendingWhenServerClosesSocketWithoutCallingCustomErrorHandler(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->once())->method('addWriteStream');
@@ -363,8 +383,10 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->once())->method('removeWriteStream');
         $loop->expects($this->once())->method('removeReadStream');
 
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
 
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address, $loop);
 
@@ -374,17 +396,20 @@ class TcpTransportExecutorTest extends TestCase
         $exception = null;
         for ($i = 0; $i < 2000; ++$i) {
             $promise = $executor->query($query);
-            $promise->then(null, function (\Exception $reason) use (&$exception) {
+            $promise->then(null, function (\Throwable $reason) use (&$exception): void {
                 $exception = $reason;
             });
         }
 
+        /** @var resource $client */
         $client = stream_socket_accept($server);
         fclose($client);
 
         $error = null;
-        set_error_handler(function ($_, $errstr) use (&$error) {
+        set_error_handler(function (int $_, string $errstr) use (&$error): bool {
             $error = $errstr;
+
+            return true;
         });
 
         $executor->handleWritable();
@@ -405,18 +430,20 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertNull($error);
 
         // expect EPIPE (Broken pipe), except for macOS kernel race condition
-        $this->expectException(
-            \RuntimeException::class,
-            'Unable to send query to DNS server tcp://' . $address . ' (',
-            defined('SOCKET_EPIPE') ? (PHP_OS !== 'Darwin' || $writePending ? SOCKET_EPIPE : SOCKET_EPROTOTYPE) : null
-        );
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Unable to send query to DNS server tcp://' . $address . ' (');
+        $this->expectExceptionCode(defined('SOCKET_EPIPE') ? (PHP_OS !== 'Darwin' || $writePending ? SOCKET_EPIPE : SOCKET_EPROTOTYPE) : PHP_INT_MIN);
+        $this->assertNotNull($exception);
+
         throw $exception;
     }
 
-    public function testQueryRejectsWhenServerClosesConnection()
+    public function testQueryRejectsWhenServerClosesConnection(): void
     {
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
         Loop::addReadStream($server, function ($server) {
+            /** @var resource $client */
             $client = stream_socket_accept($server);
             fclose($client);
 
@@ -424,6 +451,7 @@ class TcpTransportExecutorTest extends TestCase
             fclose($server);
         });
 
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address);
 
@@ -447,11 +475,13 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertEquals('DNS query for google.com (A) failed: Connection to DNS server tcp://' . $address . ' lost', $exception->getMessage());
     }
 
-    public function testQueryKeepsPendingIfServerSendsIncompleteMessageLength()
+    public function testQueryKeepsPendingIfServerSendsIncompleteMessageLength(): void
     {
         $client = null;
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
         Loop::addReadStream($server, function ($server) use (&$client) {
+            /** @var resource $client */
             $client = stream_socket_accept($server);
             Loop::addReadStream($client, function ($client) {
                 Loop::removeReadStream($client);
@@ -462,6 +492,7 @@ class TcpTransportExecutorTest extends TestCase
             fclose($server);
         });
 
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address);
 
@@ -483,11 +514,13 @@ class TcpTransportExecutorTest extends TestCase
         Loop::removeReadStream($client);
     }
 
-    public function testQueryKeepsPendingIfServerSendsIncompleteMessageBody()
+    public function testQueryKeepsPendingIfServerSendsIncompleteMessageBody(): void
     {
         $client = null;
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
         Loop::addReadStream($server, function ($server) use (&$client) {
+            /** @var resource $client */
             $client = stream_socket_accept($server);
             Loop::addReadStream($client, function ($client) {
                 Loop::removeReadStream($client);
@@ -498,6 +531,7 @@ class TcpTransportExecutorTest extends TestCase
             fclose($server);
         });
 
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address);
 
@@ -519,10 +553,12 @@ class TcpTransportExecutorTest extends TestCase
         Loop::removeReadStream($client);
     }
 
-    public function testQueryRejectsWhenServerSendsInvalidMessage()
+    public function testQueryRejectsWhenServerSendsInvalidMessage(): void
     {
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
         Loop::addReadStream($server, function ($server) {
+            /** @var resource $client */
             $client = stream_socket_accept($server);
             Loop::addReadStream($client, function ($client) {
                 Loop::removeReadStream($client);
@@ -533,6 +569,7 @@ class TcpTransportExecutorTest extends TestCase
             fclose($server);
         });
 
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address);
 
@@ -556,18 +593,22 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertEquals('DNS query for google.com (A) failed: Invalid message received from DNS server tcp://' . $address, $exception->getMessage());
     }
 
-    public function testQueryRejectsWhenServerSendsInvalidId()
+    public function testQueryRejectsWhenServerSendsInvalidId(): void
     {
         $parser = new Parser();
         $dumper = new BinaryDumper();
 
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
         Loop::addReadStream($server, function ($server) use ($parser, $dumper) {
+            /** @var resource $client */
             $client = stream_socket_accept($server);
             Loop::addReadStream($client, function ($client) use ($parser, $dumper) {
                 Loop::removeReadStream($client);
+                /** @var string $data */
                 $data = fread($client, 512);
 
+                /** @phpstan-ignore-next-line unpack won't error on this line as our format is correct */
                 list(, $length) = unpack('n', substr($data, 0, 2));
                 assert(strlen($data) - 2 === $length);
                 $data = substr($data, 2);
@@ -585,6 +626,7 @@ class TcpTransportExecutorTest extends TestCase
             fclose($server);
         });
 
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address);
 
@@ -608,18 +650,22 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertEquals('DNS query for google.com (A) failed: Invalid response message received from DNS server tcp://' . $address, $exception->getMessage());
     }
 
-    public function testQueryRejectsIfServerSendsTruncatedResponse()
+    public function testQueryRejectsIfServerSendsTruncatedResponse(): void
     {
         $parser = new Parser();
         $dumper = new BinaryDumper();
 
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
         Loop::addReadStream($server, function ($server) use ($parser, $dumper) {
+            /** @var resource $client */
             $client = stream_socket_accept($server);
             Loop::addReadStream($client, function ($client) use ($parser, $dumper) {
                 Loop::removeReadStream($client);
+                /** @var string $data */
                 $data = fread($client, 512);
 
+                /** @phpstan-ignore-next-line unpack won't error on this line as our format is correct */
                 list(, $length) = unpack('n', substr($data, 0, 2));
                 assert(strlen($data) - 2 === $length);
                 $data = substr($data, 2);
@@ -637,6 +683,7 @@ class TcpTransportExecutorTest extends TestCase
             fclose($server);
         });
 
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address);
 
@@ -660,15 +707,19 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertEquals('DNS query for google.com (A) failed: Invalid response message received from DNS server tcp://' . $address, $exception->getMessage());
     }
 
-    public function testQueryResolvesIfServerSendsValidResponse()
+    public function testQueryResolvesIfServerSendsValidResponse(): void
     {
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
         Loop::addReadStream($server, function ($server) {
+            /** @var resource $client */
             $client = stream_socket_accept($server);
             Loop::addReadStream($client, function ($client) {
                 Loop::removeReadStream($client);
+                /** @var string $data */
                 $data = fread($client, 512);
 
+                /** @phpstan-ignore-next-line unpack won't error on this line as our format is correct */
                 list(, $length) = unpack('n', substr($data, 0, 2));
                 assert(strlen($data) - 2 === $length);
 
@@ -679,6 +730,7 @@ class TcpTransportExecutorTest extends TestCase
             fclose($server);
         });
 
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address);
 
@@ -690,7 +742,7 @@ class TcpTransportExecutorTest extends TestCase
         $this->assertInstanceOf(Message::class, $response);
     }
 
-    public function testQueryRejectsIfSocketIsClosedAfterPreviousQueryThatWasStillPending()
+    public function testQueryRejectsIfSocketIsClosedAfterPreviousQueryThatWasStillPending(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->exactly(2))->method('addWriteStream');
@@ -701,7 +753,9 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->never())->method('addTimer');
         $loop->expects($this->never())->method('cancelTimer');
 
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address, $loop);
 
@@ -709,6 +763,7 @@ class TcpTransportExecutorTest extends TestCase
 
         $promise1 = $executor->query($query);
 
+        /** @var resource $client */
         $client = stream_socket_accept($server);
 
         $executor->handleWritable();
@@ -724,7 +779,7 @@ class TcpTransportExecutorTest extends TestCase
         $promise2->then(null, $this->expectCallableOnce());
     }
 
-    public function testQueryResolvesIfServerSendsBackResponseMessageAndWillStartIdleTimer()
+    public function testQueryResolvesIfServerSendsBackResponseMessageAndWillStartIdleTimer(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->once())->method('addWriteStream');
@@ -735,7 +790,9 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything());
         $loop->expects($this->never())->method('cancelTimer');
 
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address, $loop);
 
@@ -746,8 +803,10 @@ class TcpTransportExecutorTest extends TestCase
         // use outgoing buffer as response message
         $ref = new \ReflectionProperty($executor, 'writeBuffer');
         $ref->setAccessible(true);
+        /** @var string $data */
         $data = $ref->getValue($executor);
 
+        /** @var resource $client */
         $client = stream_socket_accept($server);
         fwrite($client, $data);
 
@@ -757,7 +816,7 @@ class TcpTransportExecutorTest extends TestCase
         $promise->then($this->expectCallableOnce());
     }
 
-    public function testQueryResolvesIfServerSendsBackResponseMessageAfterCancellingQueryAndWillStartIdleTimer()
+    public function testQueryResolvesIfServerSendsBackResponseMessageAfterCancellingQueryAndWillStartIdleTimer(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->once())->method('addWriteStream');
@@ -769,7 +828,9 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything())->willReturn($timer);
         $loop->expects($this->never())->method('cancelTimer');
 
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address, $loop);
 
@@ -781,8 +842,10 @@ class TcpTransportExecutorTest extends TestCase
         // use outgoing buffer as response message
         $ref = new \ReflectionProperty($executor, 'writeBuffer');
         $ref->setAccessible(true);
+        /** @var string $data */
         $data = $ref->getValue($executor);
 
+        /** @var resource $client */
         $client = stream_socket_accept($server);
         fwrite($client, $data);
 
@@ -792,7 +855,7 @@ class TcpTransportExecutorTest extends TestCase
         //$promise->then(null, $this->expectCallableOnce());
     }
 
-    public function testQueryResolvesIfServerSendsBackResponseMessageAfterCancellingOtherQueryAndWillStartIdleTimer()
+    public function testQueryResolvesIfServerSendsBackResponseMessageAfterCancellingOtherQueryAndWillStartIdleTimer(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->once())->method('addWriteStream');
@@ -803,7 +866,9 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything());
         $loop->expects($this->never())->method('cancelTimer');
 
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address, $loop);
 
@@ -814,8 +879,10 @@ class TcpTransportExecutorTest extends TestCase
         // use outgoing buffer as response message
         $ref = new \ReflectionProperty($executor, 'writeBuffer');
         $ref->setAccessible(true);
+        /** @var string $data */
         $data = $ref->getValue($executor);
 
+        /** @var resource $client */
         $client = stream_socket_accept($server);
         fwrite($client, $data);
 
@@ -828,7 +895,7 @@ class TcpTransportExecutorTest extends TestCase
         $promise->then($this->expectCallableOnce());
     }
 
-    public function testTriggerIdleTimerAfterPreviousQueryResolvedWillCloseIdleSocketConnection()
+    public function testTriggerIdleTimerAfterPreviousQueryResolvedWillCloseIdleSocketConnection(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->once())->method('addWriteStream');
@@ -844,7 +911,9 @@ class TcpTransportExecutorTest extends TestCase
         }))->willReturn($timer);
         $loop->expects($this->once())->method('cancelTimer')->with($timer);
 
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address, $loop);
 
@@ -855,8 +924,10 @@ class TcpTransportExecutorTest extends TestCase
         // use outgoing buffer as response message
         $ref = new \ReflectionProperty($executor, 'writeBuffer');
         $ref->setAccessible(true);
+        /** @var string $data */
         $data = $ref->getValue($executor);
 
+        /** @var resource $client */
         $client = stream_socket_accept($server);
         fwrite($client, $data);
 
@@ -870,7 +941,7 @@ class TcpTransportExecutorTest extends TestCase
         $timerCallback();
     }
 
-    public function testClosingConnectionAfterPreviousQueryResolvedWillCancelIdleTimer()
+    public function testClosingConnectionAfterPreviousQueryResolvedWillCancelIdleTimer(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->once())->method('addWriteStream');
@@ -882,7 +953,9 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything())->willReturn($timer);
         $loop->expects($this->once())->method('cancelTimer')->with($timer);
 
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address, $loop);
 
@@ -893,8 +966,10 @@ class TcpTransportExecutorTest extends TestCase
         // use outgoing buffer as response message
         $ref = new \ReflectionProperty($executor, 'writeBuffer');
         $ref->setAccessible(true);
+        /** @var string $data */
         $data = $ref->getValue($executor);
 
+        /** @var resource $client */
         $client = stream_socket_accept($server);
         fwrite($client, $data);
 
@@ -908,7 +983,7 @@ class TcpTransportExecutorTest extends TestCase
         $executor->handleRead();
     }
 
-    public function testQueryAgainAfterPreviousQueryResolvedWillReuseSocketAndCancelIdleTimer()
+    public function testQueryAgainAfterPreviousQueryResolvedWillReuseSocketAndCancelIdleTimer(): void
     {
         $loop = $this->createMock(LoopInterface::class);
         $loop->expects($this->exactly(2))->method('addWriteStream');
@@ -920,7 +995,9 @@ class TcpTransportExecutorTest extends TestCase
         $loop->expects($this->once())->method('addTimer')->with(0.001, $this->anything())->willReturn($timer);
         $loop->expects($this->once())->method('cancelTimer')->with($timer);
 
+        /** @var resource $server */
         $server = stream_socket_server('tcp://127.0.0.1:0');
+        /** @var string $address */
         $address = stream_socket_get_name($server, false);
         $executor = new TcpTransportExecutor($address, $loop);
 
@@ -931,8 +1008,10 @@ class TcpTransportExecutorTest extends TestCase
         // use outgoing buffer as response message
         $ref = new \ReflectionProperty($executor, 'writeBuffer');
         $ref->setAccessible(true);
+        /** @var string $data */
         $data = $ref->getValue($executor);
 
+        /** @var resource $client */
         $client = stream_socket_accept($server);
         fwrite($client, $data);
 

@@ -7,6 +7,7 @@ use React\Cache\CacheInterface;
 use React\Dns\Config\Config;
 use React\Dns\Query\CachingExecutor;
 use React\Dns\Query\CoopExecutor;
+use React\Dns\Query\ExecutorInterface;
 use React\Dns\Query\HostsFileExecutor;
 use React\Dns\Query\FallbackExecutor;
 use React\Dns\Query\RetryExecutor;
@@ -22,7 +23,7 @@ use React\Tests\Dns\TestCase;
 class FactoryTest extends TestCase
 {
     /** @test */
-    public function createShouldCreateResolver()
+    public function createShouldCreateResolver(): void
     {
         $factory = new Factory();
         $resolver = $factory->create('8.8.8.8:53');
@@ -31,7 +32,7 @@ class FactoryTest extends TestCase
     }
 
     /** @test */
-    public function createWithoutSchemeShouldCreateResolverWithSelectiveUdpAndTcpExecutorStack()
+    public function createWithoutSchemeShouldCreateResolverWithSelectiveUdpAndTcpExecutorStack(): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -86,7 +87,7 @@ class FactoryTest extends TestCase
     }
 
     /** @test */
-    public function createWithUdpSchemeShouldCreateResolverWithUdpExecutorStack()
+    public function createWithUdpSchemeShouldCreateResolverWithUdpExecutorStack(): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -119,7 +120,7 @@ class FactoryTest extends TestCase
     }
 
     /** @test */
-    public function createWithTcpSchemeShouldCreateResolverWithTcpExecutorStack()
+    public function createWithTcpSchemeShouldCreateResolverWithTcpExecutorStack(): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -152,7 +153,7 @@ class FactoryTest extends TestCase
     }
 
     /** @test */
-    public function createWithConfigWithTcpNameserverSchemeShouldCreateResolverWithTcpExecutorStack()
+    public function createWithConfigWithTcpNameserverSchemeShouldCreateResolverWithTcpExecutorStack(): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -188,7 +189,7 @@ class FactoryTest extends TestCase
     }
 
     /** @test */
-    public function createWithConfigWithTwoNameserversWithTcpSchemeShouldCreateResolverWithFallbackExecutorStack()
+    public function createWithConfigWithTwoNameserversWithTcpSchemeShouldCreateResolverWithFallbackExecutorStack(): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -255,7 +256,7 @@ class FactoryTest extends TestCase
     }
 
     /** @test */
-    public function createWithConfigWithThreeNameserversWithTcpSchemeShouldCreateResolverWithNestedFallbackExecutorStack()
+    public function createWithConfigWithThreeNameserversWithTcpSchemeShouldCreateResolverWithNestedFallbackExecutorStack(): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -347,7 +348,7 @@ class FactoryTest extends TestCase
     }
 
     /** @test */
-    public function createShouldThrowWhenNameserverIsInvalid()
+    public function createShouldThrowWhenNameserverIsInvalid(): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -358,7 +359,7 @@ class FactoryTest extends TestCase
     }
 
     /** @test */
-    public function createShouldThrowWhenConfigHasNoNameservers()
+    public function createShouldThrowWhenConfigHasNoNameservers(): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -369,7 +370,7 @@ class FactoryTest extends TestCase
     }
 
     /** @test */
-    public function createShouldThrowWhenConfigHasInvalidNameserver()
+    public function createShouldThrowWhenConfigHasInvalidNameserver(): void
     {
         $loop = $this->createMock(LoopInterface::class);
 
@@ -383,7 +384,7 @@ class FactoryTest extends TestCase
     }
 
     /** @test */
-    public function createCachedShouldCreateResolverWithCachingExecutor()
+    public function createCachedShouldCreateResolverWithCachingExecutor(): void
     {
         $factory = new Factory();
         $resolver = $factory->createCached('8.8.8.8:53');
@@ -396,7 +397,7 @@ class FactoryTest extends TestCase
     }
 
     /** @test */
-    public function createCachedShouldCreateResolverWithCachingExecutorWithCustomCache()
+    public function createCachedShouldCreateResolverWithCachingExecutorWithCustomCache(): void
     {
         $cache = $this->createMock(CacheInterface::class);
         $loop = $this->createMock(LoopInterface::class);
@@ -411,7 +412,7 @@ class FactoryTest extends TestCase
         $this->assertSame($cache, $cacheProperty);
     }
 
-    private function getResolverPrivateExecutor($resolver)
+    private function getResolverPrivateExecutor(Resolver $resolver): ExecutorInterface
     {
         $executor = $this->getResolverPrivateMemberValue($resolver, 'executor');
 
@@ -420,23 +421,29 @@ class FactoryTest extends TestCase
             $reflector = new \ReflectionProperty(HostsFileExecutor::class, 'fallback');
             $reflector->setAccessible(true);
 
+            /** @var ExecutorInterface $executor */
             $executor = $reflector->getValue($executor);
         }
 
         return $executor;
     }
 
-    private function getResolverPrivateMemberValue($resolver, $field)
+    private function getResolverPrivateMemberValue(Resolver $resolver, string $field): ExecutorInterface
     {
         $reflector = new \ReflectionProperty(Resolver::class, $field);
         $reflector->setAccessible(true);
+        /** @var ExecutorInterface */
         return $reflector->getValue($resolver);
     }
 
-    private function getCachingExecutorPrivateMemberValue($resolver, $field)
+    /**
+     * @return ExecutorInterface|CacheInterface
+     */
+    private function getCachingExecutorPrivateMemberValue(CachingExecutor $resolver, string $field)
     {
         $reflector = new \ReflectionProperty(CachingExecutor::class, $field);
         $reflector->setAccessible(true);
+        /** @var ExecutorInterface|CacheInterface */
         return $reflector->getValue($resolver);
     }
 }

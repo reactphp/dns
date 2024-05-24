@@ -8,11 +8,7 @@ use React\Dns\Query\Query;
 
 final class BinaryDumper
 {
-    /**
-     * @param Message $message
-     * @return string
-     */
-    public function toBinary(Message $message)
+    public function toBinary(Message $message): string
     {
         $data = '';
 
@@ -25,11 +21,7 @@ final class BinaryDumper
         return $data;
     }
 
-    /**
-     * @param Message $message
-     * @return string
-     */
-    private function headerToBinary(Message $message)
+    private function headerToBinary(Message $message): string
     {
         $data = '';
 
@@ -56,10 +48,9 @@ final class BinaryDumper
     }
 
     /**
-     * @param Query[] $questions
-     * @return string
+     * @param array<Query> $questions
      */
-    private function questionToBinary(array $questions)
+    private function questionToBinary(array $questions): string
     {
         $data = '';
 
@@ -72,30 +63,32 @@ final class BinaryDumper
     }
 
     /**
-     * @param Record[] $records
-     * @return string
+     * @param array<Record> $records
      */
-    private function recordsToBinary(array $records)
+    private function recordsToBinary(array $records): string
     {
         $data = '';
 
         foreach ($records as $record) {
-            /* @var $record Record */
             switch ($record->type) {
                 case Message::TYPE_A:
                 case Message::TYPE_AAAA:
+                    assert(\is_string($record->data));
                     $binary = \inet_pton($record->data);
                     break;
                 case Message::TYPE_CNAME:
                 case Message::TYPE_NS:
                 case Message::TYPE_PTR:
+                    assert(\is_string($record->data));
                     $binary = $this->domainNameToBinary($record->data);
                     break;
                 case Message::TYPE_TXT:
                 case Message::TYPE_SPF:
+                    assert(\is_array($record->data));
                     $binary = $this->textsToBinary($record->data);
                     break;
                 case Message::TYPE_MX:
+                    assert(\is_array($record->data));
                     $binary = \pack(
                         'n',
                         $record->data['priority']
@@ -103,6 +96,7 @@ final class BinaryDumper
                     $binary .= $this->domainNameToBinary($record->data['target']);
                     break;
                 case Message::TYPE_SRV:
+                    assert(\is_array($record->data));
                     $binary = \pack(
                         'n*',
                         $record->data['priority'],
@@ -112,6 +106,7 @@ final class BinaryDumper
                     $binary .= $this->domainNameToBinary($record->data['target']);
                     break;
                 case Message::TYPE_SOA:
+                    assert(\is_array($record->data));
                     $binary  = $this->domainNameToBinary($record->data['mname']);
                     $binary .= $this->domainNameToBinary($record->data['rname']);
                     $binary .= \pack(
@@ -124,6 +119,7 @@ final class BinaryDumper
                     );
                     break;
                 case Message::TYPE_CAA:
+                    assert(\is_array($record->data));
                     $binary = \pack(
                         'C*',
                         $record->data['flag'],
@@ -133,6 +129,7 @@ final class BinaryDumper
                     $binary .= $record->data['value'];
                     break;
                 case Message::TYPE_SSHFP:
+                    assert(\is_array($record->data));
                     $binary = \pack(
                         'CCH*',
                         $record->data['algorithm'],
@@ -141,10 +138,11 @@ final class BinaryDumper
                     );
                     break;
                 case Message::TYPE_OPT:
+                    assert(\is_array($record->data));
                     $binary = '';
                     foreach ($record->data as $opt => $value) {
                         if ($opt === Message::OPT_TCP_KEEPALIVE && $value !== null) {
-                            $value = \pack('n', round($value * 10));
+                            $value = \pack('n', round((float) $value * 10));
                         }
                         $binary .= \pack('n*', $opt, \strlen((string) $value)) . $value;
                     }
@@ -155,18 +153,17 @@ final class BinaryDumper
             }
 
             $data .= $this->domainNameToBinary($record->name);
-            $data .= \pack('nnNn', $record->type, $record->class, $record->ttl, \strlen($binary));
-            $data .= $binary;
+            $data .= \pack('nnNn', $record->type, $record->class, $record->ttl, \strlen($binary)); /** @phpstan-ignore-line */
+            $data .= $binary; /** @phpstan-ignore-line */
         }
 
         return $data;
     }
 
     /**
-     * @param string[] $texts
-     * @return string
+     * @param array<string> $texts
      */
-    private function textsToBinary(array $texts)
+    private function textsToBinary(array $texts): string
     {
         $data = '';
         foreach ($texts as $text) {
@@ -175,11 +172,7 @@ final class BinaryDumper
         return $data;
     }
 
-    /**
-     * @param string $host
-     * @return string
-     */
-    private function domainNameToBinary($host)
+    private function domainNameToBinary(string $host): string
     {
         if ($host === '') {
             return "\0";
@@ -189,7 +182,7 @@ final class BinaryDumper
         return $this->textsToBinary(
             \array_map(
                 'stripcslashes',
-                \preg_split(
+                \preg_split( /** @phpstan-ignore-line */
                     '/(?<!\\\\)\./',
                     $host . '.'
                 )
