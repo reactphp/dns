@@ -2,6 +2,8 @@
 
 namespace React\Dns\Resolver;
 
+use React\Promise\PromiseInterface;
+
 interface ResolverInterface
 {
     /**
@@ -42,7 +44,7 @@ interface ResolverInterface
      * @return \React\Promise\PromiseInterface<string>
      *     resolves with a single IP address on success or rejects with an Exception on error.
      */
-    public function resolve($domain);
+    public function resolve(string $domain): PromiseInterface;
 
     /**
      * Resolves all record values for the given $domain name and query $type.
@@ -86,9 +88,10 @@ interface ResolverInterface
      * $promise->cancel();
      * ```
      *
-     * @param string $domain
-     * @return \React\Promise\PromiseInterface<array>
+     * @param string $domain domain to resolve
+     * @param int    $type   query type, see Message::TYPE_* constants
+     * @return \React\Promise\PromiseInterface<array<string>>
      *     Resolves with all record values on success or rejects with an Exception on error.
      */
-    public function resolveAll($domain, $type);
+    public function resolveAll(string $domain, int $type): PromiseInterface;
 }

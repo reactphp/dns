@@ -2,6 +2,8 @@
 
 namespace React\Dns\Query;
 
+use React\Promise\PromiseInterface;
+
 interface ExecutorInterface
 {
     /**
@@ -39,5 +41,5 @@ interface ExecutorInterface
      * @return \React\Promise\PromiseInterface<\React\Dns\Model\Message>
      *     resolves with response message on success or rejects with an Exception on error
      */
-    public function query(Query $query);
+    public function query(Query $query): PromiseInterface;
 }
