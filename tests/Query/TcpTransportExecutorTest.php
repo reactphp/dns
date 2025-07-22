@@ -337,7 +337,7 @@ class TcpTransportExecutorTest extends TestCase
         $query = new Query('google' . str_repeat('.com', 100), Message::TYPE_A, Message::CLASS_IN);
 
         // send a bunch of queries and keep reference to last promise
-        for ($i = 0; $i < 2000; ++$i) {
+        for ($i = 0; $i < 20000; ++$i) {
             $promise = $executor->query($query);
         }
 
@@ -372,7 +372,7 @@ class TcpTransportExecutorTest extends TestCase
 
         // send a bunch of queries and keep reference to last promise
         $exception = null;
-        for ($i = 0; $i < 2000; ++$i) {
+        for ($i = 0; $i < 20000; ++$i) {
             $promise = $executor->query($query);
             $promise->then(null, function (\Exception $reason) use (&$exception) {
                 $exception = $reason;
