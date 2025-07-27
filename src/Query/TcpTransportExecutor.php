@@ -7,7 +7,9 @@ use React\Dns\Protocol\BinaryDumper;
 use React\Dns\Protocol\Parser;
 use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
+use React\EventLoop\TimerInterface;
 use React\Promise\Deferred;
+use React\Promise\PromiseInterface;
 use function React\Promise\reject;
 
 /**
@@ -78,24 +80,25 @@ use function React\Promise\reject;
  */
 class TcpTransportExecutor implements ExecutorInterface
 {
+    /** @var string */
     private $nameserver;
+
+    /** @var LoopInterface */
     private $loop;
+
+    /** @var Parser */
     private $parser;
+
+    /** @var BinaryDumper */
     private $dumper;
 
-    /**
-     * @var ?resource
-     */
+    /** @var ?resource */
     private $socket;
 
-    /**
-     * @var Deferred[]
-     */
+    /** @var array<Deferred<Message>> */
     private $pending = [];
 
-    /**
-     * @var string[]
-     */
+    /** @var array<string> */
     private $names = [];
 
     /**
@@ -117,18 +120,22 @@ class TcpTransportExecutor implements ExecutorInterface
      */
     private $idlePeriod = 0.001;
 
-    /**
-     * @var ?\React\EventLoop\TimerInterface
-     */
+    /** @var ?TimerInterface */
     private $idleTimer;
 
+    /** @var string */
     private $writeBuffer = '';
+
+    /** @var bool */
     private $writePending = false;
 
+    /** @var string */
     private $readBuffer = '';
+
+    /** @var bool */
     private $readPending = false;
 
-    /** @var string */
+    /** @var int<0, max> */
     private $readChunk = 0xffff;
 
     /**
@@ -153,7 +160,7 @@ class TcpTransportExecutor implements ExecutorInterface
         $this->dumper = new BinaryDumper();
     }
 
-    public function query(Query $query)
+    public function query(Query $query): PromiseInterface
     {
         $request = Message::createRequestForQuery($query);
 
@@ -174,6 +181,7 @@ class TcpTransportExecutor implements ExecutorInterface
 
         if ($this->socket === null) {
             // create async TCP/IP connection (may take a while)
+            /** @var resource|false $socket */
             $socket = @\stream_socket_client($this->nameserver, $errno, $errstr, 0, \STREAM_CLIENT_CONNECT | \STREAM_CLIENT_ASYNC_CONNECT);
             if ($socket === false) {
                 return reject(new \RuntimeException(
@@ -202,6 +210,9 @@ class TcpTransportExecutor implements ExecutorInterface
             $this->loop->addWriteStream($this->socket, [$this, 'handleWritable']);
         }
 
+        /**
+         * @var Deferred<Message> $deferred
+         */
         $deferred = new Deferred(function () use ($request) {
             // remove from list of pending names, but remember pending query
             $name = $this->names[$request->id];
@@ -220,16 +231,20 @@ class TcpTransportExecutor implements ExecutorInterface
     /**
      * @internal
      */
-    public function handleWritable()
+    public function handleWritable(): void
     {
         if ($this->readPending === false) {
+            /** @phpstan-ignore-next-line $this->socket will never be null when we reach this */
             $name = @\stream_socket_get_name($this->socket, true);
             if ($name === false) {
                 // Connection failed? Check socket error if available for underlying errno/errstr.
                 // @codeCoverageIgnoreStart
                 if (\function_exists('socket_import_stream')) {
+                    /** @phpstan-ignore-next-line $this->socket will never be null when we reach this */
                     $socket = \socket_import_stream($this->socket);
+                    /** @phpstan-ignore-next-line $this->socket will never be null when we reach this */
                     $errno = \socket_get_option($socket, \SOL_SOCKET, \SO_ERROR);
+                    /** @phpstan-ignore-next-line $errno will always be an int due to the option we pass to \socket_get_option */
                     $errstr = \socket_strerror($errno);
                 } else {
                     $errno = \defined('SOCKET_ECONNREFUSED') ? \SOCKET_ECONNREFUSED : 111;
@@ -237,24 +252,29 @@ class TcpTransportExecutor implements ExecutorInterface
                 }
                 // @codeCoverageIgnoreEnd
 
+                /** @phpstan-ignore-next-line $errno will always be an int due to the option we pass to \socket_get_option */
                 $this->closeError('Unable to connect to DNS server ' . $this->nameserver . ' (' . $errstr . ')', $errno);
                 return;
             }
 
             $this->readPending = true;
+            /** @phpstan-ignore-next-line $this->socket will never be null when we reach this */
             $this->loop->addReadStream($this->socket, [$this, 'handleRead']);
         }
 
         $errno = 0;
         $errstr = '';
-        \set_error_handler(function ($_, $error) use (&$errno, &$errstr) {
+        \set_error_handler(function (int $_, string $error) use (&$errno, &$errstr): bool {
             // Match errstr from PHP's warning message.
             // fwrite(): Send of 327712 bytes failed with errno=32 Broken pipe
             \preg_match('/errno=(\d+) (.+)/', $error, $m);
             $errno = (int) ($m[1] ?? 0);
             $errstr = $m[2] ?? $error;
+
+            return true;
         });
 
+        /** @phpstan-ignore-next-line $this->socket will never be null when we reach this */
         $written = \fwrite($this->socket, $this->writeBuffer);
 
         \restore_error_handler();
@@ -270,6 +290,7 @@ class TcpTransportExecutor implements ExecutorInterface
         if (isset($this->writeBuffer[$written])) {
             $this->writeBuffer = \substr($this->writeBuffer, $written);
         } else {
+            /** @phpstan-ignore-next-line $this->socket will never be null when we reach this */
             $this->loop->removeWriteStream($this->socket);
             $this->writePending = false;
             $this->writeBuffer = '';
@@ -279,10 +300,11 @@ class TcpTransportExecutor implements ExecutorInterface
     /**
      * @internal
      */
-    public function handleRead()
+    public function handleRead(): void
     {
         // read one chunk of data from the DNS server
         // any error is fatal, this is a stream of TCP/IP data
+        /** @phpstan-ignore-next-line $this->socket will never be null when we reach this */
         $chunk = @\fread($this->socket, $this->readChunk);
         if ($chunk === false || $chunk === '') {
             $this->closeError('Connection to DNS server ' . $this->nameserver . ' lost');
@@ -295,7 +317,11 @@ class TcpTransportExecutor implements ExecutorInterface
         // response message header contains at least 12 bytes
         while (isset($this->readBuffer[11])) {
             // read response message length from first 2 bytes and ensure we have length + data in buffer
-            list(, $length) = \unpack('n', $this->readBuffer);
+            $list = \unpack('n', $this->readBuffer);
+            if (!is_array($list)) {
+                return;
+            }
+            list(, $length) = $list;
             if (!isset($this->readBuffer[$length + 1])) {
                 return;
             }
@@ -328,19 +354,19 @@ class TcpTransportExecutor implements ExecutorInterface
 
     /**
      * @internal
-     * @param string $reason
-     * @param int    $code
      */
-    public function closeError($reason, $code = 0)
+    public function closeError(string $reason, int $code = 0): void
     {
         $this->readBuffer = '';
         if ($this->readPending) {
+            /** @phpstan-ignore-next-line $this->socket will never be null when we reach this */
             $this->loop->removeReadStream($this->socket);
             $this->readPending = false;
         }
 
         $this->writeBuffer = '';
         if ($this->writePending) {
+            /** @phpstan-ignore-next-line $this->socket will never be null when we reach this */
             $this->loop->removeWriteStream($this->socket);
             $this->writePending = false;
         }
@@ -350,7 +376,7 @@ class TcpTransportExecutor implements ExecutorInterface
             $this->idleTimer = null;
         }
 
-        @\fclose($this->socket);
+        @\fclose($this->socket); /** @phpstan-ignore-line */
         $this->socket = null;
 
         foreach ($this->names as $id => $name) {
@@ -365,7 +391,7 @@ class TcpTransportExecutor implements ExecutorInterface
     /**
      * @internal
      */
-    public function checkIdle()
+    public function checkIdle(): void
     {
         if ($this->idleTimer === null && !$this->names) {
             $this->idleTimer = $this->loop->addTimer($this->idlePeriod, function () {

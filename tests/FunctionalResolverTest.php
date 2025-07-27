@@ -6,22 +6,26 @@ use React\Dns\Model\Message;
 use React\Dns\Query\CancellationException;
 use React\Dns\RecordNotFoundException;
 use React\Dns\Resolver\Factory;
+use React\Dns\Resolver\ResolverInterface;
 use React\EventLoop\Loop;
 
 class FunctionalResolverTest extends TestCase
 {
+    /**
+     * @var ResolverInterface
+     */
     private $resolver;
 
     /**
      * @before
      */
-    public function setUpResolver()
+    public function setUpResolver(): void
     {
         $factory = new Factory();
         $this->resolver = $factory->create('8.8.8.8');
     }
 
-    public function testResolveLocalhostResolves()
+    public function testResolveLocalhostResolves(): void
     {
         $promise = $this->resolver->resolve('localhost');
         $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
@@ -29,7 +33,7 @@ class FunctionalResolverTest extends TestCase
         Loop::run();
     }
 
-    public function testResolveAllLocalhostResolvesWithArray()
+    public function testResolveAllLocalhostResolvesWithArray(): void
     {
         $promise = $this->resolver->resolveAll('localhost', Message::TYPE_A);
         $promise->then($this->expectCallableOnceWith($this->isType('array')), $this->expectCallableNever());
@@ -40,7 +44,7 @@ class FunctionalResolverTest extends TestCase
     /**
      * @group internet
      */
-    public function testResolveGoogleResolves()
+    public function testResolveGoogleResolves(): void
     {
         $promise = $this->resolver->resolve('google.com');
         $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
@@ -51,7 +55,7 @@ class FunctionalResolverTest extends TestCase
     /**
      * @group internet
      */
-    public function testResolveGoogleOverUdpResolves()
+    public function testResolveGoogleOverUdpResolves(): void
     {
         $factory = new Factory();
         $this->resolver = $factory->create('udp://8.8.8.8');
@@ -65,7 +69,7 @@ class FunctionalResolverTest extends TestCase
     /**
      * @group internet
      */
-    public function testResolveGoogleOverTcpResolves()
+    public function testResolveGoogleOverTcpResolves(): void
     {
         $factory = new Factory();
         $this->resolver = $factory->create('tcp://8.8.8.8');
@@ -79,7 +83,7 @@ class FunctionalResolverTest extends TestCase
     /**
      * @group internet
      */
-    public function testResolveAllGoogleMxResolvesWithCache()
+    public function testResolveAllGoogleMxResolvesWithCache(): void
     {
         $factory = new Factory();
         $this->resolver = $factory->createCached('8.8.8.8');
@@ -92,7 +96,7 @@ class FunctionalResolverTest extends TestCase
     /**
      * @group internet
      */
-    public function testResolveAllGoogleCaaResolvesWithCache()
+    public function testResolveAllGoogleCaaResolvesWithCache(): void
     {
         $factory = new Factory();
         $this->resolver = $factory->createCached('8.8.8.8');
@@ -106,7 +110,7 @@ class FunctionalResolverTest extends TestCase
     /**
      * @group internet
      */
-    public function testResolveInvalidRejects()
+    public function testResolveInvalidRejects(): void
     {
         $promise = $this->resolver->resolve('example.invalid');
 
@@ -123,7 +127,7 @@ class FunctionalResolverTest extends TestCase
         $this->assertEquals(Message::RCODE_NAME_ERROR, $exception->getCode());
     }
 
-    public function testResolveCancelledRejectsImmediately()
+    public function testResolveCancelledRejectsImmediately(): void
     {
         $promise = $this->resolver->resolve('google.com');
         $promise->cancel();
@@ -147,7 +151,7 @@ class FunctionalResolverTest extends TestCase
     /**
      * @group internet
      */
-    public function testResolveAllInvalidTypeRejects()
+    public function testResolveAllInvalidTypeRejects(): void
     {
         $promise = $this->resolver->resolveAll('google.com', Message::TYPE_PTR);
 
@@ -164,7 +168,7 @@ class FunctionalResolverTest extends TestCase
         $this->assertEquals(0, $exception->getCode());
     }
 
-    public function testInvalidResolverDoesNotResolveGoogle()
+    public function testInvalidResolverDoesNotResolveGoogle(): void
     {
         $factory = new Factory();
         $this->resolver = $factory->create('255.255.255.255');
@@ -173,7 +177,7 @@ class FunctionalResolverTest extends TestCase
         $promise->then($this->expectCallableNever(), $this->expectCallableOnce());
     }
 
-    public function testResolveShouldNotCauseGarbageReferencesWhenUsingInvalidNameserver()
+    public function testResolveShouldNotCauseGarbageReferencesWhenUsingInvalidNameserver(): void
     {
         if (class_exists('React\Promise\When')) {
             $this->markTestSkipped('Not supported on legacy Promise v1 API');
@@ -195,7 +199,7 @@ class FunctionalResolverTest extends TestCase
         $this->assertEquals(0, gc_collect_cycles());
     }
 
-    public function testResolveCachedShouldNotCauseGarbageReferencesWhenUsingInvalidNameserver()
+    public function testResolveCachedShouldNotCauseGarbageReferencesWhenUsingInvalidNameserver(): void
     {
         if (class_exists('React\Promise\When')) {
             $this->markTestSkipped('Not supported on legacy Promise v1 API');
@@ -217,7 +221,7 @@ class FunctionalResolverTest extends TestCase
         $this->assertEquals(0, gc_collect_cycles());
     }
 
-    public function testCancelResolveShouldNotCauseGarbageReferences()
+    public function testCancelResolveShouldNotCauseGarbageReferences(): void
     {
         if (class_exists('React\Promise\When')) {
             $this->markTestSkipped('Not supported on legacy Promise v1 API');
@@ -237,7 +241,7 @@ class FunctionalResolverTest extends TestCase
         $this->assertEquals(0, gc_collect_cycles());
     }
 
-    public function testCancelResolveCachedShouldNotCauseGarbageReferences()
+    public function testCancelResolveCachedShouldNotCauseGarbageReferences(): void
     {
         if (class_exists('React\Promise\When')) {
             $this->markTestSkipped('Not supported on legacy Promise v1 API');

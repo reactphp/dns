@@ -2,39 +2,55 @@
 
 namespace React\Dns\Query;
 
+use React\Dns\Model\Message;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 
 final class RetryExecutor implements ExecutorInterface
 {
+    /**
+     * @var ExecutorInterface
+     */
     private $executor;
+
+    /**
+     * @var int
+     */
     private $retries;
 
-    public function __construct(ExecutorInterface $executor, $retries = 2)
+    public function __construct(ExecutorInterface $executor, int $retries = 2)
     {
         $this->executor = $executor;
         $this->retries = $retries;
     }
 
-    public function query(Query $query)
+    public function query(Query $query): PromiseInterface
     {
         return $this->tryQuery($query, $this->retries);
     }
 
-    public function tryQuery(Query $query, $retries)
+    /**
+     * @param Query $query
+     * @param int $retries
+     * @return PromiseInterface<Message>
+     */
+    public function tryQuery(Query $query, int $retries): PromiseInterface
     {
+        /** @var ?PromiseInterface<Message> $promise */
+        $promise = null;
+        /** @var Deferred<Message> $deferred */
         $deferred = new Deferred(function () use (&$promise) {
-            if ($promise instanceof PromiseInterface && \method_exists($promise, 'cancel')) {
+            if ($promise !== null && \method_exists($promise, 'cancel')) {
                 $promise->cancel();
             }
         });
 
-        $success = function ($value) use ($deferred, &$errorback) {
+        $success = static function (Message $value) use ($deferred, &$errorback) {
             $errorback = null;
             $deferred->resolve($value);
         };
 
-        $errorback = function ($e) use ($deferred, &$promise, $query, $success, &$errorback, &$retries) {
+        $errorback = function (\Throwable $e) use ($deferred, &$promise, $query, $success, &$errorback, &$retries) {
             if (!$e instanceof TimeoutException) {
                 $errorback = null;
                 $deferred->reject($e);
@@ -50,6 +66,7 @@ final class RetryExecutor implements ExecutorInterface
                 // what a lovely piece of code!
                 $r = new \ReflectionProperty(\Exception::class, 'trace');
                 $r->setAccessible(true);
+                /** @var array<array{args: array<object>, file: string, line: int}|array{file: string, line: int}> $trace */
                 $trace = $r->getValue($e);
 
                 // Exception trace arguments are not available on some PHP 7.4 installs

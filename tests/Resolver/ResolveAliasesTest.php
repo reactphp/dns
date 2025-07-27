@@ -2,6 +2,7 @@
 
 namespace React\Tests\Dns\Resolver;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
 use React\Dns\Query\ExecutorInterface;
@@ -12,9 +13,12 @@ use function React\Promise\resolve;
 class ResolveAliasesTest extends TestCase
 {
     /**
+     * @param array<string> $expectedAnswers
+     * @param array<Record> $answers
+     *
      * @dataProvider provideAliasedAnswers
      */
-    public function testResolveAliases(array $expectedAnswers, array $answers, $name)
+    public function testResolveAliases(array $expectedAnswers, array $answers, string $name): void
     {
         $message = new Message();
         foreach ($answers as $answer) {
@@ -31,7 +35,10 @@ class ResolveAliasesTest extends TestCase
         $answers->then($this->expectCallableOnceWith($expectedAnswers), null);
     }
 
-    public function provideAliasedAnswers()
+    /**
+     * @return iterable<array{array<string>, array<Record>, string}>
+     */
+    public function provideAliasedAnswers(): iterable
     {
         yield [
             ['178.79.169.131'],
@@ -90,6 +97,9 @@ class ResolveAliasesTest extends TestCase
         ];
     }
 
+    /**
+     * @return ExecutorInterface&MockObject
+     */
     private function createExecutorMock()
     {
         return $this->createMock(ExecutorInterface::class);

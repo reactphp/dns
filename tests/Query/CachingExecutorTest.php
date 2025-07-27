@@ -16,7 +16,7 @@ use function React\Promise\resolve;
 
 class CachingExecutorTest extends TestCase
 {
-    public function testQueryWillReturnPendingPromiseWhenCacheIsPendingWithoutSendingQueryToFallbackExecutor()
+    public function testQueryWillReturnPendingPromiseWhenCacheIsPendingWithoutSendingQueryToFallbackExecutor(): void
     {
         $fallback = $this->createMock(ExecutorInterface::class);
         $fallback->expects($this->never())->method('query');
@@ -33,7 +33,7 @@ class CachingExecutorTest extends TestCase
         $promise->then($this->expectCallableNever(), $this->expectCallableNever());
     }
 
-    public function testQueryWillReturnPendingPromiseWhenCacheReturnsMissAndWillSendSameQueryToFallbackExecutor()
+    public function testQueryWillReturnPendingPromiseWhenCacheReturnsMissAndWillSendSameQueryToFallbackExecutor(): void
     {
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
@@ -50,7 +50,7 @@ class CachingExecutorTest extends TestCase
         $promise->then($this->expectCallableNever(), $this->expectCallableNever());
     }
 
-    public function testQueryWillReturnResolvedPromiseWhenCacheReturnsHitWithoutSendingQueryToFallbackExecutor()
+    public function testQueryWillReturnResolvedPromiseWhenCacheReturnsHitWithoutSendingQueryToFallbackExecutor(): void
     {
         $fallback = $this->createMock(ExecutorInterface::class);
         $fallback->expects($this->never())->method('query');
@@ -68,7 +68,7 @@ class CachingExecutorTest extends TestCase
         $promise->then($this->expectCallableOnceWith($message), $this->expectCallableNever());
     }
 
-    public function testQueryWillReturnResolvedPromiseWhenCacheReturnsMissAndFallbackExecutorResolvesAndSaveMessageToCacheWithMinimumTtlFromRecord()
+    public function testQueryWillReturnResolvedPromiseWhenCacheReturnsMissAndFallbackExecutorResolvesAndSaveMessageToCacheWithMinimumTtlFromRecord(): void
     {
         $message = new Message();
         $message->answers[] = new Record('reactphp.org', Message::TYPE_A, Message::CLASS_IN, 3700, '127.0.0.1');
@@ -89,7 +89,7 @@ class CachingExecutorTest extends TestCase
         $promise->then($this->expectCallableOnceWith($message), $this->expectCallableNever());
     }
 
-    public function testQueryWillReturnResolvedPromiseWhenCacheReturnsMissAndFallbackExecutorResolvesAndSaveMessageToCacheWithDefaultTtl()
+    public function testQueryWillReturnResolvedPromiseWhenCacheReturnsMissAndFallbackExecutorResolvesAndSaveMessageToCacheWithDefaultTtl(): void
     {
         $message = new Message();
         $fallback = $this->createMock(ExecutorInterface::class);
@@ -108,7 +108,7 @@ class CachingExecutorTest extends TestCase
         $promise->then($this->expectCallableOnceWith($message), $this->expectCallableNever());
     }
 
-    public function testQueryWillReturnResolvedPromiseWhenCacheReturnsMissAndFallbackExecutorResolvesWithTruncatedResponseButShouldNotSaveTruncatedMessageToCache()
+    public function testQueryWillReturnResolvedPromiseWhenCacheReturnsMissAndFallbackExecutorResolvesWithTruncatedResponseButShouldNotSaveTruncatedMessageToCache(): void
     {
         $message = new Message();
         $message->tc = true;
@@ -128,7 +128,7 @@ class CachingExecutorTest extends TestCase
         $promise->then($this->expectCallableOnceWith($message), $this->expectCallableNever());
     }
 
-    public function testQueryWillReturnRejectedPromiseWhenCacheReturnsMissAndFallbackExecutorRejects()
+    public function testQueryWillReturnRejectedPromiseWhenCacheReturnsMissAndFallbackExecutorRejects(): void
     {
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
 
@@ -145,7 +145,7 @@ class CachingExecutorTest extends TestCase
         $promise->then($this->expectCallableNever(), $this->expectCallableOnceWith($exception));
     }
 
-    public function testCancelQueryWillReturnRejectedPromiseAndCancelPendingPromiseFromCache()
+    public function testCancelQueryWillReturnRejectedPromiseAndCancelPendingPromiseFromCache(): void
     {
         $fallback = $this->createMock(ExecutorInterface::class);
         $fallback->expects($this->never())->method('query');
@@ -171,7 +171,7 @@ class CachingExecutorTest extends TestCase
         $this->assertEquals('DNS query for reactphp.org (A) has been cancelled', $exception->getMessage());
     }
 
-    public function testCancelQueryWillReturnRejectedPromiseAndCancelPendingPromiseFromFallbackExecutorWhenCacheReturnsMiss()
+    public function testCancelQueryWillReturnRejectedPromiseAndCancelPendingPromiseFromFallbackExecutorWhenCacheReturnsMiss(): void
     {
         $pending = new Promise(function () { }, $this->expectCallableOnce());
         $fallback = $this->createMock(ExecutorInterface::class);

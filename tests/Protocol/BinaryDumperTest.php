@@ -10,7 +10,7 @@ use React\Dns\Query\Query;
 
 class BinaryDumperTest extends TestCase
 {
-    public function testToBinaryRequestMessage()
+    public function testToBinaryRequestMessage(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
@@ -36,7 +36,7 @@ class BinaryDumperTest extends TestCase
         $this->assertSame($expected, $data);
     }
 
-    public function testToBinaryRequestMessageWithUnknownAuthorityTypeEncodesValueAsBinary()
+    public function testToBinaryRequestMessageWithUnknownAuthorityTypeEncodesValueAsBinary(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 01 00 00"; // header
@@ -66,7 +66,7 @@ class BinaryDumperTest extends TestCase
         $this->assertSame($expected, $data);
     }
 
-    public function testToBinaryRequestMessageWithAdditionalOptForEdns0()
+    public function testToBinaryRequestMessageWithAdditionalOptForEdns0(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 01"; // header
@@ -96,7 +96,7 @@ class BinaryDumperTest extends TestCase
         $this->assertSame($expected, $data);
     }
 
-    public function testToBinaryRequestMessageWithAdditionalOptForEdns0WithOptTcpKeepAliveDesired()
+    public function testToBinaryRequestMessageWithAdditionalOptForEdns0WithOptTcpKeepAliveDesired(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 01"; // header
@@ -129,7 +129,7 @@ class BinaryDumperTest extends TestCase
         $this->assertSame($expected, $data);
     }
 
-    public function testToBinaryRequestMessageWithAdditionalOptForEdns0WithOptTcpKeepAliveGiven()
+    public function testToBinaryRequestMessageWithAdditionalOptForEdns0WithOptTcpKeepAliveGiven(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 01"; // header
@@ -162,7 +162,7 @@ class BinaryDumperTest extends TestCase
         $this->assertSame($expected, $data);
     }
 
-    public function testToBinaryRequestMessageWithAdditionalOptForEdns0WithOptPadding()
+    public function testToBinaryRequestMessageWithAdditionalOptForEdns0WithOptPadding(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 01"; // header
@@ -195,7 +195,7 @@ class BinaryDumperTest extends TestCase
         $this->assertSame($expected, $data);
     }
 
-    public function testToBinaryRequestMessageWithAdditionalOptForEdns0WithCustomOptCodes()
+    public function testToBinaryRequestMessageWithAdditionalOptForEdns0WithCustomOptCodes(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 01"; // header
@@ -230,7 +230,7 @@ class BinaryDumperTest extends TestCase
         $this->assertSame($expected, $data);
     }
 
-    public function testToBinaryResponseMessageWithoutRecords()
+    public function testToBinaryResponseMessageWithoutRecords(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 00 00 00 00 00"; // header
@@ -257,7 +257,7 @@ class BinaryDumperTest extends TestCase
         $this->assertSame($expected, $data);
     }
 
-    public function testToBinaryForResponseWithSRVRecord()
+    public function testToBinaryForResponseWithSRVRecord(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 01 00 00 00 00"; // header
@@ -296,7 +296,7 @@ class BinaryDumperTest extends TestCase
         $this->assertSame($expected, $data);
     }
 
-    public function testToBinaryForResponseWithSOARecord()
+    public function testToBinaryForResponseWithSOARecord(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 01 00 00 00 00"; // header
@@ -341,7 +341,7 @@ class BinaryDumperTest extends TestCase
         $this->assertSame($expected, $data);
     }
 
-    public function testToBinaryForResponseWithPTRRecordWithSpecialCharactersEscaped()
+    public function testToBinaryForResponseWithPTRRecordWithSpecialCharactersEscaped(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 01 00 00 00 00"; // header
@@ -382,7 +382,7 @@ class BinaryDumperTest extends TestCase
         $this->assertSame($expected, $data);
     }
 
-    public function testToBinaryForResponseWithMultipleAnswerRecords()
+    public function testToBinaryForResponseWithMultipleAnswerRecords(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 07 00 00 00 00"; // header
@@ -446,7 +446,7 @@ class BinaryDumperTest extends TestCase
         $this->assertSame($expected, $data);
     }
 
-    public function testToBinaryForResponseWithAnswerAndAdditionalRecord()
+    public function testToBinaryForResponseWithAnswerAndAdditionalRecord(): void
     {
         $data = "";
         $data .= "72 62 01 00 00 01 00 01 00 00 00 01"; // header
@@ -482,12 +482,13 @@ class BinaryDumperTest extends TestCase
         $this->assertSame($expected, $data);
     }
 
-    private function convertBinaryToHexDump($input)
+    private function convertBinaryToHexDump(string $input): string
     {
+        /** @phpstan-ignore-next-line unpack won't error on this line as our format is correct */
         return $this->formatHexDump(implode('', unpack('H*', $input)));
     }
 
-    private function formatHexDump($input)
+    private function formatHexDump(string $input): string
     {
         return implode(' ', str_split(str_replace(' ', '', $input), 2));
     }

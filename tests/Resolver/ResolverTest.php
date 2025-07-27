@@ -2,19 +2,21 @@
 
 namespace React\Tests\Dns\Resolver;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
 use React\Dns\Query\ExecutorInterface;
 use React\Dns\Query\Query;
 use React\Dns\RecordNotFoundException;
 use React\Dns\Resolver\Resolver;
+use React\Promise\PromiseInterface;
 use React\Tests\Dns\TestCase;
 use function React\Promise\resolve;
 
 class ResolverTest extends TestCase
 {
     /** @test */
-    public function resolveShouldQueryARecords()
+    public function resolveShouldQueryARecords(): void
     {
         $executor = $this->createExecutorMock();
         $executor
@@ -35,7 +37,7 @@ class ResolverTest extends TestCase
     }
 
     /** @test */
-    public function resolveAllShouldQueryGivenRecords()
+    public function resolveAllShouldQueryGivenRecords(): void
     {
         $executor = $this->createExecutorMock();
         $executor
@@ -56,7 +58,7 @@ class ResolverTest extends TestCase
     }
 
     /** @test */
-    public function resolveAllShouldIgnoreRecordsWithOtherTypes()
+    public function resolveAllShouldIgnoreRecordsWithOtherTypes(): void
     {
         $executor = $this->createExecutorMock();
         $executor
@@ -78,7 +80,7 @@ class ResolverTest extends TestCase
     }
 
     /** @test */
-    public function resolveAllShouldReturnMultipleValuesForAlias()
+    public function resolveAllShouldReturnMultipleValuesForAlias(): void
     {
         $executor = $this->createExecutorMock();
         $executor
@@ -103,7 +105,7 @@ class ResolverTest extends TestCase
     }
 
     /** @test */
-    public function resolveShouldQueryARecordsAndIgnoreCase()
+    public function resolveShouldQueryARecordsAndIgnoreCase(): void
     {
         $executor = $this->createExecutorMock();
         $executor
@@ -124,7 +126,7 @@ class ResolverTest extends TestCase
     }
 
     /** @test */
-    public function resolveShouldFilterByName()
+    public function resolveShouldFilterByName(): void
     {
         $executor = $this->createExecutorMock();
         $executor
@@ -149,7 +151,7 @@ class ResolverTest extends TestCase
     /**
      * @test
      */
-    public function resolveWithNoAnswersShouldCallErrbackIfGiven()
+    public function resolveWithNoAnswersShouldCallErrbackIfGiven(): void
     {
         $executor = $this->createExecutorMock();
         $executor
@@ -172,7 +174,10 @@ class ResolverTest extends TestCase
         $resolver->resolve('igor.io')->then($this->expectCallableNever(), $errback);
     }
 
-    public function provideRcodeErrors()
+    /**
+     * @return iterable<array{int, string}>
+     */
+    public function provideRcodeErrors(): iterable
     {
         yield  [
             Message::RCODE_FORMAT_ERROR,
@@ -204,14 +209,14 @@ class ResolverTest extends TestCase
      * @test
      * @dataProvider provideRcodeErrors
      */
-    public function resolveWithRcodeErrorShouldCallErrbackIfGiven($code, $expectedMessage)
+    public function resolveWithRcodeErrorShouldCallErrbackIfGiven(int $code, string $expectedMessage): void
     {
         $executor = $this->createExecutorMock();
         $executor
             ->expects($this->once())
             ->method('query')
             ->with($this->isInstanceOf(Query::class))
-            ->will($this->returnCallback(function ($query) use ($code) {
+            ->will($this->returnCallback(static function (Query $query) use ($code): PromiseInterface {
                 $response = new Message();
                 $response->qr = true;
                 $response->rcode = $code;
@@ -220,7 +225,7 @@ class ResolverTest extends TestCase
                 return resolve($response);
             }));
 
-        $errback = $this->expectCallableOnceWith($this->callback(function ($param) use ($code, $expectedMessage) {
+        $errback = $this->expectCallableOnceWith($this->callback(function ($param) use ($code, $expectedMessage): bool {
             return ($param instanceof RecordNotFoundException && $param->getCode() === $code && $param->getMessage() === $expectedMessage);
         }));
 
@@ -228,6 +233,9 @@ class ResolverTest extends TestCase
         $resolver->resolve('example.com')->then($this->expectCallableNever(), $errback);
     }
 
+    /**
+     * @return ExecutorInterface&MockObject
+     */
     private function createExecutorMock()
     {
         return $this->createMock(ExecutorInterface::class);

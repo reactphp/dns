@@ -5,6 +5,7 @@ namespace React\Dns\Query;
 use React\Cache\CacheInterface;
 use React\Dns\Model\Message;
 use React\Promise\Promise;
+use React\Promise\PromiseInterface;
 
 final class CachingExecutor implements ExecutorInterface
 {
@@ -15,7 +16,14 @@ final class CachingExecutor implements ExecutorInterface
      */
     const TTL = 60;
 
+    /**
+     * @var ExecutorInterface
+     */
     private $executor;
+
+    /**
+     * @var CacheInterface
+     */
     private $cache;
 
     public function __construct(ExecutorInterface $executor, CacheInterface $cache)
@@ -24,14 +32,14 @@ final class CachingExecutor implements ExecutorInterface
         $this->cache = $cache;
     }
 
-    public function query(Query $query)
+    public function query(Query $query): PromiseInterface
     {
         $id = $query->name . ':' . $query->type . ':' . $query->class;
 
         $pending = $this->cache->get($id);
         return new Promise(function ($resolve, $reject) use ($query, $id, &$pending) {
-            $pending->then(
-                function ($message) use ($query, $id, &$pending) {
+            $pending->then( /** @phpstan-ignore-line $pending will never be null when we reach this */
+                function (?Message $message) use ($query, $id, &$pending) {
                     // return cached response message on cache hit
                     if ($message !== null) {
                         return $message;
@@ -55,7 +63,7 @@ final class CachingExecutor implements ExecutorInterface
             });
         }, function ($_, $reject) use (&$pending, $query) {
             $reject(new \RuntimeException('DNS query for ' . $query->describe() . ' has been cancelled'));
-            $pending->cancel();
+            $pending->cancel(); /** @phpstan-ignore-line $pending will never be null when we reach this */
             $pending = null;
         });
     }

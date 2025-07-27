@@ -32,11 +32,11 @@ final class Factory
      *
      * @param Config|string  $config DNS Config object (recommended) or single nameserver address
      * @param ?LoopInterface $loop
-     * @return \React\Dns\Resolver\ResolverInterface
+     * @return ResolverInterface
      * @throws \InvalidArgumentException for invalid DNS server address
      * @throws \UnderflowException when given DNS Config object has an empty list of nameservers
      */
-    public function create($config, ?LoopInterface $loop = null)
+    public function create($config, ?LoopInterface $loop = null): ResolverInterface
     {
         $executor = $this->decorateHostsFileExecutor($this->createExecutor($config, $loop ?: Loop::get()));
 
@@ -55,11 +55,11 @@ final class Factory
      * @param Config|string   $config DNS Config object (recommended) or single nameserver address
      * @param ?LoopInterface  $loop
      * @param ?CacheInterface $cache
-     * @return \React\Dns\Resolver\ResolverInterface
+     * @return ResolverInterface
      * @throws \InvalidArgumentException for invalid DNS server address
      * @throws \UnderflowException when given DNS Config object has an empty list of nameservers
      */
-    public function createCached($config, ?LoopInterface $loop = null, ?CacheInterface $cache = null)
+    public function createCached($config, ?LoopInterface $loop = null, ?CacheInterface $cache = null): ResolverInterface
     {
         // default to keeping maximum of 256 responses in cache unless explicitly given
         if (!($cache instanceof CacheInterface)) {
@@ -80,7 +80,7 @@ final class Factory
      * @return ExecutorInterface
      * @codeCoverageIgnore
      */
-    private function decorateHostsFileExecutor(ExecutorInterface $executor)
+    private function decorateHostsFileExecutor(ExecutorInterface $executor): ExecutorInterface
     {
         try {
             $executor = new HostsFileExecutor(
@@ -110,7 +110,7 @@ final class Factory
      * @throws \InvalidArgumentException for invalid DNS server address
      * @throws \UnderflowException when given DNS Config object has an empty list of nameservers
      */
-    private function createExecutor($nameserver, LoopInterface $loop)
+    private function createExecutor($nameserver, LoopInterface $loop): ExecutorInterface
     {
         if ($nameserver instanceof Config) {
             if (!$nameserver->nameservers) {
@@ -123,7 +123,7 @@ final class Factory
             $secondary = next($nameserver->nameservers);
             $tertiary = next($nameserver->nameservers);
 
-            if ($tertiary !== false) {
+            if ($tertiary !== false && $secondary !== false) {
                 // 3 DNS servers given => nest first with fallback for second and third
                 return new CoopExecutor(
                     new RetryExecutor(
@@ -161,7 +161,7 @@ final class Factory
      * @return ExecutorInterface
      * @throws \InvalidArgumentException for invalid DNS server address
      */
-    private function createSingleExecutor($nameserver, LoopInterface $loop)
+    private function createSingleExecutor(string $nameserver, LoopInterface $loop): ExecutorInterface
     {
         $parts = \parse_url($nameserver);
 
@@ -185,7 +185,7 @@ final class Factory
      * @return TimeoutExecutor
      * @throws \InvalidArgumentException for invalid DNS server address
      */
-    private function createTcpExecutor($nameserver, LoopInterface $loop)
+    private function createTcpExecutor(string $nameserver, LoopInterface $loop): ExecutorInterface
     {
         return new TimeoutExecutor(
             new TcpTransportExecutor($nameserver, $loop),
@@ -200,7 +200,7 @@ final class Factory
      * @return TimeoutExecutor
      * @throws \InvalidArgumentException for invalid DNS server address
      */
-    private function createUdpExecutor($nameserver, LoopInterface $loop)
+    private function createUdpExecutor(string $nameserver, LoopInterface $loop): ExecutorInterface
     {
         return new TimeoutExecutor(
             new UdpTransportExecutor(

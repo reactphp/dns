@@ -2,6 +2,7 @@
 
 namespace React\Tests\Dns\Query;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
 use React\Dns\Query\CancellationException;
@@ -18,10 +19,10 @@ use function React\Promise\resolve;
 class RetryExecutorTest extends TestCase
 {
     /**
-    * @covers React\Dns\Query\RetryExecutor
+    * @covers \React\Dns\Query\RetryExecutor
     * @test
     */
-    public function queryShouldDelegateToDecoratedExecutor()
+    public function queryShouldDelegateToDecoratedExecutor(): void
     {
         $executor = $this->createExecutorMock();
         $executor
@@ -37,10 +38,10 @@ class RetryExecutorTest extends TestCase
     }
 
     /**
-    * @covers React\Dns\Query\RetryExecutor
+    * @covers \React\Dns\Query\RetryExecutor
     * @test
     */
-    public function queryShouldRetryQueryOnTimeout()
+    public function queryShouldRetryQueryOnTimeout(): void
     {
         $response = $this->createStandardResponse();
 
@@ -58,6 +59,7 @@ class RetryExecutorTest extends TestCase
                 })
             ));
 
+        /** @var (callable(Message): void)&MockObject $callback */
         $callback = $this->createCallableMock();
         $callback
             ->expects($this->once())
@@ -73,10 +75,10 @@ class RetryExecutorTest extends TestCase
     }
 
     /**
-    * @covers React\Dns\Query\RetryExecutor
+    * @covers \React\Dns\Query\RetryExecutor
     * @test
     */
-    public function queryShouldStopRetryingAfterSomeAttempts()
+    public function queryShouldStopRetryingAfterSomeAttempts(): void
     {
         $executor = $this->createExecutorMock();
         $executor
@@ -106,10 +108,10 @@ class RetryExecutorTest extends TestCase
     }
 
     /**
-    * @covers React\Dns\Query\RetryExecutor
+    * @covers \React\Dns\Query\RetryExecutor
     * @test
     */
-    public function queryShouldForwardNonTimeoutErrors()
+    public function queryShouldForwardNonTimeoutErrors(): void
     {
         $executor = $this->createExecutorMock();
         $executor
@@ -122,6 +124,7 @@ class RetryExecutorTest extends TestCase
 
         $callback = $this->expectCallableNever();
 
+        /** @var (callable(\Throwable): void)&MockObject $errorback */
         $errorback = $this->createCallableMock();
         $errorback
             ->expects($this->once())
@@ -135,10 +138,10 @@ class RetryExecutorTest extends TestCase
     }
 
     /**
-     * @covers React\Dns\Query\RetryExecutor
+     * @covers \React\Dns\Query\RetryExecutor
      * @test
      */
-    public function queryShouldCancelQueryOnCancel()
+    public function queryShouldCancelQueryOnCancel(): void
     {
         $cancelled = 0;
 
@@ -170,10 +173,10 @@ class RetryExecutorTest extends TestCase
     }
 
     /**
-     * @covers React\Dns\Query\RetryExecutor
+     * @covers \React\Dns\Query\RetryExecutor
      * @test
      */
-    public function queryShouldCancelSecondQueryOnCancel()
+    public function queryShouldCancelSecondQueryOnCancel(): void
     {
         $deferred = new Deferred();
         $cancelled = 0;
@@ -211,10 +214,10 @@ class RetryExecutorTest extends TestCase
     }
 
     /**
-     * @covers React\Dns\Query\RetryExecutor
+     * @covers \React\Dns\Query\RetryExecutor
      * @test
      */
-    public function queryShouldNotCauseGarbageReferencesOnSuccess()
+    public function queryShouldNotCauseGarbageReferencesOnSuccess(): void
     {
         if (class_exists('React\Promise\When')) {
             $this->markTestSkipped('Not supported on legacy Promise v1 API');
@@ -240,10 +243,10 @@ class RetryExecutorTest extends TestCase
     }
 
     /**
-     * @covers React\Dns\Query\RetryExecutor
+     * @covers \React\Dns\Query\RetryExecutor
      * @test
      */
-    public function queryShouldNotCauseGarbageReferencesOnTimeoutErrors()
+    public function queryShouldNotCauseGarbageReferencesOnTimeoutErrors(): void
     {
         if (class_exists('React\Promise\When')) {
             $this->markTestSkipped('Not supported on legacy Promise v1 API');
@@ -271,10 +274,10 @@ class RetryExecutorTest extends TestCase
     }
 
     /**
-     * @covers React\Dns\Query\RetryExecutor
+     * @covers \React\Dns\Query\RetryExecutor
      * @test
      */
-    public function queryShouldNotCauseGarbageReferencesOnCancellation()
+    public function queryShouldNotCauseGarbageReferencesOnCancellation(): void
     {
         if (class_exists('React\Promise\When')) {
             $this->markTestSkipped('Not supported on legacy Promise v1 API');
@@ -306,10 +309,10 @@ class RetryExecutorTest extends TestCase
     }
 
     /**
-     * @covers React\Dns\Query\RetryExecutor
+     * @covers \React\Dns\Query\RetryExecutor
      * @test
      */
-    public function queryShouldNotCauseGarbageReferencesOnNonTimeoutErrors()
+    public function queryShouldNotCauseGarbageReferencesOnNonTimeoutErrors(): void
     {
         if (class_exists('React\Promise\When')) {
             $this->markTestSkipped('Not supported on legacy Promise v1 API');
@@ -338,7 +341,11 @@ class RetryExecutorTest extends TestCase
         $this->assertEquals(0, gc_collect_cycles());
     }
 
-    protected function expectPromiseOnce($return = null)
+    /**
+     * @param ?mixed $return
+     * @return PromiseInterface<?mixed>
+     */
+    protected function expectPromiseOnce($return = null): PromiseInterface
     {
         $mock = $this->createPromiseMock();
         $mock
@@ -349,17 +356,23 @@ class RetryExecutorTest extends TestCase
         return $mock;
     }
 
+    /**
+     * @return ExecutorInterface&MockObject
+     */
     protected function createExecutorMock()
     {
         return $this->createMock(ExecutorInterface::class);
     }
 
+    /**
+     * @return PromiseInterface<mixed>&MockObject
+     */
     protected function createPromiseMock()
     {
         return $this->createMock(PromiseInterface::class);
     }
 
-    protected function createStandardResponse()
+    protected function createStandardResponse(): Message
     {
         $response = new Message();
         $response->qr = true;

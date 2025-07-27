@@ -26,7 +26,7 @@ final class Config
      * @return self
      * @codeCoverageIgnore
      */
-    public static function loadSystemConfigBlocking()
+    public static function loadSystemConfigBlocking(): self
     {
         // Use WMIC output on Windows
         if (DIRECTORY_SEPARATOR === '\\') {
@@ -71,7 +71,7 @@ final class Config
      * @return self
      * @throws RuntimeException if the path can not be loaded (does not exist)
      */
-    public static function loadResolvConfBlocking($path = null)
+    public static function loadResolvConfBlocking(?string $path = null): self
     {
         if ($path === null) {
             $path = '/etc/resolv.conf';
@@ -122,10 +122,10 @@ final class Config
      * @return self
      * @link https://ss64.com/nt/wmic.html
      */
-    public static function loadWmicBlocking($command = null)
+    public static function loadWmicBlocking(?string $command = null): self
     {
         $contents = shell_exec($command === null ? 'wmic NICCONFIG get "DNSServerSearchOrder" /format:CSV' : $command);
-        preg_match_all('/(?<=[{;,"])([\da-f.:]{4,})(?=[};,"])/i', $contents, $matches);
+        preg_match_all('/(?<=[{;,"])([\da-f.:]{4,})(?=[};,"])/i', $contents, $matches); /** @phpstan-ignore-line */
 
         $config = new self();
         $config->nameservers = $matches[1];
@@ -133,5 +133,8 @@ final class Config
         return $config;
     }
 
+    /**
+     * @var array<string>
+     */
     public $nameservers = [];
 }

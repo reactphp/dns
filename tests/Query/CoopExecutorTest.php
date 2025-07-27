@@ -13,7 +13,7 @@ use function React\Promise\resolve;
 
 class CoopExecutorTest extends TestCase
 {
-    public function testQueryOnceWillPassExactQueryToBaseExecutor()
+    public function testQueryOnceWillPassExactQueryToBaseExecutor(): void
     {
         $pending = new Promise(function () { });
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
@@ -24,7 +24,7 @@ class CoopExecutorTest extends TestCase
         $connector->query($query);
     }
 
-    public function testQueryOnceWillResolveWhenBaseExecutorResolves()
+    public function testQueryOnceWillResolveWhenBaseExecutorResolves(): void
     {
         $message = new Message();
 
@@ -40,7 +40,7 @@ class CoopExecutorTest extends TestCase
         $promise->then($this->expectCallableOnceWith($message));
     }
 
-    public function testQueryOnceWillRejectWhenBaseExecutorRejects()
+    public function testQueryOnceWillRejectWhenBaseExecutorRejects(): void
     {
         $exception = new RuntimeException();
 
@@ -56,7 +56,7 @@ class CoopExecutorTest extends TestCase
         $promise->then(null, $this->expectCallableOnceWith($exception));
     }
 
-    public function testQueryTwoDifferentQueriesWillPassExactQueryToBaseExecutorTwice()
+    public function testQueryTwoDifferentQueriesWillPassExactQueryToBaseExecutorTwice(): void
     {
         $pending = new Promise(function () { });
         $query1 = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
@@ -72,7 +72,7 @@ class CoopExecutorTest extends TestCase
         $connector->query($query2);
     }
 
-    public function testQueryTwiceWillPassExactQueryToBaseExecutorOnceWhenQueryIsStillPending()
+    public function testQueryTwiceWillPassExactQueryToBaseExecutorOnceWhenQueryIsStillPending(): void
     {
         $pending = new Promise(function () { });
         $query = new Query('reactphp.org', Message::TYPE_A, Message::CLASS_IN);
@@ -84,7 +84,7 @@ class CoopExecutorTest extends TestCase
         $connector->query($query);
     }
 
-    public function testQueryTwiceWillPassExactQueryToBaseExecutorTwiceWhenFirstQueryIsAlreadyResolved()
+    public function testQueryTwiceWillPassExactQueryToBaseExecutorTwiceWhenFirstQueryIsAlreadyResolved(): void
     {
         $deferred = new Deferred();
         $pending = new Promise(function () { });
@@ -101,7 +101,7 @@ class CoopExecutorTest extends TestCase
         $connector->query($query);
     }
 
-    public function testQueryTwiceWillPassExactQueryToBaseExecutorTwiceWhenFirstQueryIsAlreadyRejected()
+    public function testQueryTwiceWillPassExactQueryToBaseExecutorTwiceWhenFirstQueryIsAlreadyRejected(): void
     {
         $deferred = new Deferred();
         $pending = new Promise(function () { });
@@ -120,7 +120,7 @@ class CoopExecutorTest extends TestCase
         $connector->query($query);
     }
 
-    public function testCancelQueryWillCancelPromiseFromBaseExecutorAndReject()
+    public function testCancelQueryWillCancelPromiseFromBaseExecutorAndReject(): void
     {
         $promise = new Promise(function () { }, $this->expectCallableOnce());
 
@@ -143,7 +143,7 @@ class CoopExecutorTest extends TestCase
         $this->assertEquals('DNS query for reactphp.org (A) has been cancelled', $exception->getMessage());
     }
 
-    public function testCancelOneQueryWhenOtherQueryIsStillPendingWillNotCancelPromiseFromBaseExecutorAndRejectCancelled()
+    public function testCancelOneQueryWhenOtherQueryIsStillPendingWillNotCancelPromiseFromBaseExecutorAndRejectCancelled(): void
     {
         $promise = new Promise(function () { }, $this->expectCallableNever());
 
@@ -161,7 +161,7 @@ class CoopExecutorTest extends TestCase
         $promise2->then(null, $this->expectCallableNever());
     }
 
-    public function testCancelSecondQueryWhenFirstQueryIsStillPendingWillNotCancelPromiseFromBaseExecutorAndRejectCancelled()
+    public function testCancelSecondQueryWhenFirstQueryIsStillPendingWillNotCancelPromiseFromBaseExecutorAndRejectCancelled(): void
     {
         $promise = new Promise(function () { }, $this->expectCallableNever());
 
@@ -179,7 +179,7 @@ class CoopExecutorTest extends TestCase
         $promise1->then(null, $this->expectCallableNever());
     }
 
-    public function testCancelAllPendingQueriesWillCancelPromiseFromBaseExecutorAndRejectCancelled()
+    public function testCancelAllPendingQueriesWillCancelPromiseFromBaseExecutorAndRejectCancelled(): void
     {
         $promise = new Promise(function () { }, $this->expectCallableOnce());
 
@@ -198,7 +198,7 @@ class CoopExecutorTest extends TestCase
         $promise2->then(null, $this->expectCallableOnce());
     }
 
-    public function testQueryTwiceWillQueryBaseExecutorTwiceIfFirstQueryHasAlreadyBeenCancelledWhenSecondIsStarted()
+    public function testQueryTwiceWillQueryBaseExecutorTwiceIfFirstQueryHasAlreadyBeenCancelledWhenSecondIsStarted(): void
     {
         $promise = new Promise(function () { }, $this->expectCallableOnce());
         $pending = new Promise(function () { });
@@ -219,7 +219,7 @@ class CoopExecutorTest extends TestCase
         $promise2->then(null, $this->expectCallableNever());
     }
 
-    public function testCancelQueryShouldNotCauseGarbageReferences()
+    public function testCancelQueryShouldNotCauseGarbageReferences(): void
     {
         if (class_exists('React\Promise\When')) {
             $this->markTestSkipped('Not supported on legacy Promise v1 API');

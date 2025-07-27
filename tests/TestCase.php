@@ -2,12 +2,17 @@
 
 namespace React\Tests\Dns;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
-    protected function expectCallableOnce()
+    /**
+     * @return MockObject&(callable(): void)&\stdClass
+     */
+    protected function expectCallableOnce(): MockObject
     {
+        /** @var MockObject&(callable(): void)&\stdClass $mock */
         $mock = $this->createCallableMock();
         $mock
             ->expects($this->once())
@@ -16,8 +21,13 @@ abstract class TestCase extends BaseTestCase
         return $mock;
     }
 
-    protected function expectCallableOnceWith($value)
+    /**
+     * @param mixed $value
+     * @return MockObject&(callable(): void)&\stdClass
+     */
+    protected function expectCallableOnceWith($value): MockObject
     {
+        /** @var MockObject&(callable(): void)&\stdClass $mock */
         $mock = $this->createCallableMock();
         $mock
             ->expects($this->once())
@@ -27,8 +37,12 @@ abstract class TestCase extends BaseTestCase
         return $mock;
     }
 
-    protected function expectCallableNever()
+    /**
+     * @return MockObject&(callable(): void)&\stdClass
+     */
+    protected function expectCallableNever(): MockObject
     {
+        /** @var MockObject&(callable(): void)&\stdClass $mock */
         $mock = $this->createCallableMock();
         $mock
             ->expects($this->never())
@@ -37,7 +51,10 @@ abstract class TestCase extends BaseTestCase
         return $mock;
     }
 
-    protected function createCallableMock()
+    /**
+     * @return MockObject&\stdClass
+     */
+    protected function createCallableMock(): MockObject
     {
         $builder = $this->getMockBuilder(\stdClass::class);
         if (method_exists($builder, 'addMethods')) {

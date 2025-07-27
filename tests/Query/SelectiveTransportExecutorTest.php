@@ -2,6 +2,7 @@
 
 namespace React\Tests\Dns\Query;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use React\Dns\Model\Message;
 use React\Dns\Query\ExecutorInterface;
 use React\Dns\Query\Query;
@@ -14,14 +15,25 @@ use function React\Promise\resolve;
 
 class SelectiveTransportExecutorTest extends TestCase
 {
+    /**
+     * @var ExecutorInterface&MockObject
+     */
     private $datagram;
+
+    /**
+     * @var ExecutorInterface&MockObject
+     */
     private $stream;
+
+    /**
+     * @var ExecutorInterface
+     */
     private $executor;
 
     /**
      * @before
      */
-    public function setUpMocks()
+    public function setUpMocks(): void
     {
         $this->datagram = $this->createMock(ExecutorInterface::class);
         $this->stream = $this->createMock(ExecutorInterface::class);
@@ -29,7 +41,7 @@ class SelectiveTransportExecutorTest extends TestCase
         $this->executor = new SelectiveTransportExecutor($this->datagram, $this->stream);
     }
 
-    public function testQueryResolvesWhenDatagramTransportResolvesWithoutUsingStreamTransport()
+    public function testQueryResolvesWhenDatagramTransportResolvesWithoutUsingStreamTransport(): void
     {
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
 
@@ -50,7 +62,7 @@ class SelectiveTransportExecutorTest extends TestCase
         $promise->then($this->expectCallableOnceWith($response));
     }
 
-    public function testQueryResolvesWhenStreamTransportResolvesAfterDatagramTransportRejectsWithSizeError()
+    public function testQueryResolvesWhenStreamTransportResolvesAfterDatagramTransportRejectsWithSizeError(): void
     {
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
 
@@ -73,7 +85,7 @@ class SelectiveTransportExecutorTest extends TestCase
         $promise->then($this->expectCallableOnceWith($response));
     }
 
-    public function testQueryRejectsWhenDatagramTransportRejectsWithRuntimeExceptionWithoutUsingStreamTransport()
+    public function testQueryRejectsWhenDatagramTransportRejectsWithRuntimeExceptionWithoutUsingStreamTransport(): void
     {
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
 
@@ -92,7 +104,7 @@ class SelectiveTransportExecutorTest extends TestCase
         $promise->then(null, $this->expectCallableOnce());
     }
 
-    public function testQueryRejectsWhenStreamTransportRejectsAfterDatagramTransportRejectsWithSizeError()
+    public function testQueryRejectsWhenStreamTransportRejectsAfterDatagramTransportRejectsWithSizeError(): void
     {
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
 
@@ -113,7 +125,7 @@ class SelectiveTransportExecutorTest extends TestCase
         $promise->then(null, $this->expectCallableOnce());
     }
 
-    public function testCancelPromiseWillCancelPromiseFromDatagramExecutor()
+    public function testCancelPromiseWillCancelPromiseFromDatagramExecutor(): void
     {
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
 
@@ -127,7 +139,7 @@ class SelectiveTransportExecutorTest extends TestCase
         $promise->cancel();
     }
 
-    public function testCancelPromiseWillCancelPromiseFromStreamExecutorWhenDatagramExecutorRejectedWithTruncatedResponse()
+    public function testCancelPromiseWillCancelPromiseFromStreamExecutorWhenDatagramExecutorRejectedWithTruncatedResponse(): void
     {
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
 
@@ -149,7 +161,7 @@ class SelectiveTransportExecutorTest extends TestCase
         $promise->cancel();
     }
 
-    public function testCancelPromiseShouldNotCreateAnyGarbageReferences()
+    public function testCancelPromiseShouldNotCreateAnyGarbageReferences(): void
     {
         if (class_exists('React\Promise\When')) {
             $this->markTestSkipped('Not supported on legacy Promise v1 API');
@@ -176,7 +188,7 @@ class SelectiveTransportExecutorTest extends TestCase
         $this->assertEquals(0, gc_collect_cycles());
     }
 
-    public function testCancelPromiseAfterTruncatedResponseShouldNotCreateAnyGarbageReferences()
+    public function testCancelPromiseAfterTruncatedResponseShouldNotCreateAnyGarbageReferences(): void
     {
         if (class_exists('React\Promise\When')) {
             $this->markTestSkipped('Not supported on legacy Promise v1 API');
@@ -211,7 +223,7 @@ class SelectiveTransportExecutorTest extends TestCase
         $this->assertEquals(0, gc_collect_cycles());
     }
 
-    public function testRejectedPromiseAfterTruncatedResponseShouldNotCreateAnyGarbageReferences()
+    public function testRejectedPromiseAfterTruncatedResponseShouldNotCreateAnyGarbageReferences(): void
     {
         $query = new Query('igor.io', Message::TYPE_A, Message::CLASS_IN);
 

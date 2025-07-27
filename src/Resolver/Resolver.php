@@ -3,15 +3,20 @@
 namespace React\Dns\Resolver;
 
 use React\Dns\Model\Message;
+use React\Dns\Model\Record;
 use React\Dns\Query\ExecutorInterface;
 use React\Dns\Query\Query;
 use React\Dns\RecordNotFoundException;
+use React\Promise\PromiseInterface;
 
 /**
  * @see ResolverInterface for the base interface
  */
 final class Resolver implements ResolverInterface
 {
+    /**
+     * @var ExecutorInterface
+     */
     private $executor;
 
     public function __construct(ExecutorInterface $executor)
@@ -19,14 +24,14 @@ final class Resolver implements ResolverInterface
         $this->executor = $executor;
     }
 
-    public function resolve($domain)
+    public function resolve(string $domain): PromiseInterface
     {
         return $this->resolveAll($domain, Message::TYPE_A)->then(function (array $ips) {
             return $ips[array_rand($ips)];
         });
     }
 
-    public function resolveAll($domain, $type)
+    public function resolveAll(string $domain, int $type): PromiseInterface
     {
         $query = new Query($domain, $type, Message::CLASS_IN);
 
@@ -38,15 +43,14 @@ final class Resolver implements ResolverInterface
     }
 
     /**
-     * [Internal] extract all resource record values from response for this query
+     * Extract all resource record values from response for this query
      *
      * @param Query   $query
      * @param Message $response
-     * @return array
-     * @throws RecordNotFoundException when response indicates an error or contains no data
-     * @internal
+     * @return array<string>
+
      */
-    public function extractValues(Query $query, Message $response)
+    private function extractValues(Query $query, Message $response): array
     {
         // reject if response code indicates this is an error response message
         $code = $response->rcode;
@@ -90,12 +94,12 @@ final class Resolver implements ResolverInterface
     }
 
     /**
-     * @param \React\Dns\Model\Record[] $answers
-     * @param string                    $name
-     * @param int                       $type
-     * @return array
+     * @param array<Record> $answers
+     * @param string        $name
+     * @param int           $type
+     * @return array<string|int|float|null>
      */
-    private function valuesByNameAndType(array $answers, $name, $type)
+    private function valuesByNameAndType(array $answers, string $name, int $type): array
     {
         // return all record values for this name and type (if any)
         $named = $this->filterByName($answers, $name);
@@ -119,28 +123,59 @@ final class Resolver implements ResolverInterface
         return $records;
     }
 
-    private function filterByName(array $answers, $name)
+    /**
+     * @param array<Record> $answers
+     * @return array<Record>
+     */
+    private function filterByName(array $answers, string $name): array
     {
         return $this->filterByField($answers, 'name', $name);
     }
 
-    private function filterByType(array $answers, $type)
+    /**
+     * @param array<Record> $answers
+     * @return array<Record>
+     */
+    private function filterByType(array $answers, int $type): array
     {
         return $this->filterByField($answers, 'type', $type);
     }
 
-    private function filterByField(array $answers, $field, $value)
+    /**
+     * @param array<Record> $answers
+     * @param string|int $value
+     * @return array<Record>
+     */
+    private function filterByField(array $answers, string $field, $value): array
     {
-        $value = strtolower($value);
-        return array_filter($answers, function ($answer) use ($field, $value) {
-            return $value === strtolower($answer->$field);
+        if (is_string($value)) {
+            $value = strtolower($value);
+        }
+        return array_filter($answers, static function (Record $answer) use ($field, $value) {
+            return $value === (is_string($value) ? strtolower($answer->$field) : $answer->$field);
         });
     }
 
-    private function mapRecordData(array $records)
+    /**
+     * @param array<Record> $records
+     * @return array<string|int|float|null>
+     */
+    private function mapRecordData(array $records): array
     {
-        return array_map(function ($record) {
-            return $record->data;
-        }, $records);
+        $recordData = [];
+
+        foreach ($records as $record) {
+            if (is_array($record->data)) {
+                foreach ($record->data as $recordDataItem) {
+                    $recordData[] = $recordDataItem;
+                }
+
+                continue;
+            }
+
+            $recordData[] = $record->data;
+        }
+
+        return $recordData;
     }
 }

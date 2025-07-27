@@ -2,7 +2,9 @@
 
 namespace React\Dns\Query;
 
+use React\Dns\Model\Message;
 use React\Promise\Promise;
+use React\Promise\PromiseInterface;
 
 /**
  * Cooperatively resolves hosts via the given base executor to ensure same query is not run concurrently
@@ -36,8 +38,19 @@ use React\Promise\Promise;
  */
 final class CoopExecutor implements ExecutorInterface
 {
+    /**
+     * @var ExecutorInterface
+     */
     private $executor;
+
+    /**
+     * @var array<string, PromiseInterface<Message>>
+     */
     private $pending = [];
+
+    /**
+     * @var array<string, int>
+     */
     private $counts = [];
 
     public function __construct(ExecutorInterface $base)
@@ -45,7 +58,7 @@ final class CoopExecutor implements ExecutorInterface
         $this->executor = $base;
     }
 
-    public function query(Query $query)
+    public function query(Query $query): PromiseInterface
     {
         $key = $this->serializeQueryToIdentity($query);
         if (isset($this->pending[$key])) {
@@ -68,19 +81,20 @@ final class CoopExecutor implements ExecutorInterface
         // Return a child promise awaiting the pending query.
         // Cancelling this child promise should only cancel the pending query
         // when no other child promise is awaiting the same query.
+        /** @var Promise<Message> */
         return new Promise(function ($resolve, $reject) use ($promise) {
             $promise->then($resolve, $reject);
         }, function () use (&$promise, $key, $query) {
             if (--$this->counts[$key] < 1) {
                 unset($this->pending[$key], $this->counts[$key]);
-                $promise->cancel();
+                $promise->cancel(); /** @phpstan-ignore-line $promise will never be null when we reach this */
                 $promise = null;
             }
             throw new \RuntimeException('DNS query for ' . $query->describe() . ' has been cancelled');
         });
     }
 
-    private function serializeQueryToIdentity(Query $query)
+    private function serializeQueryToIdentity(Query $query): string
     {
         return sprintf('%s:%s:%s', $query->name, $query->type, $query->class);
     }

@@ -17,11 +17,9 @@ final class Parser
     /**
      * Parses the given raw binary message into a Message object
      *
-     * @param string $data
      * @throws InvalidArgumentException
-     * @return Message
      */
-    public function parseMessage($data)
+    public function parseMessage(string $data): Message
     {
         $message = $this->parse($data, 0);
         if ($message === null) {
@@ -31,18 +29,13 @@ final class Parser
         return $message;
     }
 
-    /**
-     * @param string $data
-     * @param int    $consumed
-     * @return ?Message
-     */
-    private function parse($data, $consumed)
+    private function parse(string $data, int $consumed): ?Message
     {
         if (!isset($data[12 - 1])) {
             return null;
         }
 
-        list($id, $fields, $qdCount, $anCount, $nsCount, $arCount) = array_values(unpack('n*', substr($data, 0, 12)));
+        list($id, $fields, $qdCount, $anCount, $nsCount, $arCount) = array_values(unpack('n*', substr($data, 0, 12))); /** @phpstan-ignore-line */
 
         $message = new Message();
         $message->id = $id;
@@ -58,7 +51,7 @@ final class Parser
         // parse all questions
         for ($i = $qdCount; $i > 0; --$i) {
             list($question, $consumed) = $this->parseQuestion($data, $consumed);
-            if ($question === null) {
+            if ($question === null || $consumed === null) {
                 return null;
             } else {
                 $message->questions[] = $question;
@@ -68,7 +61,7 @@ final class Parser
         // parse all answer records
         for ($i = $anCount; $i > 0; --$i) {
             list($record, $consumed) = $this->parseRecord($data, $consumed);
-            if ($record === null) {
+            if ($record === null || $consumed === null) {
                 return null;
             } else {
                 $message->answers[] = $record;
@@ -78,7 +71,7 @@ final class Parser
         // parse all authority records
         for ($i = $nsCount; $i > 0; --$i) {
             list($record, $consumed) = $this->parseRecord($data, $consumed);
-            if ($record === null) {
+            if ($record === null || $consumed === null) {
                 return null;
             } else {
                 $message->authority[] = $record;
@@ -88,7 +81,7 @@ final class Parser
         // parse all additional records
         for ($i = $arCount; $i > 0; --$i) {
             list($record, $consumed) = $this->parseRecord($data, $consumed);
-            if ($record === null) {
+            if ($record === null || $consumed === null) {
                 return null;
             } else {
                 $message->additional[] = $record;
@@ -99,18 +92,17 @@ final class Parser
     }
 
     /**
-     * @param string $data
-     * @param int $consumed
-     * @return array
+     * @return array{Query, int}|array{null, null}
      */
-    private function parseQuestion($data, $consumed)
+    private function parseQuestion(string $data, int $consumed): array
     {
         list($labels, $consumed) = $this->readLabels($data, $consumed);
 
-        if ($labels === null || !isset($data[$consumed + 4 - 1])) {
+        if ($labels === null || $consumed === null || !isset($data[$consumed + 4 - 1])) {
             return [null, null];
         }
 
+        /** @phpstan-ignore-next-line Since the format string is static the function will never return false. */
         list($type, $class) = array_values(unpack('n*', substr($data, $consumed, 4)));
         $consumed += 4;
 
@@ -125,21 +117,21 @@ final class Parser
     }
 
     /**
-     * @param string $data
-     * @param int $consumed
-     * @return array An array with a parsed Record on success or array with null if data is invalid/incomplete
+     * @return array{Record, int}|array{null, null} An array with a parsed Record on success or array with null if data is invalid/incomplete
      */
-    private function parseRecord($data, $consumed)
+    private function parseRecord(string $data, int $consumed): array
     {
         list($name, $consumed) = $this->readDomain($data, $consumed);
 
-        if ($name === null || !isset($data[$consumed + 10 - 1])) {
+        if ($name === null || $consumed === null || !isset($data[$consumed + 10 - 1])) {
             return [null, null];
         }
 
+        /** @phpstan-ignore-next-line Since the format string is static the function will never return false. */
         list($type, $class) = array_values(unpack('n*', substr($data, $consumed, 4)));
         $consumed += 4;
 
+        /** @phpstan-ignore-next-line Since the format string is static the function will never return false. */
         list($ttl) = array_values(unpack('N', substr($data, $consumed, 4)));
         $consumed += 4;
 
@@ -148,6 +140,7 @@ final class Parser
             $ttl = 0;
         }
 
+        /** @phpstan-ignore-next-line Since the format string is static the function will never return false. */
         list($rdLength) = array_values(unpack('n', substr($data, $consumed, 2)));
         $consumed += 2;
 
@@ -160,12 +153,12 @@ final class Parser
 
         if (Message::TYPE_A === $type) {
             if ($rdLength === 4) {
-                $rdata = inet_ntop(substr($data, $consumed, $rdLength));
+                $rdata = (string)inet_ntop(substr($data, $consumed, $rdLength));
                 $consumed += $rdLength;
             }
         } elseif (Message::TYPE_AAAA === $type) {
             if ($rdLength === 16) {
-                $rdata = inet_ntop(substr($data, $consumed, $rdLength));
+                $rdata = (string)inet_ntop(substr($data, $consumed, $rdLength));
                 $consumed += $rdLength;
             }
         } elseif (Message::TYPE_CNAME === $type || Message::TYPE_PTR === $type || Message::TYPE_NS === $type) {
@@ -179,6 +172,7 @@ final class Parser
             }
         } elseif (Message::TYPE_MX === $type) {
             if ($rdLength > 2) {
+                /** @phpstan-ignore-next-line Since the format string is static the function will never return false. */
                 list($priority) = array_values(unpack('n', substr($data, $consumed, 2)));
                 list($target, $consumed) = $this->readDomain($data, $consumed + 2);
 
@@ -189,6 +183,7 @@ final class Parser
             }
         } elseif (Message::TYPE_SRV === $type) {
             if ($rdLength > 6) {
+                /** @phpstan-ignore-next-line Since the format string is static the function will never return false. */
                 list($priority, $weight, $port) = array_values(unpack('n*', substr($data, $consumed, 6)));
                 list($target, $consumed) = $this->readDomain($data, $consumed + 6);
 
@@ -201,6 +196,7 @@ final class Parser
             }
         } elseif (Message::TYPE_SSHFP === $type) {
             if ($rdLength > 2) {
+                /** @phpstan-ignore-next-line Since the format string is static the function will never return false. */
                 list($algorithm, $hash) = \array_values(\unpack('C*', \substr($data, $consumed, 2)));
                 $fingerprint = \bin2hex(\substr($data, $consumed + 2, $rdLength - 2));
                 $consumed += $rdLength;
@@ -213,9 +209,16 @@ final class Parser
             }
         } elseif (Message::TYPE_SOA === $type) {
             list($mname, $consumed) = $this->readDomain($data, $consumed);
+            if ($consumed === null) {
+                return [null, null];
+            }
             list($rname, $consumed) = $this->readDomain($data, $consumed);
+            if ($consumed === null) {
+                return [null, null];
+            }
 
-            if ($mname !== null && $rname !== null && isset($data[$consumed + 20 - 1])) {
+            if (isset($data[$consumed + 20 - 1])) {
+                /** @phpstan-ignore-next-line Since the format string is static the function will never return false. */
                 list($serial, $refresh, $retry, $expire, $minimum) = array_values(unpack('N*', substr($data, $consumed, 20)));
                 $consumed += 20;
 
@@ -232,11 +235,13 @@ final class Parser
         } elseif (Message::TYPE_OPT === $type) {
             $rdata = [];
             while (isset($data[$consumed + 4 - 1])) {
+                /** @phpstan-ignore-next-line Since the format string is static the function will never return false. */
                 list($code, $length) = array_values(unpack('n*', substr($data, $consumed, 4)));
                 $value = (string) substr($data, $consumed + 4, $length);
                 if ($code === Message::OPT_TCP_KEEPALIVE && $value === '') {
                     $value = null;
                 } elseif ($code === Message::OPT_TCP_KEEPALIVE && $length === 2) {
+                    /** @phpstan-ignore-next-line Since the format string is static the function will never return false. */
                     list($value) = array_values(unpack('n', $value));
                     $value = round($value * 0.1, 1);
                 } elseif ($code === Message::OPT_TCP_KEEPALIVE) {
@@ -247,6 +252,7 @@ final class Parser
             }
         } elseif (Message::TYPE_CAA === $type) {
             if ($rdLength > 3) {
+                /** @phpstan-ignore-next-line Since the format string is static the function will never return false. */
                 list($flag, $tagLength) = array_values(unpack('C*', substr($data, $consumed, 2)));
 
                 if ($tagLength > 0 && $rdLength - 2 - $tagLength > 0) {
@@ -278,11 +284,14 @@ final class Parser
         ];
     }
 
-    private function readDomain($data, $consumed)
+    /**
+     * @return array{string, int}|array{null, null}
+     */
+    private function readDomain(string $data, int $consumed): array
     {
         list ($labels, $consumed) = $this->readLabels($data, $consumed);
 
-        if ($labels === null) {
+        if ($labels === null || $consumed === null) {
             return [null, null];
         }
 
@@ -302,13 +311,12 @@ final class Parser
     }
 
     /**
-     * @param string $data
-     * @param int    $consumed
-     * @param int    $compressionDepth maximum depth for compressed labels to avoid unreasonable recursion
-     * @return array
+     * @param int $compressionDepth maximum depth for compressed labels to avoid unreasonable recursion
+     * @return array{array<string>, int}|array{null, null}
      */
-    private function readLabels($data, $consumed, $compressionDepth = 127)
+    private function readLabels(string $data, int $consumed, int $compressionDepth = 127)
     {
+        /** @var array<string> $labels */
         $labels = [];
 
         while (true) {

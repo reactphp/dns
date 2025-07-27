@@ -8,6 +8,7 @@ use React\Dns\Protocol\Parser;
 use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use React\Promise\Deferred;
+use React\Promise\PromiseInterface;
 use function React\Promise\reject;
 
 /**
@@ -83,15 +84,27 @@ use function React\Promise\reject;
  */
 final class UdpTransportExecutor implements ExecutorInterface
 {
+    /**
+     * @var string
+     */
     private $nameserver;
+    /**
+     * @var LoopInterface
+     */
     private $loop;
+    /**
+     * @var Parser
+     */
     private $parser;
+    /**
+     * @var BinaryDumper
+     */
     private $dumper;
 
     /**
      * maximum UDP packet size to send and receive
      *
-     * @var int
+     * @var int<0, max>
      */
     private $maxPacketSize = 512;
 
@@ -99,7 +112,7 @@ final class UdpTransportExecutor implements ExecutorInterface
      * @param string         $nameserver
      * @param ?LoopInterface $loop
      */
-    public function __construct($nameserver, ?LoopInterface $loop = null)
+    public function __construct(string $nameserver, ?LoopInterface $loop = null)
     {
         if (\strpos($nameserver, '[') === false && \substr_count($nameserver, ':') >= 2 && \strpos($nameserver, '://') === false) {
             // several colons, but not enclosed in square brackets => enclose IPv6 address in square brackets
@@ -117,7 +130,7 @@ final class UdpTransportExecutor implements ExecutorInterface
         $this->dumper = new BinaryDumper();
     }
 
-    public function query(Query $query)
+    public function query(Query $query): PromiseInterface
     {
         $request = Message::createRequestForQuery($query);
 
@@ -143,7 +156,7 @@ final class UdpTransportExecutor implements ExecutorInterface
         // set socket to non-blocking and immediately try to send (fill write buffer)
         \stream_set_blocking($socket, false);
 
-        \set_error_handler(function ($_, $error) use (&$errno, &$errstr) {
+        \set_error_handler(function (int $_, string $error) use (&$errno, &$errstr): bool {
             // Write may potentially fail, but most common errors are already caught by connection check above.
             // Among others, macOS is known to report here when trying to send to broadcast address.
             // This can also be reproduced by writing data exceeding `stream_set_chunk_size()` to a server refusing UDP data.
@@ -151,6 +164,8 @@ final class UdpTransportExecutor implements ExecutorInterface
             \preg_match('/errno=(\d+) (.+)/', $error, $m);
             $errno = (int) ($m[1] ?? 0);
             $errstr = $m[2] ?? $error;
+
+            return true;
         });
 
         $written = \fwrite($socket, $queryData);
@@ -164,6 +179,9 @@ final class UdpTransportExecutor implements ExecutorInterface
             ));
         }
 
+        /**
+         * @var Deferred<Message> $deferred
+         */
         $deferred = new Deferred(function () use ($socket, $query) {
             // cancellation should remove socket from loop and close socket
             $this->loop->removeReadStream($socket);

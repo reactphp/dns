@@ -15,19 +15,22 @@ $factory = new Factory();
 $resolver = $factory->create($config);
 
 $ip = $argv[1] ?? '8.8.8.8';
+assert(is_string($ip));
+$ip = @inet_pton($ip);
 
-if (@inet_pton($ip) === false) {
+if ($ip === false) {
     exit('Error: Given argument is not a valid IP' . PHP_EOL);
 }
 
 if (strpos($ip, ':') === false) {
-    $name = inet_ntop(strrev(inet_pton($ip))) . '.in-addr.arpa';
+    $name = inet_ntop(strrev($ip)) . '.in-addr.arpa';
 } else {
-    $name = wordwrap(strrev(bin2hex(inet_pton($ip))), 1, '.', true) . '.ip6.arpa';
+    $name = wordwrap(strrev(bin2hex($ip)), 1, '.', true) . '.ip6.arpa';
 }
+assert(is_string($name));
 
 $resolver->resolveAll($name, Message::TYPE_PTR)->then(function (array $names) {
     var_dump($names);
-}, function (Exception $e) {
-    echo $e->getMessage() . PHP_EOL;
+}, static function (Throwable $error) {
+    echo $error;
 });
