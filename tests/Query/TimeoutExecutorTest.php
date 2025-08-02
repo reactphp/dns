@@ -38,7 +38,9 @@ class TimeoutExecutorTest extends TestCase
         $executor = new TimeoutExecutor($this->executor, 5.0);
 
         $ref = new \ReflectionProperty($executor, 'loop');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $loop = $ref->getValue($executor);
 
         $this->assertInstanceOf(LoopInterface::class, $loop);

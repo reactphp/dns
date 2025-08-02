@@ -30,7 +30,9 @@ class UdpTransportExecutorTest extends TestCase
         $executor = new UdpTransportExecutor($input, $loop);
 
         $ref = new \ReflectionProperty($executor, 'nameserver');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $value = $ref->getValue($executor);
 
         $this->assertEquals($expected, $value);
@@ -69,7 +71,9 @@ class UdpTransportExecutorTest extends TestCase
         $executor = new UdpTransportExecutor('127.0.0.1');
 
         $ref = new \ReflectionProperty($executor, 'loop');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $loop = $ref->getValue($executor);
 
         $this->assertInstanceOf(LoopInterface::class, $loop);
@@ -132,7 +136,9 @@ class UdpTransportExecutorTest extends TestCase
         $executor = new UdpTransportExecutor('::1', $loop);
 
         $ref = new \ReflectionProperty($executor, 'nameserver');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $ref->setValue($executor, '///');
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
@@ -161,7 +167,9 @@ class UdpTransportExecutorTest extends TestCase
 
         // increase hard-coded maximum packet size to allow sending excessive data
         $ref = new \ReflectionProperty($executor, 'maxPacketSize');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $ref->setValue($executor, PHP_INT_MAX);
 
         $error = null;

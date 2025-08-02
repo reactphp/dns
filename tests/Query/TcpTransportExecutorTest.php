@@ -31,7 +31,9 @@ class TcpTransportExecutorTest extends TestCase
         $executor = new TcpTransportExecutor($input, $loop);
 
         $ref = new \ReflectionProperty($executor, 'nameserver');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $value = $ref->getValue($executor);
 
         $this->assertEquals($expected, $value);
@@ -70,7 +72,9 @@ class TcpTransportExecutorTest extends TestCase
         $executor = new TcpTransportExecutor('127.0.0.1');
 
         $ref = new \ReflectionProperty($executor, 'loop');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $loop = $ref->getValue($executor);
 
         $this->assertInstanceOf(LoopInterface::class, $loop);
@@ -128,7 +132,9 @@ class TcpTransportExecutorTest extends TestCase
         $executor = new TcpTransportExecutor('::1', $loop);
 
         $ref = new \ReflectionProperty($executor, 'nameserver');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $ref->setValue($executor, '///');
 
         $query = new Query('google.com', Message::TYPE_A, Message::CLASS_IN);
@@ -307,7 +313,9 @@ class TcpTransportExecutorTest extends TestCase
         $promise->then($this->expectCallableNever(), $this->expectCallableNever());
 
         $ref = new \ReflectionProperty($executor, 'writePending');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $writePending = $ref->getValue($executor);
 
         $this->assertTrue($writePending);
@@ -349,7 +357,9 @@ class TcpTransportExecutorTest extends TestCase
         $promise->then($this->expectCallableNever(), $this->expectCallableNever());
 
         $ref = new \ReflectionProperty($executor, 'writePending');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $writePending = $ref->getValue($executor);
 
         $this->assertTrue($writePending);
@@ -390,7 +400,9 @@ class TcpTransportExecutorTest extends TestCase
         $executor->handleWritable();
 
         $ref = new \ReflectionProperty($executor, 'writePending');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $writePending = $ref->getValue($executor);
 
         // We expect an EPIPE (Broken pipe) on second write.
@@ -745,7 +757,9 @@ class TcpTransportExecutorTest extends TestCase
 
         // use outgoing buffer as response message
         $ref = new \ReflectionProperty($executor, 'writeBuffer');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $data = $ref->getValue($executor);
 
         $client = stream_socket_accept($server);
@@ -780,7 +794,9 @@ class TcpTransportExecutorTest extends TestCase
 
         // use outgoing buffer as response message
         $ref = new \ReflectionProperty($executor, 'writeBuffer');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $data = $ref->getValue($executor);
 
         $client = stream_socket_accept($server);
@@ -813,7 +829,9 @@ class TcpTransportExecutorTest extends TestCase
 
         // use outgoing buffer as response message
         $ref = new \ReflectionProperty($executor, 'writeBuffer');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $data = $ref->getValue($executor);
 
         $client = stream_socket_accept($server);
@@ -854,7 +872,9 @@ class TcpTransportExecutorTest extends TestCase
 
         // use outgoing buffer as response message
         $ref = new \ReflectionProperty($executor, 'writeBuffer');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $data = $ref->getValue($executor);
 
         $client = stream_socket_accept($server);
@@ -892,7 +912,9 @@ class TcpTransportExecutorTest extends TestCase
 
         // use outgoing buffer as response message
         $ref = new \ReflectionProperty($executor, 'writeBuffer');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $data = $ref->getValue($executor);
 
         $client = stream_socket_accept($server);
@@ -930,7 +952,9 @@ class TcpTransportExecutorTest extends TestCase
 
         // use outgoing buffer as response message
         $ref = new \ReflectionProperty($executor, 'writeBuffer');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $data = $ref->getValue($executor);
 
         $client = stream_socket_accept($server);
