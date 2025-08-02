@@ -33,13 +33,17 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf('React\Dns\Query\CoopExecutor', $coopExecutor);
 
         $ref = new \ReflectionProperty($coopExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $retryExecutor = $ref->getValue($coopExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\RetryExecutor', $retryExecutor);
 
         $ref = new \ReflectionProperty($retryExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $selectiveExecutor = $ref->getValue($retryExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\SelectiveTransportExecutor', $selectiveExecutor);
@@ -47,13 +51,17 @@ class FactoryTest extends TestCase
         // udp below:
 
         $ref = new \ReflectionProperty($selectiveExecutor, 'datagramExecutor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $timeoutExecutor = $ref->getValue($selectiveExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
 
         $ref = new \ReflectionProperty($timeoutExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $udpExecutor = $ref->getValue($timeoutExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\UdpTransportExecutor', $udpExecutor);
@@ -61,13 +69,17 @@ class FactoryTest extends TestCase
         // tcp below:
 
         $ref = new \ReflectionProperty($selectiveExecutor, 'streamExecutor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $timeoutExecutor = $ref->getValue($selectiveExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
 
         $ref = new \ReflectionProperty($timeoutExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $tcpExecutor = $ref->getValue($timeoutExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TcpTransportExecutor', $tcpExecutor);
@@ -88,19 +100,25 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf('React\Dns\Query\CoopExecutor', $coopExecutor);
 
         $ref = new \ReflectionProperty($coopExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $retryExecutor = $ref->getValue($coopExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\RetryExecutor', $retryExecutor);
 
         $ref = new \ReflectionProperty($retryExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $timeoutExecutor = $ref->getValue($retryExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
 
         $ref = new \ReflectionProperty($timeoutExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $udpExecutor = $ref->getValue($timeoutExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\UdpTransportExecutor', $udpExecutor);
@@ -121,19 +139,25 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf('React\Dns\Query\CoopExecutor', $coopExecutor);
 
         $ref = new \ReflectionProperty($coopExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $retryExecutor = $ref->getValue($coopExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\RetryExecutor', $retryExecutor);
 
         $ref = new \ReflectionProperty($retryExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $timeoutExecutor = $ref->getValue($retryExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
 
         $ref = new \ReflectionProperty($timeoutExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $tcpExecutor = $ref->getValue($timeoutExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TcpTransportExecutor', $tcpExecutor);
@@ -157,19 +181,25 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf('React\Dns\Query\CoopExecutor', $coopExecutor);
 
         $ref = new \ReflectionProperty($coopExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $retryExecutor = $ref->getValue($coopExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\RetryExecutor', $retryExecutor);
 
         $ref = new \ReflectionProperty($retryExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $timeoutExecutor = $ref->getValue($retryExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
 
         $ref = new \ReflectionProperty($timeoutExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $tcpExecutor = $ref->getValue($timeoutExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TcpTransportExecutor', $tcpExecutor);
@@ -194,49 +224,65 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf('React\Dns\Query\CoopExecutor', $coopExecutor);
 
         $ref = new \ReflectionProperty($coopExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $retryExecutor = $ref->getValue($coopExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\RetryExecutor', $retryExecutor);
 
         $ref = new \ReflectionProperty($retryExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $fallbackExecutor = $ref->getValue($retryExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\FallbackExecutor', $fallbackExecutor);
 
         $ref = new \ReflectionProperty($fallbackExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $timeoutExecutor = $ref->getValue($fallbackExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
 
         $ref = new \ReflectionProperty($timeoutExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $tcpExecutor = $ref->getValue($timeoutExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TcpTransportExecutor', $tcpExecutor);
 
         $ref = new \ReflectionProperty($tcpExecutor, 'nameserver');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $nameserver = $ref->getValue($tcpExecutor);
 
         $this->assertEquals('tcp://8.8.8.8:53', $nameserver);
 
         $ref = new \ReflectionProperty($fallbackExecutor, 'fallback');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $timeoutExecutor = $ref->getValue($fallbackExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
 
         $ref = new \ReflectionProperty($timeoutExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $tcpExecutor = $ref->getValue($timeoutExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TcpTransportExecutor', $tcpExecutor);
 
         $ref = new \ReflectionProperty($tcpExecutor, 'nameserver');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $nameserver = $ref->getValue($tcpExecutor);
 
         $this->assertEquals('tcp://1.1.1.1:53', $nameserver);
@@ -262,73 +308,97 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf('React\Dns\Query\CoopExecutor', $coopExecutor);
 
         $ref = new \ReflectionProperty($coopExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $retryExecutor = $ref->getValue($coopExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\RetryExecutor', $retryExecutor);
 
         $ref = new \ReflectionProperty($retryExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $fallbackExecutor = $ref->getValue($retryExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\FallbackExecutor', $fallbackExecutor);
 
         $ref = new \ReflectionProperty($fallbackExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $timeoutExecutor = $ref->getValue($fallbackExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
 
         $ref = new \ReflectionProperty($timeoutExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $tcpExecutor = $ref->getValue($timeoutExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TcpTransportExecutor', $tcpExecutor);
 
         $ref = new \ReflectionProperty($tcpExecutor, 'nameserver');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $nameserver = $ref->getValue($tcpExecutor);
 
         $this->assertEquals('tcp://8.8.8.8:53', $nameserver);
 
         $ref = new \ReflectionProperty($fallbackExecutor, 'fallback');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $fallbackExecutor = $ref->getValue($fallbackExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\FallbackExecutor', $fallbackExecutor);
 
         $ref = new \ReflectionProperty($fallbackExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $timeoutExecutor = $ref->getValue($fallbackExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
 
         $ref = new \ReflectionProperty($timeoutExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $tcpExecutor = $ref->getValue($timeoutExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TcpTransportExecutor', $tcpExecutor);
 
         $ref = new \ReflectionProperty($tcpExecutor, 'nameserver');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $nameserver = $ref->getValue($tcpExecutor);
 
         $this->assertEquals('tcp://1.1.1.1:53', $nameserver);
 
         $ref = new \ReflectionProperty($fallbackExecutor, 'fallback');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $timeoutExecutor = $ref->getValue($fallbackExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TimeoutExecutor', $timeoutExecutor);
 
         $ref = new \ReflectionProperty($timeoutExecutor, 'executor');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $tcpExecutor = $ref->getValue($timeoutExecutor);
 
         $this->assertInstanceOf('React\Dns\Query\TcpTransportExecutor', $tcpExecutor);
 
         $ref = new \ReflectionProperty($tcpExecutor, 'nameserver');
-        $ref->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
         $nameserver = $ref->getValue($tcpExecutor);
 
         $this->assertEquals('tcp://9.9.9.9:53', $nameserver);
@@ -432,7 +502,9 @@ class FactoryTest extends TestCase
         // extract underlying executor that may be wrapped in multiple layers of hosts file executors
         while ($executor instanceof HostsFileExecutor) {
             $reflector = new \ReflectionProperty('React\Dns\Query\HostsFileExecutor', 'fallback');
-            $reflector->setAccessible(true);
+            if (\PHP_VERSION_ID < 80100) {
+                $reflector->setAccessible(true);
+            }
 
             $executor = $reflector->getValue($executor);
         }
@@ -443,14 +515,18 @@ class FactoryTest extends TestCase
     private function getResolverPrivateMemberValue($resolver, $field)
     {
         $reflector = new \ReflectionProperty('React\Dns\Resolver\Resolver', $field);
-        $reflector->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $reflector->setAccessible(true);
+        }
         return $reflector->getValue($resolver);
     }
 
     private function getCachingExecutorPrivateMemberValue($resolver, $field)
     {
         $reflector = new \ReflectionProperty('React\Dns\Query\CachingExecutor', $field);
-        $reflector->setAccessible(true);
+        if (\PHP_VERSION_ID < 80100) {
+            $reflector->setAccessible(true);
+        }
         return $reflector->getValue($resolver);
     }
 }
