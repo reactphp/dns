@@ -70,6 +70,10 @@ as above if none can be found.
   Ideally, this method should thus be executed only once before the loop starts
   and not repeatedly while it is running.
 
+> Also note that loading the system config will also read attempts, and 
+  timeout from the options in resolv.conf and configures the retry and 
+  timeout executors with the values it finds there.
+
 But there's more.
 
 ## Caching
