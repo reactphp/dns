@@ -32,11 +32,11 @@ final class Factory
      *
      * @param Config|string  $config DNS Config object (recommended) or single nameserver address
      * @param ?LoopInterface $loop
-     * @return \React\Dns\Resolver\ResolverInterface
+     * @return ResolverInterface
      * @throws \InvalidArgumentException for invalid DNS server address
      * @throws \UnderflowException when given DNS Config object has an empty list of nameservers
      */
-    public function create($config, ?LoopInterface $loop = null)
+    public function create($config, ?LoopInterface $loop = null): ResolverInterface
     {
         $executor = $this->decorateHostsFileExecutor($this->createExecutor($config, $loop ?: Loop::get()));
 
@@ -55,11 +55,11 @@ final class Factory
      * @param Config|string   $config DNS Config object (recommended) or single nameserver address
      * @param ?LoopInterface  $loop
      * @param ?CacheInterface $cache
-     * @return \React\Dns\Resolver\ResolverInterface
+     * @return ResolverInterface
      * @throws \InvalidArgumentException for invalid DNS server address
      * @throws \UnderflowException when given DNS Config object has an empty list of nameservers
      */
-    public function createCached($config, ?LoopInterface $loop = null, ?CacheInterface $cache = null)
+    public function createCached($config, ?LoopInterface $loop = null, ?CacheInterface $cache = null): ResolverInterface
     {
         // default to keeping maximum of 256 responses in cache unless explicitly given
         if (!($cache instanceof CacheInterface)) {

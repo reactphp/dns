@@ -3,6 +3,7 @@
 namespace React\Dns\Query;
 
 use React\Promise\Promise;
+use React\Promise\PromiseInterface;
 
 /**
  * Cooperatively resolves hosts via the given base executor to ensure same query is not run concurrently
@@ -45,7 +46,7 @@ final class CoopExecutor implements ExecutorInterface
         $this->executor = $base;
     }
 
-    public function query(Query $query)
+    public function query(Query $query): PromiseInterface
     {
         $key = $this->serializeQueryToIdentity($query);
         if (isset($this->pending[$key])) {

@@ -10,18 +10,18 @@ final class RetryExecutor implements ExecutorInterface
     private $executor;
     private $retries;
 
-    public function __construct(ExecutorInterface $executor, $retries = 2)
+    public function __construct(ExecutorInterface $executor, int $retries = 2)
     {
         $this->executor = $executor;
         $this->retries = $retries;
     }
 
-    public function query(Query $query)
+    public function query(Query $query): PromiseInterface
     {
         return $this->tryQuery($query, $this->retries);
     }
 
-    public function tryQuery(Query $query, $retries)
+    public function tryQuery(Query $query, int $retries): PromiseInterface
     {
         $deferred = new Deferred(function () use (&$promise) {
             if ($promise instanceof PromiseInterface && \method_exists($promise, 'cancel')) {
