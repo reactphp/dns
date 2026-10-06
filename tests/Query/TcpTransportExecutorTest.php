@@ -324,7 +324,7 @@ class TcpTransportExecutorTest extends TestCase
     public function testQueryStaysPendingWhenClientCanNotSendExcessiveMessageInOneChunkWhenServerClosesSocket()
     {
         if (PHP_OS === 'Darwin') {
-            // Skip on macOS because it exhibits what looks like a kernal race condition when sending excessive data to a socket that is about to shut down (EPROTOTYPE)
+            // Skip on macOS because it exhibits what looks like a kernel race condition when sending excessive data to a socket that is about to shut down (ECONNRESET, or EPROTOTYPE before macOS 12)
             // Due to this race condition, this is somewhat flaky. Happens around 75% of the time, use `--repeat=100` to reproduce.
             // fwrite(): Send of 4260000 bytes failed with errno=41 Protocol wrong type for socket
             // @link http://erickt.github.io/blog/2014/11/19/adventures-in-debugging-a-potential-osx-kernel-bug/
@@ -406,9 +406,10 @@ class TcpTransportExecutorTest extends TestCase
         $writePending = $ref->getValue($executor);
 
         // We expect an EPIPE (Broken pipe) on second write.
-        // However, macOS may report EPROTOTYPE (Protocol wrong type for socket) on first write due to kernel race condition.
-        // fwrite(): Send of 4260000 bytes failed with errno=41 Protocol wrong type for socket
+        // However, macOS may report ECONNRESET (Connection reset by peer) on first write due to kernel race condition.
+        // Before macOS 12, this was reported as EPROTOTYPE (Protocol wrong type for socket) instead.
         // @link http://erickt.github.io/blog/2014/11/19/adventures-in-debugging-a-potential-osx-kernel-bug/
+        // @link https://github.com/apple-oss-distributions/xnu/blob/xnu-8019.41.5/bsd/netinet/tcp_usrreq.c#L1093
         if ($writePending) {
             $executor->handleWritable();
         }
@@ -420,7 +421,7 @@ class TcpTransportExecutorTest extends TestCase
         $this->expectException(
             \RuntimeException::class,
             'Unable to send query to DNS server tcp://' . $address . ' (',
-            defined('SOCKET_EPIPE') ? (PHP_OS !== 'Darwin' || $writePending ? SOCKET_EPIPE : SOCKET_EPROTOTYPE) : null
+            defined('SOCKET_EPIPE') ? (PHP_OS !== 'Darwin' || $writePending ? SOCKET_EPIPE : SOCKET_ECONNRESET) : null
         );
         throw $exception;
     }
