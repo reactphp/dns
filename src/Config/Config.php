@@ -97,6 +97,29 @@ final class Config
             }
         }
 
+        $matches = [];
+        preg_match_all('/^options.*\s*$/m', $contents, $matches);
+        if (isset($matches[0][0])) {
+            $options = preg_split('/\s+/', trim($matches[0][0]));
+            array_shift($options);
+
+            foreach ($options as $option) {
+                $value = null;
+                if (strpos($option, ':') !== false) {
+                    [$option, $value] = explode(':', $option, 2);
+                }
+
+                switch ($option) {
+                    case 'attempts':
+                        $config->options->attempts = ((int) $value) > 5 ? 5 : (int) $value;
+                        break;
+                    case 'timeout':
+                        $config->options->timeout = ((int) $value) > 30 ? 30 : (int) $value;
+                        break;
+                }
+            }
+        }
+
         return $config;
     }
 
@@ -134,4 +157,13 @@ final class Config
     }
 
     public $nameservers = [];
+
+    /**
+     * @var Options
+     */
+    public $options;
+
+    public function __construct() {
+        $this->options = new Options();
+    }
 }

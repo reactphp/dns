@@ -6,6 +6,7 @@ use React\Cache\ArrayCache;
 use React\Cache\CacheInterface;
 use React\Dns\Config\Config;
 use React\Dns\Config\HostsFile;
+use React\Dns\Config\Options;
 use React\Dns\Query\CachingExecutor;
 use React\Dns\Query\CoopExecutor;
 use React\Dns\Query\ExecutorInterface;
@@ -125,26 +126,24 @@ final class Factory
 
             if ($tertiary !== false) {
                 // 3 DNS servers given => nest first with fallback for second and third
-                return new CoopExecutor(
-                    new RetryExecutor(
+                return $this->createTopLevelDecoratingExectors(
+                    new FallbackExecutor(
+                        $this->createSingleExecutor($primary, $nameserver->options, $loop),
                         new FallbackExecutor(
-                            $this->createSingleExecutor($primary, $loop),
-                            new FallbackExecutor(
-                                $this->createSingleExecutor($secondary, $loop),
-                                $this->createSingleExecutor($tertiary, $loop)
-                            )
+                            $this->createSingleExecutor($secondary, $nameserver->options, $loop),
+                            $this->createSingleExecutor($tertiary, $nameserver->options, $loop)
                         )
-                    )
+                    ),
+                    $nameserver
                 );
             } elseif ($secondary !== false) {
                 // 2 DNS servers given => fallback from first to second
-                return new CoopExecutor(
-                    new RetryExecutor(
-                        new FallbackExecutor(
-                            $this->createSingleExecutor($primary, $loop),
-                            $this->createSingleExecutor($secondary, $loop)
-                        )
-                    )
+                return $this->createTopLevelDecoratingExectors(
+                    new FallbackExecutor(
+                        $this->createSingleExecutor($primary, $nameserver->options, $loop),
+                        $this->createSingleExecutor($secondary, $nameserver->options, $loop)
+                    ),
+                    $nameserver
                 );
             } else {
                 // 1 DNS server given => use single executor
@@ -152,27 +151,35 @@ final class Factory
             }
         }
 
-        return new CoopExecutor(new RetryExecutor($this->createSingleExecutor($nameserver, $loop)));
+        return $this->createTopLevelDecoratingExectors($this->createSingleExecutor($nameserver, new Options(), $loop), $nameserver);
+    }
+
+    private function createTopLevelDecoratingExectors(ExecutorInterface $executor, $nameserver)
+    {
+        $executor = new RetryExecutor($executor, (is_string($nameserver) ? new Options() : $nameserver->options)->attempts);
+
+        return new CoopExecutor($executor);
     }
 
     /**
      * @param string $nameserver
+     * @param Options $options
      * @param LoopInterface $loop
      * @return ExecutorInterface
      * @throws \InvalidArgumentException for invalid DNS server address
      */
-    private function createSingleExecutor($nameserver, LoopInterface $loop)
+    private function createSingleExecutor($nameserver, Options $options, LoopInterface $loop)
     {
         $parts = \parse_url($nameserver);
 
         if (isset($parts['scheme']) && $parts['scheme'] === 'tcp') {
-            $executor = $this->createTcpExecutor($nameserver, $loop);
+            $executor = $this->createTcpExecutor($nameserver, $options->timeout, $loop);
         } elseif (isset($parts['scheme']) && $parts['scheme'] === 'udp') {
-            $executor = $this->createUdpExecutor($nameserver, $loop);
+            $executor = $this->createUdpExecutor($nameserver, $options->timeout, $loop);
         } else {
             $executor = new SelectiveTransportExecutor(
-                $this->createUdpExecutor($nameserver, $loop),
-                $this->createTcpExecutor($nameserver, $loop)
+                $this->createUdpExecutor($nameserver, $options->timeout, $loop),
+                $this->createTcpExecutor($nameserver, $options->timeout, $loop)
             );
         }
 
@@ -181,33 +188,35 @@ final class Factory
 
     /**
      * @param string $nameserver
+     * @param int $timeout
      * @param LoopInterface $loop
      * @return TimeoutExecutor
      * @throws \InvalidArgumentException for invalid DNS server address
      */
-    private function createTcpExecutor($nameserver, LoopInterface $loop)
+    private function createTcpExecutor($nameserver, int $timeout, LoopInterface $loop)
     {
         return new TimeoutExecutor(
             new TcpTransportExecutor($nameserver, $loop),
-            5.0,
+            $timeout,
             $loop
         );
     }
 
     /**
      * @param string $nameserver
+     * @param int $timeout
      * @param LoopInterface $loop
      * @return TimeoutExecutor
      * @throws \InvalidArgumentException for invalid DNS server address
      */
-    private function createUdpExecutor($nameserver, LoopInterface $loop)
+    private function createUdpExecutor($nameserver, int $timeout, LoopInterface $loop)
     {
         return new TimeoutExecutor(
             new UdpTransportExecutor(
                 $nameserver,
                 $loop
             ),
-            5.0,
+            $timeout,
             $loop
         );
     }
