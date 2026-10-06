@@ -35,7 +35,7 @@ final class Query
      * @param int    $type  query type, see Message::TYPE_* constants
      * @param int    $class query class, see Message::CLASS_IN constant
      */
-    public function __construct($name, $type, $class)
+    public function __construct(string $name, int $type, int $class)
     {
         $this->name = $name;
         $this->type = $type;
@@ -51,7 +51,7 @@ final class Query
      * @return string "example.com (A)" or "example.com (CLASS0 TYPE1234)"
      * @link https://tools.ietf.org/html/rfc3597
      */
-    public function describe()
+    public function describe(): string
     {
         $class = $this->class !== Message::CLASS_IN ? 'CLASS' . $this->class . ' ' : '';
 

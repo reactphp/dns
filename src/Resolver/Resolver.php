@@ -6,6 +6,7 @@ use React\Dns\Model\Message;
 use React\Dns\Query\ExecutorInterface;
 use React\Dns\Query\Query;
 use React\Dns\RecordNotFoundException;
+use React\Promise\PromiseInterface;
 
 /**
  * @see ResolverInterface for the base interface
@@ -19,14 +20,14 @@ final class Resolver implements ResolverInterface
         $this->executor = $executor;
     }
 
-    public function resolve($domain)
+    public function resolve(string $domain): PromiseInterface
     {
         return $this->resolveAll($domain, Message::TYPE_A)->then(function (array $ips) {
             return $ips[array_rand($ips)];
         });
     }
 
-    public function resolveAll($domain, $type)
+    public function resolveAll(string $domain, int $type): PromiseInterface
     {
         $query = new Query($domain, $type, Message::CLASS_IN);
 

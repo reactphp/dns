@@ -5,6 +5,7 @@ namespace React\Dns\Query;
 use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use React\Promise\Promise;
+use React\Promise\PromiseInterface;
 
 final class TimeoutExecutor implements ExecutorInterface
 {
@@ -12,14 +13,14 @@ final class TimeoutExecutor implements ExecutorInterface
     private $loop;
     private $timeout;
 
-    public function __construct(ExecutorInterface $executor, $timeout, ?LoopInterface $loop = null)
+    public function __construct(ExecutorInterface $executor, float $timeout, ?LoopInterface $loop = null)
     {
         $this->executor = $executor;
         $this->loop = $loop ?: Loop::get();
         $this->timeout = $timeout;
     }
 
-    public function query(Query $query)
+    public function query(Query $query): PromiseInterface
     {
         $promise = $this->executor->query($query);
 

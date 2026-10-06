@@ -3,6 +3,7 @@
 namespace React\Dns\Query;
 
 use React\Promise\Promise;
+use React\Promise\PromiseInterface;
 
 final class FallbackExecutor implements ExecutorInterface
 {
@@ -15,7 +16,7 @@ final class FallbackExecutor implements ExecutorInterface
         $this->fallback = $fallback;
     }
 
-    public function query(Query $query)
+    public function query(Query $query): PromiseInterface
     {
         $cancelled = false;
         $promise = $this->executor->query($query);

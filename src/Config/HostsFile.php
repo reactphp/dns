@@ -27,7 +27,7 @@ class HostsFile
      * @return string
      * @codeCoverageIgnore
      */
-    public static function getDefaultPath()
+    public static function getDefaultPath(): string
     {
         // use static path for all Unix-based systems
         if (DIRECTORY_SEPARATOR !== '\\') {
@@ -59,7 +59,7 @@ class HostsFile
      * @return self
      * @throws RuntimeException if the path can not be loaded (does not exist)
      */
-    public static function loadFromPathBlocking($path = null)
+    public static function loadFromPathBlocking(?string $path = null): self
     {
         if ($path === null) {
             $path = self::getDefaultPath();
@@ -80,7 +80,7 @@ class HostsFile
      *
      * @param string $contents
      */
-    public function __construct($contents)
+    public function __construct(string $contents)
     {
         // remove all comments from the contents
         $contents = preg_replace('/[ \t]*#.*/', '', strtolower($contents));
@@ -92,9 +92,9 @@ class HostsFile
      * Returns all IPs for the given hostname
      *
      * @param string $name
-     * @return string[]
+     * @return array<string>
      */
-    public function getIpsForHost($name)
+    public function getIpsForHost(string $name): array
     {
         $name = strtolower($name);
 
@@ -121,9 +121,9 @@ class HostsFile
      * Returns all hostnames for the given IPv4 or IPv6 address
      *
      * @param string $ip
-     * @return string[]
+     * @return array<string>
      */
-    public function getHostsForIp($ip)
+    public function getHostsForIp(string $ip): array
     {
         // check binary representation of IP to avoid string case and short notation
         $ip = @inet_pton($ip);
