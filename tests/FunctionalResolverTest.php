@@ -51,6 +51,17 @@ class FunctionalResolverTest extends TestCase
     /**
      * @group internet
      */
+    public function testResolveGoogleFQDNResolves()
+    {
+        $promise = $this->resolver->resolve('google.com.');
+        $promise->then($this->expectCallableOnce(), $this->expectCallableNever());
+
+        Loop::run();
+    }
+
+    /**
+     * @group internet
+     */
     public function testResolveGoogleOverUdpResolves()
     {
         $factory = new Factory();
