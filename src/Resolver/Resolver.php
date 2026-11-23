@@ -28,6 +28,7 @@ final class Resolver implements ResolverInterface
 
     public function resolveAll($domain, $type)
     {
+        $domain = trim($domain, '.');
         $query = new Query($domain, $type, Message::CLASS_IN);
 
         return $this->executor->query(
