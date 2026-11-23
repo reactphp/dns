@@ -8,6 +8,7 @@ use React\Dns\Protocol\Parser;
 use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use React\Promise\Deferred;
+use React\Promise\PromiseInterface;
 use function React\Promise\reject;
 
 /**
@@ -135,7 +136,7 @@ class TcpTransportExecutor implements ExecutorInterface
      * @param string         $nameserver
      * @param ?LoopInterface $loop
      */
-    public function __construct($nameserver, ?LoopInterface $loop = null)
+    public function __construct(string $nameserver, ?LoopInterface $loop = null)
     {
         if (\strpos($nameserver, '[') === false && \substr_count($nameserver, ':') >= 2 && \strpos($nameserver, '://') === false) {
             // several colons, but not enclosed in square brackets => enclose IPv6 address in square brackets
@@ -153,7 +154,7 @@ class TcpTransportExecutor implements ExecutorInterface
         $this->dumper = new BinaryDumper();
     }
 
-    public function query(Query $query)
+    public function query(Query $query): PromiseInterface
     {
         $request = Message::createRequestForQuery($query);
 

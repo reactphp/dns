@@ -3,6 +3,7 @@
 namespace React\Dns\Query;
 
 use React\Promise\Promise;
+use React\Promise\PromiseInterface;
 
 /**
  * Send DNS queries over a UDP or TCP/IP stream transport.
@@ -61,7 +62,7 @@ class SelectiveTransportExecutor implements ExecutorInterface
         $this->streamExecutor = $streamExecutor;
     }
 
-    public function query(Query $query)
+    public function query(Query $query): PromiseInterface
     {
         $pending = $this->datagramExecutor->query($query);
 

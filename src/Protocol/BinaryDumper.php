@@ -8,11 +8,7 @@ use React\Dns\Query\Query;
 
 final class BinaryDumper
 {
-    /**
-     * @param Message $message
-     * @return string
-     */
-    public function toBinary(Message $message)
+    public function toBinary(Message $message): string
     {
         $data = '';
 

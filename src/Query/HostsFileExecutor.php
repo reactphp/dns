@@ -5,6 +5,7 @@ namespace React\Dns\Query;
 use React\Dns\Config\HostsFile;
 use React\Dns\Model\Message;
 use React\Dns\Model\Record;
+use React\Promise\PromiseInterface;
 use function React\Promise\resolve;
 
 /**
@@ -25,7 +26,7 @@ final class HostsFileExecutor implements ExecutorInterface
         $this->fallback = $fallback;
     }
 
-    public function query(Query $query)
+    public function query(Query $query): PromiseInterface
     {
         if ($query->class === Message::CLASS_IN && ($query->type === Message::TYPE_A || $query->type === Message::TYPE_AAAA)) {
             // forward lookup for type A or AAAA

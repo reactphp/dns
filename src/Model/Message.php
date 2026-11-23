@@ -86,7 +86,7 @@ final class Message
      * @param Query $query
      * @return self
      */
-    public static function createRequestForQuery(Query $query)
+    public static function createRequestForQuery(Query $query): self
     {
         $request = new Message();
         $request->id = self::generateId();
@@ -99,11 +99,11 @@ final class Message
     /**
      * Creates a new response message for the given query with the given answer records
      *
-     * @param Query    $query
-     * @param Record[] $answers
+     * @param Query         $query
+     * @param array<Record> $answers
      * @return self
      */
-    public static function createResponseWithAnswersForQuery(Query $query, array $answers)
+    public static function createResponseWithAnswersForQuery(Query $query, array $answers): self
     {
         $response = new Message();
         $response->id = self::generateId();
@@ -199,22 +199,22 @@ final class Message
      * ];
      * ```
      *
-     * @var Query[]
+     * @var array<Query>
      */
     public $questions = [];
 
     /**
-     * @var Record[]
+     * @var array<Record>
      */
     public $answers = [];
 
     /**
-     * @var Record[]
+     * @var array<Record>
      */
     public $authority = [];
 
     /**
-     * @var Record[]
+     * @var array<Record>
      */
     public $additional = [];
 }

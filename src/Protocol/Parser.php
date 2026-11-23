@@ -21,7 +21,7 @@ final class Parser
      * @throws InvalidArgumentException
      * @return Message
      */
-    public function parseMessage($data)
+    public function parseMessage(string $data): Message
     {
         $message = $this->parse($data, 0);
         if ($message === null) {

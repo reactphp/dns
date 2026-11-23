@@ -5,6 +5,7 @@ namespace React\Dns\Query;
 use React\Cache\CacheInterface;
 use React\Dns\Model\Message;
 use React\Promise\Promise;
+use React\Promise\PromiseInterface;
 
 final class CachingExecutor implements ExecutorInterface
 {
@@ -24,7 +25,7 @@ final class CachingExecutor implements ExecutorInterface
         $this->cache = $cache;
     }
 
-    public function query(Query $query)
+    public function query(Query $query): PromiseInterface
     {
         $id = $query->name . ':' . $query->type . ':' . $query->class;
 
