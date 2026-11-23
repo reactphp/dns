@@ -30,6 +30,8 @@ class ConfigTest extends TestCase
         $config = Config::loadResolvConfBlocking(__DIR__ . '/../Fixtures/etc/resolv.conf');
 
         $this->assertEquals(['8.8.8.8'], $config->nameservers);
+        $this->assertEquals(4, $config->options->attempts);
+        $this->assertEquals(29, $config->options->timeout);
     }
 
     public function testLoadThrowsWhenPathIsInvalid()
