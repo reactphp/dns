@@ -103,6 +103,103 @@ nameserver localhost
         $this->assertEquals($expected, $config->nameservers);
     }
 
+    public function testLoadsFromPowershellOnWindows()
+    {
+        if (DIRECTORY_SEPARATOR !== '\\') {
+            // PowerShell is Windows-only tool and not supported on other platforms
+            // Unix is our main platform, so we don't want to report a skipped test here (yellow)
+            // $this->markTestSkipped('Only on Windows');
+            $this->expectOutputString('');
+            return;
+        }
+
+        $config = Config::loadPowershellBlocking();
+
+        $this->assertInstanceOf(Config::class, $config);
+    }
+
+    public function testLoadsSingleEntryFromPowershellOutput()
+    {
+        $contents = '192.168.2.1';
+        $expected = ['192.168.2.1'];
+
+        $config = Config::loadPowershellBlocking($this->echoCommand($contents));
+
+        $this->assertEquals($expected, $config->nameservers);
+    }
+
+    public function testLoadsEmptyListFromPowershellOutput()
+    {
+        $contents = '';
+        $expected = [];
+
+        $config = Config::loadPowershellBlocking($this->echoCommand($contents));
+
+        $this->assertEquals($expected, $config->nameservers);
+    }
+
+    public function testLoadsMultipleEntriesFromPowershellOutput()
+    {
+        $contents = "192.168.2.1\n192.168.2.2\n8.8.8.8";
+        $expected = ['192.168.2.1', '192.168.2.2', '8.8.8.8'];
+
+        $config = Config::loadPowershellBlocking($this->echoCommand($contents));
+
+        $this->assertEquals($expected, $config->nameservers);
+    }
+
+    public function testLoadsIpv6FromPowershellOutput()
+    {
+        $contents = "::1\nfe80::1\n192.168.2.1";
+        $expected = ['::1', 'fe80::1', '192.168.2.1'];
+
+        $config = Config::loadPowershellBlocking($this->echoCommand($contents));
+
+        $this->assertEquals($expected, $config->nameservers);
+    }
+
+    public function testIgnoresDuplicatesFromPowershellOutput()
+    {
+        $contents = "192.168.2.1\n192.168.2.1\n8.8.8.8";
+        $expected = ['192.168.2.1', '8.8.8.8'];
+
+        $config = Config::loadPowershellBlocking($this->echoCommand($contents));
+
+        $this->assertEquals($expected, $config->nameservers);
+    }
+
+    public function testIgnoresInvalidEntriesFromPowershellOutput()
+    {
+        $contents = "192.168.2.1\ninvalid\nlocalhost\n8.8.8.8";
+        $expected = ['192.168.2.1', '8.8.8.8'];
+
+        $config = Config::loadPowershellBlocking($this->echoCommand($contents));
+
+        $this->assertEquals($expected, $config->nameservers);
+    }
+
+    public function testIgnoresEmptyLinesFromPowershellOutput()
+    {
+        $contents = "192.168.2.1\n\n\n8.8.8.8\n";
+        $expected = ['192.168.2.1', '8.8.8.8'];
+
+        $config = Config::loadPowershellBlocking($this->echoCommand($contents));
+
+        $this->assertEquals($expected, $config->nameservers);
+    }
+
+    public function testIgnoresWindowsPlaceholderDnsFromPowershellOutput()
+    {
+        // Windows uses fec0:0:0:ffff::1/2/3 as placeholder DNS for unconfigured interfaces
+        $contents = "fec0:0:0:ffff::1\nfec0:0:0:ffff::2\nfec0:0:0:ffff::3\n192.168.178.1\n8.8.8.8";
+        $expected = ['192.168.178.1', '8.8.8.8'];
+
+        $config = Config::loadPowershellBlocking($this->echoCommand($contents));
+
+        $this->assertEquals($expected, $config->nameservers);
+    }
+
+
     public function testLoadsFromWmicOnWindows()
     {
         if (DIRECTORY_SEPARATOR !== '\\') {
@@ -116,6 +213,21 @@ nameserver localhost
         $config = Config::loadWmicBlocking();
 
         $this->assertInstanceOf(Config::class, $config);
+    }
+
+    public function testWmicReturnsEmptyWhenCommandFails()
+    {
+        $config = Config::loadWmicBlocking($this->echoCommand(''));
+
+        $this->assertEquals([], $config->nameservers);
+    }
+
+    public function testPowershellFallbackReturnsValidResults()
+    {
+        $contents = "192.168.2.1\n8.8.8.8";
+        $config = Config::loadPowershellBlocking($this->echoCommand($contents));
+
+        $this->assertEquals(['192.168.2.1', '8.8.8.8'], $config->nameservers);
     }
 
     public function testLoadsSingleEntryFromWmicOutput()

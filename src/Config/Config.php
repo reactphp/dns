@@ -28,9 +28,17 @@ final class Config
      */
     public static function loadSystemConfigBlocking()
     {
-        // Use WMIC output on Windows
+        /* Use WMIC or PowerShell on Windows
+         * WMIC is faster where available, but was removed in Windows 11 24H2+
+         * PowerShell is slower, but is available on all Windows versions
+         */
         if (DIRECTORY_SEPARATOR === '\\') {
-            return self::loadWmicBlocking();
+            $config = self::loadWmicBlocking();
+            if ($config->nameservers) {
+                return $config;
+            }
+
+            return self::loadPowershellBlocking();;
         }
 
         // otherwise (try to) load from resolv.conf
@@ -100,6 +108,55 @@ final class Config
         return $config;
     }
 
+      /**
+       * Loads the DNS configurations using Windows PowerShell
+       *
+       * Note that this method blocks while loading the given command and should
+       * thus be used with care! While this should be relatively fast for normal
+       * PowerShell commands, it remains unknown if this may block under certain
+       * circumstances. In particular, this method should only be executed before
+       * the loop starts, not while it is running.
+       *
+       * Note that this method will only try to execute the given command and try to
+       * parse its output, irrespective of whether this command exists. In
+       * particular, this method requires the DnsClient module which is only available
+       * on Windows 8/Server 2012 and later. Currently, this will only parse valid
+       * nameserver entries from the command output and will ignore all other output
+       * without complaining.
+       *
+       * Note that the previous section implies that this may return an empty
+       * `Config` object if no valid nameserver entries can be found.
+       *
+       * @param ?string $command (advanced) should not be given (NULL) unless you know what you're doing
+       * @return self
+       * @link https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientserveraddress
+       */
+    public static function loadPowershellBlocking($command = null)
+    {
+        $contents = shell_exec($command === null ? 'powershell -NoLogo -NoProfile -NonInteractive -Command "Get-DnsClientServerAddress | Select-Object -ExpandProperty ServerAddresses"' : $command);
+
+        $config = new self();
+        if ($contents !== null) {
+            foreach (explode("\n", $contents) as $line) {
+                $ip = trim($line);
+                if ($ip === '' || @inet_pton($ip) === false) {
+                    continue;
+                }
+
+                // skip Windows placeholder DNS addresses (fec0:0:0:ffff::1, ::2, ::3)
+                // these are added to interfaces without explicit DNS configuration and don't resolve anything
+                if (preg_match('/^fec0:0:0:ffff::/i', $ip)) {
+                    continue;
+                }
+
+                $config->nameservers[] = $ip;
+            }
+            $config->nameservers = array_values(array_unique($config->nameservers));
+        }
+
+        return $config;
+    }
+
     /**
      * Loads the DNS configurations from Windows's WMIC (from the given command or default command)
      *
@@ -113,7 +170,10 @@ final class Config
      * parse its output, irrespective of whether this command exists. In
      * particular, this command is only available on Windows. Currently, this
      * will only parse valid nameserver entries from the command output and will
-     * ignore all other output without complaining.
+     * ignore all other output swithout complaining.
+     *
+     * Note that WMIC has been deprecated and removed in recent Windows versions
+     * (Windows 11 24H2+). Consider using loadPowershellBlocking() instead.
      *
      * Note that the previous section implies that this may return an empty
      * `Config` object if no valid nameserver entries can be found.
@@ -121,11 +181,12 @@ final class Config
      * @param ?string $command (advanced) should not be given (NULL) unless you know what you're doing
      * @return self
      * @link https://ss64.com/nt/wmic.html
+     * @deprecated WMIC is deprecated on Windows, use loadPowershellBlocking() instead
      */
     public static function loadWmicBlocking($command = null)
     {
-        $contents = shell_exec($command === null ? 'wmic NICCONFIG get "DNSServerSearchOrder" /format:CSV' : $command);
-        preg_match_all('/(?<=[{;,"])([\da-f.:]{4,})(?=[};,"])/i', $contents, $matches);
+        $contents = shell_exec($command === null ? 'wmic NICCONFIG get "DNSServerSearchOrder" /format:CSV 2>nul' : $command);
+        preg_match_all('/(?<=[{;,"])([\da-f.:]{4,})(?=[};,"])/i', $contents ?? '', $matches);
 
         $config = new self();
         $config->nameservers = $matches[1];
